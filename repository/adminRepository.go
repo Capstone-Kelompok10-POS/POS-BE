@@ -40,9 +40,9 @@ func (repository *AdminRepositoryImpl) Create(admin *domain.Admin) (*domain.Admi
 
 func (repository *AdminRepositoryImpl) Update(admin *domain.Admin, id int) (*domain.Admin, error) {
 	result := repository.DB.Table("admins").Where("id = ?", id).Updates(domain.Admin{
-		FullName:           admin.FullName,
-		Username:          admin.Username,
-		Password:       admin.Password})
+		FullName: admin.FullName,
+		Username: admin.Username,
+		Password: admin.Password})
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -54,6 +54,7 @@ func (repository *AdminRepositoryImpl) FindById(id int) (*domain.Admin, error) {
 	admin := domain.Admin{}
 
 	result := repository.DB.First(&admin, id)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
