@@ -12,7 +12,6 @@ type SuperAdmin struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Name           string `json:"name"`
 	Username       string `json:"username"`
 	Password       string `json:"password"`
 	Admin 	   []Admin `gorm:"foreignKey:SuperAdminID"`
