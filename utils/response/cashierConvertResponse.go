@@ -29,3 +29,4 @@ func CashierDomainToCashierResponse(cashier *domain.Cashier) web.CashierResponse
 		Username: cashier.Username,
 	}
 }
+
