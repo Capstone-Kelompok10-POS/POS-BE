@@ -11,3 +11,15 @@ type AdminResponse struct {
 	FullName string `json:"fullname"`
 	Username string `json:"username"`
 }
+
+type CashierLoginResponse struct {
+	Username string `json:"username"`
+	Token string `json:"token"`
+}
+
+type CashierResponse struct {
+	ID uint `json:"id"`
+	Admin_ID uint `json:"admin_ID"`
+	Fullname string `json:"fullname"`
+	Username string `json:"username"`
+}
