@@ -35,7 +35,8 @@ func ConnectDB() {
 
 func Migrate() {
 	err := DB.AutoMigrate(&schema.SuperAdmin{},
-		&schema.Admin{})
+		&schema.Admin{},
+		&schema.ConvertPoint{})
 	if err != nil {
 		log.Fatal("Failed to Migrate Database")
 	}
