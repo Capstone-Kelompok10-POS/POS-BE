@@ -6,7 +6,7 @@ import (
 	"qbills/models/web"
 )
 
-func ProductTypeDomainToProductTypeResponse(productType domain.ProductType) *web.ProductTypeResponse {
+func ProductTypeDomainToProductTypeResponse(productType *domain.ProductType) *web.ProductTypeResponse {
 	return &web.ProductTypeResponse{
 		ID:              productType.ID,
 		TypeName:        productType.TypeName,

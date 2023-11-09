@@ -40,7 +40,7 @@ func (repository *ProductTypeRepositoryImpl) Create(productType *domain.ProductT
 }
 
 func (repository *ProductTypeRepositoryImpl) Update(productType *domain.ProductType, id uint) (*domain.ProductType, error) {
-	result := repository.DB.Table("ProductType").Where("id = ?", id).Updates(domain.ProductType{
+	result := repository.DB.Table("product_types").Where("id = ?", id).Updates(domain.ProductType{
 		TypeName:        productType.TypeName,
 		TypeDescription: productType.TypeDescription,
 	})
@@ -55,7 +55,7 @@ func (repository *ProductTypeRepositoryImpl) Update(productType *domain.ProductT
 func (repository *ProductTypeRepositoryImpl) FindById(id uint) (*domain.ProductType, error) {
 	productType := domain.ProductType{}
 
-	result := repository.DB.First(&productType, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&productType, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -65,22 +65,19 @@ func (repository *ProductTypeRepositoryImpl) FindById(id uint) (*domain.ProductT
 }
 
 func (repository *ProductTypeRepositoryImpl) FindAll() ([]domain.ProductType, error) {
-	productType := []domain.ProductType{}
+	productTypes := []domain.ProductType{}
 
-	result := repository.DB.Find(&productType)
-
-	if result.Error != nil {
-		return nil, result.Error
-
+	if err := repository.DB.Where("deleted_at IS NULL").Find(&productTypes).Error; err != nil {
+		return nil, err
 	}
 
-	return productType, nil
+	return productTypes, nil
 }
 
 func (repository *ProductTypeRepositoryImpl) FindByName(name string) (*domain.ProductType, error) {
 	productType := domain.ProductType{}
 
-	result := repository.DB.Where("LOWER(typeName) LIKE LOWER(?)", "%"+name+"%").First(&productType)
+	result := repository.DB.Where("deleted_at IS NULL").Where("LOWER(typeName) LIKE LOWER(?)", "%"+name+"%").First(&productType)
 
 	if result.Error != nil {
 		return nil, result.Error
