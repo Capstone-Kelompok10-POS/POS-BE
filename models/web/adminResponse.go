@@ -6,8 +6,8 @@ type AdminLoginResponse struct {
 }
 
 type AdminResponse struct {
-	ID       uint   `json:"id"`
-	SuperAdminID uint `json:"superAdminID"`
-	FullName string `json:"fullname"`
-	Username string `json:"username"`
+	ID           uint   `json:"id"`
+	SuperAdminID uint   `json:"superAdminID"`
+	FullName     string `json:"fullname"`
+	Username     string `json:"username"`
 }

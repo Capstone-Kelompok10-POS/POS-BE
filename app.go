@@ -34,6 +34,7 @@ func main() {
 
 	routes.AdminRoutes(myApp, drivers.DB, validate)
 	routes.SuperAdminRoutes(myApp, drivers.DB, validate)
+	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())
@@ -43,5 +44,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":8080"))
+	myApp.Logger.Fatal(myApp.Start(":8005"))
 }
