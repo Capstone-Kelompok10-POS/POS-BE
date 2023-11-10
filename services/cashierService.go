@@ -17,6 +17,9 @@ type CashierService interface {
 	CreateCashier(ctx echo.Context, request web.CashierCreateRequest) (*domain.Cashier, error)
 	UpdateCashier(ctx echo.Context, request web.CashierUpdateRequest, id int) (*domain.Cashier, error)
 	FindById(ctx echo.Context, id int) (*domain.Cashier, error)
+	FindAll(ctx echo.Context) ([]domain.Cashier, error)
+	FindByName(ctx echo.Context, name string) (*domain.Cashier, error)
+	DeleteCashier(ctx echo.Context, id int) error
 }
 
 type CashierServiceImpl struct {
@@ -103,4 +106,36 @@ func (service *CashierServiceImpl) FindById(ctx echo.Context, id int) (*domain.C
 	}
 
 	return existingCashier, nil
+}
+
+func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, error) {
+	cashiers, err := service.CashierRepository.FindAll()
+	if err != nil {
+		return nil, fmt.Errorf("cashier not found")
+	}
+
+	return cashiers, nil
+}
+
+func (service *CashierServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Cashier, error) {
+	cashier, _ := service.CashierRepository.FindByName(name)
+	if cashier == nil {
+		return nil, fmt.Errorf("cashier not found")
+	}
+
+	return cashier, nil
+}
+
+func (service *CashierServiceImpl) DeleteCashier(ctx echo.Context, id int) error {
+	existingCashier, _ := service.CashierRepository.FindById(id)
+	if existingCashier == nil {
+		return fmt.Errorf("cashier not found")
+	}
+
+	err := service.CashierRepository.Delete(id)
+	if err != nil {
+		return fmt.Errorf("error deleting cashier: %s", err)
+	}
+
+	return nil
 }

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"qbills/models/domain"
+	"qbills/models/schema"
 
 	req "qbills/utils/request"
 	res "qbills/utils/response"
@@ -13,7 +14,10 @@ type CashierRepository interface {
 	Create(cashier *domain.Cashier) (*domain.Cashier, error)
 	FindByUsername(username string) (*domain.Cashier, error)
 	FindById(id int) (*domain.Cashier, error)
+	FindAll() ([]domain.Cashier, error)
+	FindByName(name string) (*domain.Cashier, error)
 	Update(cashier *domain.Cashier, id int) (*domain.Cashier, error)
+	Delete(id int) error
 }
 
 type CashierRepositoryImpl struct {
@@ -56,6 +60,27 @@ func (repository *CashierRepositoryImpl) FindByUsername(username string) (*domai
 	return &cashier, nil
 }
 
+func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
+	cashier := []domain.Cashier{}
+
+	result := repository.DB.Find(&cashier)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return cashier, nil
+}
+
+func (repository *CashierRepositoryImpl) FindByName(name string) (*domain.Cashier, error) {
+	cashier := domain.Cashier{}
+	
+	result := repository.DB.Where("LOWER(name) LIKE LOWER(?)", "%"+name+"%").First(&cashier)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &cashier, nil
+}
+
 func (repository *CashierRepositoryImpl) Update(cashier *domain.Cashier, id int) (*domain.Cashier, error) {
 	result := repository.DB.Table("cashier").Where("id = ?", id).Updates(domain.Cashier{
 		Fullname: cashier.Fullname,
@@ -66,4 +91,12 @@ func (repository *CashierRepositoryImpl) Update(cashier *domain.Cashier, id int)
 	}
 
 	return cashier, nil
+}
+
+func (repository *CashierRepositoryImpl) Delete(id int) error {
+	result := repository.DB.Delete(&schema.Cashier{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

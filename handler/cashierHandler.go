@@ -14,8 +14,13 @@ import (
 )
 
 type CashierHandler interface {
+	RegisterCashierHandler(ctx echo.Context) error
 	LoginCashierHandler(ctx echo.Context) error
 	UpdateCashierHandler(ctx echo.Context) error
+	DeleteCashierHandler(ctx echo.Context) error
+	GetCashierHandler(ctx echo.Context) error
+	GetCashiersHandler(ctx echo.Context) error
+	GetCashierByNameHandler(ctx echo.Context) error
 }
 
 type CashierHandlerImpl struct {
@@ -24,6 +29,31 @@ type CashierHandlerImpl struct {
 
 func NewCashierHandler(cashierService services.CashierService) CashierHandler {
 	return &CashierHandlerImpl{CashierService: cashierService}
+}
+
+func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
+	cashierCreateRequest := web.CashierCreateRequest{}
+	err := ctx.Bind(&cashierCreateRequest)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid input"))
+	}
+
+	result, err := c.CashierService.CreateCashier(ctx, cashierCreateRequest)
+	if err != nil {
+		if strings.Contains(err.Error(), "validation error") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+		}
+
+		if strings.Contains(err.Error(), "email already exist") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("email already exist"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
+	}
+
+	response := res.CashierDomainToCashierResponse(result)
+
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("successfully created account cashier", response))
 }
 
 func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
@@ -59,6 +89,54 @@ func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success sign in", cashierLoginResponse))
 }
 
+func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
+	cashierId := ctx.Param("id")
+	cashierIdInt, err := strconv.Atoi(cashierId)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("invalid param id"))
+	}
+
+	result, err := c.CashierService.FindById(ctx, cashierIdInt)
+	if err != nil {
+		if strings.Contains(err.Error(), "cashier not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
+		}
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get Cashier data error"))
+	}
+	response := res.CashierDomainToCashierResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully get data cashier", response))
+}
+
+func (c CashierHandlerImpl) GetCashierByNameHandler(ctx echo.Context) error {
+	cashierName := ctx.Param("name")
+
+	result, err := c.CashierService.FindByName(ctx, cashierName)
+	if err != nil {
+		if strings.Contains(err.Error(), "cashier not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("ccashier not found"))
+		}
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashier data by name error"))
+	}
+	response := res.CashierDomainToCashierResponse(result)
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully get cashier data by name", response))
+}
+
+func (c CashierHandlerImpl) GetCashiersHandler(ctx echo.Context) error {
+	result, err := c.CashierService.FindAll(ctx)
+	if err != nil {
+		if strings.Contains(err.Error(), "cashiers not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashiers not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashiers data error"))
+	}
+
+	response := res.ConvertCashierResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get All data cashiers", response))
+}
+
 func (c CashierHandlerImpl) UpdateCashierHandler(ctx echo.Context) error {
 	cashierId := ctx.Param("id")
 	cashierIdInt, err := strconv.Atoi(cashierId)
@@ -89,4 +167,23 @@ func (c CashierHandlerImpl) UpdateCashierHandler(ctx echo.Context) error {
 
 	response := res.CashierDomainToCashierResponse(results)
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully updated data admin", response))
+}
+
+func (c CashierHandlerImpl) DeleteCashierHandler(ctx echo.Context) error {
+	cashierId := ctx.Param("id")
+	cashierIdInt, err := strconv.Atoi(cashierId)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("invalid param id"))
+	}
+
+	err = c.CashierService.DeleteCashier(ctx, cashierIdInt)
+	if err != nil {
+		if strings.Contains(err.Error(), "cashier not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data cashier error"))
+	}
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete cashier", nil))
 }

@@ -30,3 +30,17 @@ func CashierDomainToCashierResponse(cashier *domain.Cashier) web.CashierResponse
 	}
 }
 
+func ConvertCashierResponse(cashiers []domain.Cashier) []web.CashierResponse {
+	var results []web.CashierResponse
+	for _, cashier := range cashiers {
+		cashierResponse := web.CashierResponse{
+			ID: cashier.ID,
+			Admin_ID: cashier.Admin_ID,
+			Fullname: cashier.Fullname,
+			Username: cashier.Username,
+		}
+		results = append(results, cashierResponse)
+	}
+	return results
+}
+
