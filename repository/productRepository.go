@@ -83,11 +83,14 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
 func (repository *ProductRepositoryImpl) FindByName(name string) ([]*domain.Product, error) {
 	products := []*domain.Product{}
 
-	result := repository.DB.Where("deleted_at IS NULL AND nama_produk LIKE ?", "%"+name+"%").Find(&products)
+	// Menambahkan klausa pencarian berdasarkan nama ke query
+	result := repository.DB.Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&products)
 
+	// Memeriksa kesalahan pada query
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
 	return products, nil
 }
 

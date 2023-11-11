@@ -336,13 +336,13 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 	result, err := c.ProductService.FindByNameProductService(ctx, productName)
 
 	if err != nil {
-		if strings.Contains(err.Error(), "product not found") {
+		if strings.Contains(err.Error(), "failed to find products with the name") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
 		}
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product data by name error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get product data by name"))
 	}
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("succsess get product type by name", result))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product type by name", result))
 }
 
 func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {

@@ -94,13 +94,13 @@ func (service *ProductServiceImpl) FindAllProductService(ctx echo.Context) ([]do
 }
 
 func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, name string) ([]*domain.Product, error) {
-	product, err := service.ProductRepository.FindByName(name)
+	products, err := service.ProductRepository.FindByName(name)
 
 	if err != nil {
-		return nil, fmt.Errorf("Product not found with the name")
+		return nil, fmt.Errorf("failed to find products with the name %s: %s", name, err.Error())
 	}
 
-	return product, err
+	return products, nil
 }
 
 func (service *ProductServiceImpl) DeleteProductService(ctx echo.Context, id uint) error {
