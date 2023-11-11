@@ -342,7 +342,9 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get product data by name"))
 	}
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product type by name", result))
+	response := res.ConvertProductResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product type by name", response))
 }
 
 func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {

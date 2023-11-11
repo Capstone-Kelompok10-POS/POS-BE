@@ -15,7 +15,7 @@ type ProductService interface {
 	CreateProductService(ctx echo.Context, request web.ProductCreateRequest) (*domain.Product, error)
 	UpdateProductService(ctx echo.Context, request web.ProductUpdateRequest, id uint) (*domain.Product, error)
 	FindByIdProductService(ctx echo.Context, id uint) (*domain.Product, error)
-	FindByNameProductService(ctx echo.Context, name string) ([]*domain.Product, error)
+	FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error)
 	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
 }
@@ -93,7 +93,7 @@ func (service *ProductServiceImpl) FindAllProductService(ctx echo.Context) ([]do
 	return product, nil
 }
 
-func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, name string) ([]*domain.Product, error) {
+func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error) {
 	products, err := service.ProductRepository.FindByName(name)
 
 	if err != nil {

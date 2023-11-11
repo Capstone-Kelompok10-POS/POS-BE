@@ -13,7 +13,7 @@ type ProductRepository interface {
 	Update(request *domain.Product, id uint) (*domain.Product, error)
 	FindById(id uint) (*domain.Product, error)
 	FindAll() ([]domain.Product, error)
-	FindByName(name string) ([]*domain.Product, error)
+	FindByName(name string) ([]domain.Product, error)
 	Delete(id uint) error
 }
 
@@ -80,11 +80,11 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
 	return product, nil
 }
 
-func (repository *ProductRepositoryImpl) FindByName(name string) ([]*domain.Product, error) {
-	products := []*domain.Product{}
+func (repository *ProductRepositoryImpl) FindByName(name string) ([]domain.Product, error) {
+	products := []domain.Product{}
 
 	// Menambahkan klausa pencarian berdasarkan nama ke query
-	result := repository.DB.Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&products)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&products)
 
 	// Memeriksa kesalahan pada query
 	if result.Error != nil {
