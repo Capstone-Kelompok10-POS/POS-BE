@@ -18,7 +18,6 @@ func ProductTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) 
 	productTypeService := services.NewProductTypeService(productTypeRepository, validate)
 	ProductTypeHandler := handler.NewProductTypeHandler(productTypeService)
 
-
 	adminGroup := e.Group("api/v1/product-type")
 
 	adminGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
