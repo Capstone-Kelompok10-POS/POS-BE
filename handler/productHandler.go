@@ -309,7 +309,9 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 
 	response := res.ProductDomainToProductResponse(product)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", response))
+	responseCustom := res.ProductResponseToProductCostumResponse(response)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", responseCustom))
 }
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {

@@ -63,16 +63,18 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 	}
 }
 
-func ConvertProductResponse(products []domain.Product) []web.ProductResponse {
-	var results []web.ProductResponse
+func ConvertProductResponse(products []domain.Product) []web.ProductResponseCustom {
+	var results []web.ProductResponseCustom
 
 	for _, product := range products {
-		productResponse := web.ProductResponse{
+
+		Admins := AdminDomainToAdminDomainResponse(product.Admin)
+		productResponse := web.ProductResponseCustom{
 			ID:            product.ID,
 			ProductTypeID: product.ProductTypeID,
 			ProductType:   product.ProductType,
 			AdminID:       product.AdminID,
-			Admin:         product.Admin,
+			Admin:         Admins,
 			Name:          product.Name,
 			Description:   product.Description,
 			Price:         product.Price,
@@ -82,7 +84,43 @@ func ConvertProductResponse(products []domain.Product) []web.ProductResponse {
 		}
 		results = append(results, productResponse)
 	}
-
 	return results
+}
 
+func ProductResponseToProductCostumResponse(product web.ProductResponse) web.ProductResponseCustom {
+
+	admin := AdminDomainToAdminDomainResponse(product.Admin)
+
+	return web.ProductResponseCustom{
+		ID:            product.ID,
+		ProductTypeID: product.ProductTypeID,
+		ProductType:   product.ProductType,
+		AdminID:       product.AdminID,
+		Admin:         admin,
+		Name:          product.Name,
+		Description:   product.Description,
+		Price:         product.Price,
+		Stock:         product.Stock,
+		Size:          product.Size,
+		Image:         product.Image,
+	}
+}
+
+func ProductResponseToProductsCostumResponse(product web.ProductResponse) web.ProductResponseCustom {
+
+	admin := AdminDomainToAdminDomainResponse(product.Admin)
+
+	return web.ProductResponseCustom{
+		ID:            product.ID,
+		ProductTypeID: product.ProductTypeID,
+		ProductType:   product.ProductType,
+		AdminID:       product.AdminID,
+		Admin:         admin,
+		Name:          product.Name,
+		Description:   product.Description,
+		Price:         product.Price,
+		Stock:         product.Stock,
+		Size:          product.Size,
+		Image:         product.Size,
+	}
 }

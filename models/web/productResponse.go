@@ -16,6 +16,20 @@ type ProductResponse struct {
 	Image         string             `json:"image"`
 }
 
+type ProductResponseCustom struct {
+	ID            uint                 `json:"ID"`
+	ProductTypeID uint                 `json:"productTypeID"`
+	ProductType   domain.ProductType   `json:"productType"`
+	AdminID       uint                 `json:"adminID"`
+	Admin         domain.AdminResponse `json:"admin"`
+	Name          string               `json:"name"`
+	Description   string               `json:"description" gorm:"not null"`
+	Price         float64              `json:"price" gorm:"type:decimal(10,2);not null"`
+	Stock         uint                 `json:"stock"`
+	Size          string               `json:"size"`
+	Image         string               `json:"image"`
+}
+
 type ProductCreateResponse struct {
 	ID            uint    `json:"ID"`
 	ProductTypeID uint    `json:"productTypeID"`
