@@ -1,12 +1,16 @@
 package routes
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+	"os"
 	"qbills/handler"
 	"qbills/repository"
 	"qbills/services"
+	"qbills/utils/helpers/middleware"
+
+	"github.com/go-playground/validator"
+	echoJwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func ProductTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
@@ -14,12 +18,13 @@ func ProductTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) 
 	productTypeService := services.NewProductTypeService(productTypeRepository, validate)
 	ProductTypeHandler := handler.NewProductTypeHandler(productTypeService)
 
-	Group := e.Group("api/v1/productType")
+	adminGroup := e.Group("api/v1/product-type")
 
-	Group.POST("", ProductTypeHandler.CreateProductTypeHandler)
-	Group.GET("", ProductTypeHandler.GetProductTypesHandler)
-	Group.GET("/:id", ProductTypeHandler.GetProductTypeHandler)
-	Group.GET("/search/:name", ProductTypeHandler.GetProductTypeByName)
-	Group.PUT("/:id", ProductTypeHandler.UpdateProductTypeHandler)
-	Group.DELETE("/:id", ProductTypeHandler.DeleteProductTypeHandler)
+	adminGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
+
+	adminGroup.POST("", ProductTypeHandler.CreateProductTypeHandler, middleware.AuthMiddleware("Admin"))
+	adminGroup.GET("", ProductTypeHandler.GetProductTypesHandler, middleware.AuthMiddleware("Admin"))
+	adminGroup.GET("/:id", ProductTypeHandler.GetProductTypeHandler, middleware.AuthMiddleware("Admin"))
+	adminGroup.PUT("/:id", ProductTypeHandler.UpdateProductTypeHandler, middleware.AuthMiddleware("Admin"))
+	adminGroup.DELETE("/:id", ProductTypeHandler.DeleteProductTypeHandler, middleware.AuthMiddleware("Admin"))
 }

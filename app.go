@@ -34,6 +34,7 @@ func main() {
 	})
 
 	routes.AdminRoutes(myApp, drivers.DB, validate)
+	routes.SuperAdminRoutes(myApp, drivers.DB, validate)
 	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
 	routes.ProductRoutes(myApp, drivers.DB, validate)
 
@@ -45,5 +46,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":8005"))
+	myApp.Logger.Fatal(myApp.Start(":8080"))
 }

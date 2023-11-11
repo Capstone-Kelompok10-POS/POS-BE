@@ -28,7 +28,7 @@ func NewAdminRepository(DB *gorm.DB) AdminRepository {
 }
 
 func (repository *AdminRepositoryImpl) Create(admin *domain.Admin) (*domain.Admin, error) {
-	adminDB := req.AdminDomaintoAdminSchema(*admin)
+	adminDB := req.AdminDomainToAdminSchema(*admin)
 	result := repository.DB.Create(&adminDB)
 	if result.Error != nil {
 		return nil, result.Error
@@ -84,7 +84,7 @@ func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 
 func (repository *AdminRepositoryImpl) FindByName(name string) (*domain.Admin, error) {
 	admin := domain.Admin{}
-	result := repository.DB.Where("LOWER(name) LIKE LOWER(?)", "%"+name+"%").First(&admin)
+	result := repository.DB.Where("LOWER(full_name) LIKE LOWER(?)", "%"+name+"%").First(&admin)
 
 	if result.Error != nil {
 		return nil, result.Error
