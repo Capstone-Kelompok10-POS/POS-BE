@@ -14,9 +14,12 @@ func ProductTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) 
 	productTypeService := services.NewProductTypeService(productTypeRepository, validate)
 	ProductTypeHandler := handler.NewProductTypeHandler(productTypeService)
 
-	e.POST("/productType", ProductTypeHandler.CreateProductTypeHandler)
-	e.GET("/productTypes", ProductTypeHandler.GetProductTypesHandler)
-	e.GET("/productType/:id", ProductTypeHandler.GetProductTypeHandler)
-	e.PUT("/productType/:id", ProductTypeHandler.UpdateProductTypeHandler)
-	e.DELETE("/productType/:id", ProductTypeHandler.DeleteProductTypeHandler)
+	Group := e.Group("api/v1/productType")
+
+	Group.POST("", ProductTypeHandler.CreateProductTypeHandler)
+	Group.GET("", ProductTypeHandler.GetProductTypesHandler)
+	Group.GET("/:id", ProductTypeHandler.GetProductTypeHandler)
+	Group.GET("/search/:name", ProductTypeHandler.GetProductTypeByName)
+	Group.PUT("/:id", ProductTypeHandler.UpdateProductTypeHandler)
+	Group.DELETE("/:id", ProductTypeHandler.DeleteProductTypeHandler)
 }

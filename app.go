@@ -1,21 +1,22 @@
 package main
 
 import (
+	"github.com/go-playground/validator"
+	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"log"
 	"net/http"
 	"os"
 	"qbills/drivers"
 	"qbills/routes"
-
-	"github.com/go-playground/validator"
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"qbills/utils/helpers"
 )
 
 func main() {
 	myApp := echo.New()
 	validate := validator.New()
+	helpers.ConnectAWS()
 
 	_, err := os.Stat(".env")
 	if err == nil {
@@ -34,6 +35,7 @@ func main() {
 
 	routes.AdminRoutes(myApp, drivers.DB, validate)
 	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
+	routes.ProductRoutes(myApp, drivers.DB, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())
