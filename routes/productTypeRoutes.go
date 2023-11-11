@@ -14,9 +14,12 @@ func ProductTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) 
 	productTypeService := services.NewProductTypeService(productTypeRepository, validate)
 	ProductTypeHandler := handler.NewProductTypeHandler(productTypeService)
 
-	e.POST("/productType", ProductTypeHandler.CreateProductTypeHandler)
-	e.GET("/productTypes", ProductTypeHandler.GetProductTypesHandler)
-	e.GET("/productType/:id", ProductTypeHandler.GetProductTypeHandler)
-	e.PUT("/productType/:id", ProductTypeHandler.UpdateProductTypeHandler)
-	e.DELETE("/productType/:id", ProductTypeHandler.DeleteProductTypeHandler)
+	superAdminGroup := e.Group("api/v1/super-admin")
+
+	superAdminGroup.POST("/login", SuperAdminHandler.LoginSuperAdminHandler)
+
+	superAdminGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
+
+	superAdminGroup.GET("/:id", SuperAdminHandler.GetSuperAdminHandler, middleware.AuthMiddleware("SuperAdmin"))
+	superAdminGroup.GET("s", SuperAdminHandler.GetSuperAdminsHandler, middleware.AuthMiddleware("SuperAdmin"))
 }
