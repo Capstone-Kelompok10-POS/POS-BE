@@ -42,21 +42,13 @@ type CashierUpdateRequest struct {
 //Membership Request 
 type MembershipCreateRequest struct {
 	CashierID	uint	`json:"CashierID"`
-	Fullname	string 	`json:"fullname" validate:"required, min=1, max=255"`
-	Username	string 	`json:"username" validate:"required, min=1"`
+	Name	    string 	`json:"name" validate:"required, min=1, max=255"`
 	Telephone	string	`json:"telephone" validate:"required, min=1, max=15"`
-	Password	string 	`json:"password" validate:"required, min=8"`
-}
-
-type MembershipLoginRequest struct {
-	Username string `json:"username" validate:"required, min=1, max=255"`
-	Password string `json:"password" validate:"required, min=8, max=255"`
 }
 
 type MembershipUpdateRequest struct {
 	CashierID	uint	`json:"CashierID"`
-	Fullname	string 	`json:"fullname" validate:"required, min=1, max=255"`
-	Username	string 	`json:"username" validate:"required, min=1"`
+	Name		string 	`json:"name" validate:"required, min=1, max=255"`
+	Point       uint    `json:"point"`
 	Telephone	string	`json:"telephone" validate:"required, min=1, max=15"`
-	Password	string 	`json:"password" validate:"required, min=8"`
 }

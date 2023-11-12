@@ -26,14 +26,9 @@ type CashierResponse struct {
 }
 
 // Membership Response
-type MembershipLoginResponse struct {
-	Username string `json:"username"`
-	Token    string `json:"token"`
-}
-
 type MembershipResponse struct {
 	ID        uint   `json:"id"`
 	CashierID uint   `json:"CashierID"`
-	FullName  string `json:"fullname"`
-	Username  string `json:"username"`
+	Name      string `json:"name"`
+	Telephone string `json:"telephone"`
 }
