@@ -31,7 +31,7 @@ func AdminUpdateRequestToAdminDomain(request web.AdminUpdateRequest) *domain.Adm
 	}
 }
 
-func AdminDomaintoAdminSchema(request domain.Admin) *schema.Admin {
+func AdminDomainToAdminSchema(request domain.Admin) *schema.Admin {
 	return &schema.Admin{
 		SuperAdminID: request.SuperAdminID,
 		FullName:       request.FullName,
