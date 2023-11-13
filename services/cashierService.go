@@ -43,7 +43,7 @@ func (service *CashierServiceImpl) CreateCashier(ctx echo.Context, request web.C
 
 	existingCashier, _ := service.CashierRepository.FindByUsername(request.Username)
 	if existingCashier != nil {
-		return nil, fmt.Errorf("email already exists")
+		return nil, fmt.Errorf("username already exists")
 	}
 	cashier := req.CashierCreateRequestToCashierDomain(request)
 
@@ -51,7 +51,7 @@ func (service *CashierServiceImpl) CreateCashier(ctx echo.Context, request web.C
 	result, err := service.CashierRepository.Create(cashier)
 
 	if err != nil {
-		return nil, fmt.Errorf("error creating admin %s", err.Error())
+		return nil, fmt.Errorf("error creating cashier %s", err.Error())
 	}
 
 	return result, nil
@@ -65,14 +65,14 @@ func (service *CashierServiceImpl) LoginCashier(ctx echo.Context, request web.Ca
 
 	existingCashier, err := service.CashierRepository.FindByUsername(request.Username)
 	if err != nil {
-		return nil, fmt.Errorf("infalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	cashier := req.CashierLoginRequestToCashierDomain(request)
 
 	err = helpers.ComparePassword(existingCashier.Password, cashier.Password)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	return existingCashier, nil
