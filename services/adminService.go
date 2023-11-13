@@ -42,7 +42,7 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 
 	existingAdmin, _ := service.AdminRepository.FindByUsername(request.Username)
 	if existingAdmin != nil {
-		return nil, fmt.Errorf("email already exists")
+		return nil, fmt.Errorf("username already exists")
 	}
 	admin := req.AdminCreateRequestToAdminDomain(request)
 
@@ -64,14 +64,14 @@ func (service *AdminServiceImpl) LoginAdmin(ctx echo.Context, request web.AdminL
 
 	existingAdmin, err := service.AdminRepository.FindByUsername(request.Username)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	admin := req.AdminLoginRequestToAdminDomain(request)
 
 	err = helpers.ComparePassword(existingAdmin.Password, admin.Password)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	return existingAdmin, nil
