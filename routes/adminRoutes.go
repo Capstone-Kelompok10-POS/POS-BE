@@ -28,6 +28,6 @@ func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	adminGroup.GET("/:id", AdminHandler.GetAdminHandler, middleware.AuthMiddleware("SuperAdmin"))
 	adminGroup.GET("s", AdminHandler.GetAdminsHandler, middleware.AuthMiddleware("SuperAdmin"))
 	adminGroup.GET("/name/:name", AdminHandler.GetAdminByNameHandler, middleware.AuthMiddleware("SuperAdmin"))
-	adminGroup.PUT("/:id", AdminHandler.UpdateAdminHandler, middleware.AuthMiddleware("Admin"), middleware.AuthMiddleware("SuperAdmin"))
-	adminGroup.DELETE("/:id", AdminHandler.DeleteAdminHandler, middleware.AuthMiddleware("Admin"), middleware.AuthMiddleware("SuperAdmin"))
+	adminGroup.PUT("/:id", AdminHandler.UpdateAdminHandler, middleware.AuthMiddleware("Admin"))
+	adminGroup.DELETE("/:id", AdminHandler.DeleteAdminHandler, middleware.AuthMiddleware("Admin"))
 }
