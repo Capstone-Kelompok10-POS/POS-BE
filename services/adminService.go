@@ -44,6 +44,7 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 	if existingAdmin != nil {
 		return nil, fmt.Errorf("username already exists")
 	}
+
 	admin := req.AdminCreateRequestToAdminDomain(request)
 
 	admin.Password = helpers.HashPassword(admin.Password)

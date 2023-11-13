@@ -6,13 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type SuperAdmin struct {
+type ConvertPoint struct {
 	ID        uint           `gorm:"primaryKey"`
 	CreatedAt time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Username       string `json:"username"`
-	Password       string `json:"password"`
-	Admin 	   []Admin `gorm:"foreignKey:SuperAdminID"`
+	Point uint `json:"point"`
+	PointValue int `json:"point_value"`
 }
