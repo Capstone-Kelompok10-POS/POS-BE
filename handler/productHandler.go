@@ -1,13 +1,15 @@
 package handler
 
 import (
+	"cloud.google.com/go/storage"
+	"context"
+	firebase "firebase.google.com/go"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"google.golang.org/api/option"
+	"io"
 	"net/http"
-	"os"
+	"net/url"
 	"path/filepath"
 	"qbills/models/web"
 	"qbills/services"
@@ -36,56 +38,157 @@ func NewProductHandler(ProductService services.ProductService) ProductHandler {
 	return &ProductHandlerImpl{ProductService: ProductService}
 }
 
-func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
-	svc, err := helpers.ConnectAWS()
+func uploadHandler(c echo.Context) error {
+	// Set the path to your service account JSON file
+	serviceAccountKeyPath := "credentials.json"
+
+	// Initialize Firebase Admin SDK
+	opt := option.WithCredentialsFile(serviceAccountKeyPath)
+	_, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error initializing app: %v", err))
 	}
 
-	file, err := ctx.FormFile("image")
+	// Set the destination path in Firebase Storage
+	storagePath := "images/" + time.Now().Format("2006-01-02_15:04:05") + ".png"
+
+	// Open the uploaded file
+	file, err := c.FormFile("file")
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Error reading uploaded file: %v", err))
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error opening uploaded file: %v", err))
 	}
 	defer src.Close()
 
-	uniqueFilename := uuid.New().String() + "_" + time.Now().Format("20060102150405") + filepath.Ext(file.Filename)
-
-	fileExtension := filepath.Ext(uniqueFilename)
-	contentType := "application/octet-stream" // Nilai default jika ekstensi tidak dikenali
-
-	// Daftar ekstensi gambar yang dikenali
-	imageExtensions := map[string]string{
-		".jpg":  "image/jpeg",
-		".jpeg": "image/jpeg",
-		".png":  "image/png",
-		// Tambahkan ekstensi lain jika diperlukan
-	}
-
-	if val, ok := imageExtensions[fileExtension]; ok {
-		contentType = val
-	}
-
-	params := &s3.PutObjectInput{
-		Bucket: aws.String(os.Getenv("AWS_BUCKET_NAME")),
-		Key:    aws.String(uniqueFilename),
-		Body:   src,
-		// Gunakan tipe konten yang ditentukan oleh sistem (berdasarkan ekstensi)
-		ContentType: aws.String(contentType),
-		ACL:         aws.String("public-read"), // Set ACL ke public-read
-	}
-
-	_, err = svc.PutObject(params)
+	// Initialize Google Cloud Storage client
+	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(serviceAccountKeyPath))
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error creating storage client: %v", err))
+	}
+	defer client.Close()
+
+	// Specify the name of your Firebase Storage bucket
+	bucketName := "qbils-d46b3.appspot.com"
+
+	// Set the appropriate MIME type based on the file extension
+	fileExtension := strings.TrimLeft(filepath.Ext(file.Filename), ".")
+	var contentType string
+	switch fileExtension {
+	case "jpg", "jpeg":
+		contentType = "image/jpeg"
+	case "png":
+		contentType = "image/png"
+	default:
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Unsupported file format: %s", fileExtension))
 	}
 
-	// Dapatkan URL file yang diunggah
-	imageURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", os.Getenv("AWS_BUCKET_NAME"), uniqueFilename)
+	// Upload the file to Firebase Storage with the determined content type
+	object := client.Bucket(bucketName).Object(storagePath)
+	wc := object.NewWriter(context.Background())
+	wc.ContentType = contentType
+
+	if _, err := io.Copy(wc, src); err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error copying file to Firebase Storage: %v", err))
+	}
+	if err := wc.Close(); err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error closing writer: %v", err))
+	}
+
+	// Set ACL for public read access after creating the object
+	if err := object.ACL().Set(context.Background(), storage.AllUsers, storage.RoleReader); err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error setting ACL: %v", err))
+	}
+
+	// Get the download URL
+	_, err = object.Attrs(context.Background())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error getting file attributes: %v", err))
+	}
+
+	// Return the read-only URL to the client
+	url := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", bucketName, url.QueryEscape(storagePath))
+	return c.String(http.StatusOK, fmt.Sprintf("File URL (Read-Only): %s", url))
+}
+
+func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
+
+	// Set the path to your service account JSON file
+	serviceAccountKeyPath := "credentials.json"
+
+	// Initialize Firebase Admin SDK
+	opt := option.WithCredentialsFile(serviceAccountKeyPath)
+	_, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error initializing app: %v", err))
+	}
+
+	// Set the destination path in Firebase Storage
+	storagePath := "images/" + time.Now().Format("2006-01-02_15:04:05") + ".png"
+
+	// Open the uploaded file
+	file, err := ctx.FormFile("image")
+	if err != nil {
+		return ctx.String(http.StatusBadRequest, fmt.Sprintf("Error reading uploaded file: %v", err))
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error opening uploaded file: %v", err))
+	}
+	defer src.Close()
+
+	// Initialize Google Cloud Storage client
+	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(serviceAccountKeyPath))
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error creating storage client: %v", err))
+	}
+	defer client.Close()
+
+	// Specify the name of your Firebase Storage bucket
+	bucketName := "qbils-d46b3.appspot.com"
+
+	// Set the appropriate MIME type based on the file extension
+	fileExtension := strings.TrimLeft(filepath.Ext(file.Filename), ".")
+	var contentType string
+	switch fileExtension {
+	case "jpg", "jpeg":
+		contentType = "image/jpeg"
+	case "png":
+		contentType = "image/png"
+	default:
+		return ctx.String(http.StatusBadRequest, fmt.Sprintf("Unsupported file format: %s", fileExtension))
+	}
+
+	// Upload the file to Firebase Storage with the determined content type
+	object := client.Bucket(bucketName).Object(storagePath)
+	wc := object.NewWriter(context.Background())
+	wc.ContentType = contentType
+
+	if _, err := io.Copy(wc, src); err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error copying file to Firebase Storage: %v", err))
+	}
+	if err := wc.Close(); err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error closing writer: %v", err))
+	}
+
+	// Set ACL for public read access after creating the object
+	if err := object.ACL().Set(context.Background(), storage.AllUsers, storage.RoleReader); err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error setting ACL: %v", err))
+	}
+
+	// Get the download URL
+	_, err = object.Attrs(context.Background())
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error getting file attributes: %v", err))
+	}
+
+	// Return the read-only URL to the client
+	url := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", bucketName, url.QueryEscape(storagePath))
+
 	productRequest := new(web.ProductCreateRequest)
 
 	if err := ctx.Bind(productRequest); err != nil {
@@ -93,7 +196,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	}
 
 	productTypeIDStr := ctx.FormValue("productTypeID")
-	productTypeInt, _ := strconv.Atoi(productTypeIDStr)
+	productTypeInt, err := strconv.Atoi(productTypeIDStr)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input product type"))
 	}
@@ -131,7 +234,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	productRequest.Price = price
 	productRequest.Stock = stockUint
 	productRequest.Size = size
-	productRequest.Image = imageURL
+	productRequest.Image = url
 
 	result, err := c.ProductService.CreateProductService(ctx, *productRequest)
 
@@ -153,11 +256,6 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 }
 
 func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
-	svc, err := helpers.ConnectAWS()
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, err)
-	}
-
 	// Mendapatkan ID produk dari path parameter
 	productIDStr := ctx.Param("id")
 	productID, err := strconv.Atoi(productIDStr)
@@ -186,47 +284,74 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 		}
 		defer src.Close()
 
-		uniqueFilename := uuid.New().String() + "_" + time.Now().Format("20060102150405") + filepath.Ext(file.Filename)
+		// Set the path to your service account JSON file
+		serviceAccountKeyPath := "credentials.json"
 
-		fileExtension := filepath.Ext(uniqueFilename)
-		contentType := "application/octet-stream" // Nilai default jika ekstensi tidak dikenali
-
-		// Daftar ekstensi gambar yang dikenali
-		imageExtensions := map[string]string{
-			".jpg":  "image/jpeg",
-			".jpeg": "image/jpeg",
-			".png":  "image/png",
-			// Tambahkan ekstensi lain jika diperlukan
-		}
-
-		if val, ok := imageExtensions[fileExtension]; ok {
-			contentType = val
-		}
-
-		params := &s3.PutObjectInput{
-			Bucket:      aws.String(os.Getenv("AWS_BUCKET_NAME")),
-			Key:         aws.String(uniqueFilename),
-			Body:        src,
-			ContentType: aws.String(contentType),
-			ACL:         aws.String("public-read"),
-		}
-
-		_, err = svc.PutObject(params)
+		// Initialize Firebase Admin SDK
+		opt := option.WithCredentialsFile(serviceAccountKeyPath)
+		_, err = firebase.NewApp(context.Background(), nil, opt)
 		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, err)
+			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error initializing app: %v", err))
 		}
 
-		// Dapatkan URL file yang diunggah
-		imageURL = fmt.Sprintf("https://%s.s3.amazonaws.com/%s", os.Getenv("AWS_BUCKET_NAME"), uniqueFilename)
+		// Set the destination path in Firebase Storage
+		storagePath := "images/" + time.Now().Format("2006-01-02_15:04:05") + filepath.Ext(file.Filename)
+
+		// Initialize Google Cloud Storage client
+		client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(serviceAccountKeyPath))
+		if err != nil {
+			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error creating storage client: %v", err))
+		}
+		defer client.Close()
+
+		// Specify the name of your Firebase Storage bucket
+		bucketName := "qbils-d46b3.appspot.com"
+
+		// Set the appropriate MIME type based on the file extension
+		fileExtension := strings.TrimLeft(filepath.Ext(file.Filename), ".")
+		var contentType string
+		switch fileExtension {
+		case "jpg", "jpeg":
+			contentType = "image/jpeg"
+		case "png":
+			contentType = "image/png"
+		default:
+			return ctx.String(http.StatusBadRequest, fmt.Sprintf("Unsupported file format: %s", fileExtension))
+		}
+
+		// Upload the file to Firebase Storage with the determined content type
+		object := client.Bucket(bucketName).Object(storagePath)
+		wc := object.NewWriter(context.Background())
+		wc.ContentType = contentType
+
+		if _, err := io.Copy(wc, src); err != nil {
+			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error copying file to Firebase Storage: %v", err))
+		}
+		if err := wc.Close(); err != nil {
+			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error closing writer: %v", err))
+		}
+
+		// Set ACL for public read access after creating the object
+		if err := object.ACL().Set(context.Background(), storage.AllUsers, storage.RoleReader); err != nil {
+			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error setting ACL: %v", err))
+		}
+
+		// Get the download URL
+		_, err = object.Attrs(context.Background())
+		if err != nil {
+			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error getting file attributes: %v", err))
+		}
+
+		// Return the read-only URL to the client
+		imageURL = fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", bucketName, url.QueryEscape(storagePath))
 	}
 
+	// Mengonversi nilai-nilai dari request
 	productTypeIDStr := ctx.FormValue("productTypeID")
 	productTypeInt, _ := strconv.Atoi(productTypeIDStr)
-
 	productTypeID := uint(productTypeInt)
 
 	name := ctx.FormValue("name")
-
 	description := ctx.FormValue("description")
 
 	priceStr := ctx.FormValue("price")
@@ -242,29 +367,17 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 
 	size := ctx.FormValue("size")
 
-	// Mendapatkan nilai-nilai dari request
-	productRequest := &web.ProductUpdateRequest{
-		ProductTypeID: productTypeID,
-		Name:          name,
-		Description:   description,
-		Price:         price,
-		Stock:         stockUint,
-		Size:          size,
-		Image:         imageURL,
-	}
-
 	// Mengupdate nilai-nilai produk yang sudah ada
-	existingProduct.ProductTypeID = productRequest.ProductTypeID
-	existingProduct.Name = productRequest.Name
-	existingProduct.Description = productRequest.Description
-	existingProduct.Price = productRequest.Price
-	existingProduct.Stock = productRequest.Stock
-	existingProduct.Size = productRequest.Size
-	existingProduct.Image = productRequest.Image
-
-	req := request.ProductDomainToProductUpdateRequest(existingProduct)
+	existingProduct.ProductTypeID = productTypeID
+	existingProduct.Name = name
+	existingProduct.Description = description
+	existingProduct.Price = price
+	existingProduct.Stock = stockUint
+	existingProduct.Size = size
+	existingProduct.Image = imageURL // Gunakan imageURL yang baru diunggah
 
 	// Lakukan pembaruan data produk ke dalam database
+	req := request.ProductDomainToProductUpdateRequest(existingProduct)
 	result, err := c.ProductService.UpdateProductService(ctx, req, uint(productID))
 
 	result.ID = existingProduct.ID
