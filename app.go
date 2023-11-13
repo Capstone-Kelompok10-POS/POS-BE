@@ -33,6 +33,7 @@ func main() {
 	})
 
 	routes.AdminRoutes(myApp, drivers.DB, validate)
+	routes.CashierRoutes(myApp, drivers.DB, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())

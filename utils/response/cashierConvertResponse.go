@@ -15,7 +15,7 @@ func CashierDomainToCashierLoginResponse(cashier *domain.Cashier) web.CashierLog
 func CashierSchemaToCashierDomain(cashier *schema.Cashier) *domain.Cashier {
 	return &domain.Cashier{
 		ID:       cashier.ID,
-		Admin_ID: cashier.Admin_ID,
+		AdminID: cashier.AdminID,
 		Fullname: cashier.Fullname,
 		Username: cashier.Username,
 	}
@@ -24,7 +24,7 @@ func CashierSchemaToCashierDomain(cashier *schema.Cashier) *domain.Cashier {
 func CashierDomainToCashierResponse(cashier *domain.Cashier) web.CashierResponse {
 	return web.CashierResponse{
 		ID:       cashier.ID,
-		Admin_ID: cashier.Admin_ID,
+		AdminID: cashier.AdminID,
 		Fullname: cashier.Fullname,
 		Username: cashier.Username,
 	}
@@ -35,7 +35,7 @@ func ConvertCashierResponse(cashiers []domain.Cashier) []web.CashierResponse {
 	for _, cashier := range cashiers {
 		cashierResponse := web.CashierResponse{
 			ID: cashier.ID,
-			Admin_ID: cashier.Admin_ID,
+			AdminID: cashier.AdminID,
 			Fullname: cashier.Fullname,
 			Username: cashier.Username,
 		}

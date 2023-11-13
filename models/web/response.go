@@ -19,7 +19,7 @@ type CashierLoginResponse struct {
 
 type CashierResponse struct {
 	ID uint `json:"id"`
-	Admin_ID uint `json:"admin_ID"`
+	AdminID uint `json:"adminID"`
 	Fullname string `json:"fullname"`
 	Username string `json:"username"`
 }
