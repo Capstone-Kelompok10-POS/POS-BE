@@ -28,6 +28,6 @@ func CashierRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	cashierGroup.GET("/:id", CashierHandler.GetCashierHandler, middleware.AuthMiddleware("Admin"))
 	cashierGroup.GET("", CashierHandler.GetCashiersHandler, middleware.AuthMiddleware("Admin"))
 	cashierGroup.GET("/name/:name", CashierHandler.GetCashierByNameHandler, middleware.AuthMiddleware("Admin"))
-	cashierGroup.PUT("/update/:id", CashierHandler.UpdateCashierHandler, middleware.AuthMiddleware("Cashier"))
-	cashierGroup.DELETE("/delete/:id", CashierHandler.DeleteCashierHandler, middleware.AuthMiddleware("Cashier"))
+	cashierGroup.PUT("/:id", CashierHandler.UpdateCashierHandler, middleware.AuthMiddleware("Cashier"))
+	cashierGroup.DELETE("/:id", CashierHandler.DeleteCashierHandler, middleware.AuthMiddleware("Cashier"))
 }
