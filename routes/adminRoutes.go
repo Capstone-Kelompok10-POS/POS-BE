@@ -21,7 +21,7 @@ func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	adminGroup := e.Group("api/v1/admin")
 
 	adminGroup.POST("/login", AdminHandler.LoginAdminHandler)
-
+	
 	adminGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	adminGroup.POST("/register", AdminHandler.RegisterAdminHandler, middleware.AuthMiddleware("SuperAdmin"))
