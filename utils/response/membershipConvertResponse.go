@@ -11,6 +11,7 @@ func MembershipDomainToMembershipResponse(membership *domain.Membership) web.Mem
 		ID:        membership.ID,
 		CashierID: membership.CashierID,
 		Name:      membership.Name,
+		Point: membership.Point,
 		Telephone: membership.Telephone,
 	}
 }

@@ -8,7 +8,7 @@ import (
 
 func CashierCreateRequestToCashierDomain(request web.CashierCreateRequest) *domain.Cashier {
 	return &domain.Cashier{
-		Admin_ID: request.Admin_ID,
+		AdminID: request.AdminID,
 		Fullname: request.Fullname,
 		Username: request.Username,
 		Password: request.Password,
@@ -24,7 +24,7 @@ func CashierLoginRequestToCashierDomain(request web.CashierLoginRequest) *domain
 
 func CashierDomainintoCashierSchema(request domain.Cashier) *schema.Cashier {
 	return &schema.Cashier{
-		Admin_ID: request.Admin_ID,
+		AdminID: request.AdminID,
 		Fullname: request.Fullname,
 		Username: request.Username,
 		Password: request.Password,
@@ -33,7 +33,7 @@ func CashierDomainintoCashierSchema(request domain.Cashier) *schema.Cashier {
 
 func CashierUpdateRequestToCashierDomain(request web.CashierUpdateRequest) *domain.Cashier {
 	return &domain.Cashier{
-		Admin_ID: request.Admin_ID,
+		AdminID: request.AdminID,
 		Fullname: request.Fullname,
 		Username: request.Username,
 		Password: request.Password,

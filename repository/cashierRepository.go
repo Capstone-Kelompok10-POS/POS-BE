@@ -73,7 +73,7 @@ func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
 func (repository *CashierRepositoryImpl) FindByName(name string) (*domain.Cashier, error) {
 	cashier := domain.Cashier{}
 	
-	result := repository.DB.Where("LOWER(name) LIKE LOWER(?)", "%"+name+"%").First(&cashier)
+	result := repository.DB.Where("LOWER(fullname) LIKE LOWER(?)", "%"+name+"%").First(&cashier)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -82,7 +82,7 @@ func (repository *CashierRepositoryImpl) FindByName(name string) (*domain.Cashie
 }
 
 func (repository *CashierRepositoryImpl) Update(cashier *domain.Cashier, id int) (*domain.Cashier, error) {
-	result := repository.DB.Table("cashier").Where("id = ?", id).Updates(domain.Cashier{
+	result := repository.DB.Table("cashiers").Where("id = ?", id).Updates(domain.Cashier{
 		Fullname: cashier.Fullname,
 		Username: cashier.Username,
 		Password: cashier.Password})

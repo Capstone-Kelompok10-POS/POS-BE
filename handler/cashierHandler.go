@@ -44,8 +44,8 @@ func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
 
-		if strings.Contains(err.Error(), "email already exist") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("email already exist"))
+		if strings.Contains(err.Error(), "username already exist") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username already exist"))
 		}
 
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
@@ -70,8 +70,8 @@ func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
 
-		if strings.Contains(err.Error(), "invalid email or password") {
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid email or password"))
+		if strings.Contains(err.Error(), "invalid username or password") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid username or password"))
 		}
 
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign in error"))
@@ -114,7 +114,7 @@ func (c CashierHandlerImpl) GetCashierByNameHandler(ctx echo.Context) error {
 	result, err := c.CashierService.FindByName(ctx, cashierName)
 	if err != nil {
 		if strings.Contains(err.Error(), "cashier not found") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("ccashier not found"))
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashier data by name error"))
 	}

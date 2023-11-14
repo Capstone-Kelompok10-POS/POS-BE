@@ -2,7 +2,7 @@ package domain
 
 type Cashier struct {
 	ID			uint 
-	Admin_ID	uint
+	AdminID	    uint
 	Fullname	string
 	Username 	string
 	Password 	string

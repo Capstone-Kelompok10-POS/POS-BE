@@ -8,6 +8,25 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func GenerateTokenSuperAdmin(SuperAdminID uint) (string, error) {
+	jwtSecret := []byte(os.Getenv("SECRET_KEY"))
+
+	claims := jwt.MapClaims{
+		"id": SuperAdminID,
+		"exp": time.Now().Add(time.Hour * 1).Unix(),
+		"iat": time.Now().Unix(),
+		"role": "SuperAdmin",
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
 
 func GenerateTokenAdmin(AdminID uint) (string, error) {
 	jwtSecret := []byte(os.Getenv("SECRET_KEY"))
@@ -46,6 +65,17 @@ func GenerateTokenCashier(CashierID uint) (string, error) {
 
     return tokenString, nil
 }
+
+func ExtractTokenSuperAdminId(e echo.Context) float64 {
+	user := e.Get("user").(*jwt.Token)
+	if user.Valid {
+		claims := user.Claims.(jwt.MapClaims)
+		SuperAdminId := claims["id"].(float64)
+		return SuperAdminId
+	}
+	return 0
+}
+
 
 func ExtractTokenAdminId(e echo.Context) float64 {
 	user := e.Get("user").(*jwt.Token)

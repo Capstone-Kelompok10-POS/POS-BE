@@ -1,18 +1,16 @@
 package schema
 
 import (
-	"time"
-
 	"gorm.io/gorm"
+	"time"
 )
 
-type SuperAdmin struct {
+type ProductType struct {
 	ID        uint           `gorm:"primaryKey"`
 	CreatedAt time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Username       string `json:"username"`
-	Password       string `json:"password"`
-	Admin 	   []Admin `gorm:"foreignKey:SuperAdminID"`
+	TypeName        string `json:"typeName"`
+	TypeDescription string `json:"typeDescription"`
 }
