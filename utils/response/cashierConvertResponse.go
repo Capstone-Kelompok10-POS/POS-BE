@@ -8,6 +8,7 @@ import (
 
 func CashierDomainToCashierLoginResponse(cashier *domain.Cashier) web.CashierLoginResponse {
 	return web.CashierLoginResponse{
+		Fullname: cashier.Fullname,
 		Username: cashier.Username,
 	}
 }
