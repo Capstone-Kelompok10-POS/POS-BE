@@ -45,8 +45,8 @@ func (c *AdminHandlerImpl) RegisterAdminHandler(ctx echo.Context) error {
 
 		}
 
-		if strings.Contains(err.Error(), "email already exist") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("email already exist"))
+		if strings.Contains(err.Error(), "username already exist") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username already exist"))
 
 		}
 
@@ -72,8 +72,8 @@ func (c *AdminHandlerImpl) LoginAdminHandler(ctx echo.Context) error {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
 
-		if strings.Contains(err.Error(), "invalid email or password") {
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid email or password"))
+		if strings.Contains(err.Error(), "invalid username or password") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid username or password"))
 		}
 
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign in error"))
