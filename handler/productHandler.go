@@ -135,7 +135,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 
 	name := ctx.FormValue("name")
 
-	description := ctx.FormValue("description")
+	ingredient := ctx.FormValue("ingredient")
 
 	priceStr := ctx.FormValue("price")
 
@@ -150,7 +150,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = adminId
 	productRequest.Name = name
-	productRequest.Description = description
+	productRequest.Ingredients = ingredient
 	productRequest.Price = price
 	productRequest.Size = size
 	productRequest.Image = url
@@ -271,7 +271,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	productTypeID := uint(productTypeInt)
 
 	name := ctx.FormValue("name")
-	description := ctx.FormValue("description")
+	ingredient := ctx.FormValue("ingredient")
 
 	priceStr := ctx.FormValue("price")
 	// Mengonversi string ke float64
@@ -285,7 +285,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	// Mengupdate nilai-nilai produk yang sudah ada
 	existingProduct.ProductTypeID = productTypeID
 	existingProduct.Name = name
-	existingProduct.Description = description
+	existingProduct.Ingredients = ingredient
 	existingProduct.Price = price
 	existingProduct.Size = size
 	existingProduct.Image = imageURL // Gunakan imageURL yang baru diunggah

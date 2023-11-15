@@ -43,7 +43,7 @@ func (repository *ProductRepositoryImpl) Update(request *domain.Product, id uint
 	result := repository.DB.Table("products").Where("id = ?", id).Updates(domain.Product{
 		ProductTypeID: request.ProductTypeID,
 		Name:          request.Name,
-		Description:   request.Description,
+		Ingredients:   request.Ingredients,
 		Price:         request.Price,
 		TotalStock:    request.TotalStock,
 		Size:          request.Size,
