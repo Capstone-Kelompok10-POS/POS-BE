@@ -18,7 +18,7 @@ type Product struct {
 	Name          string      `json:"name"`
 	Description   string      `json:"description" gorm:"not null"`
 	Price         float64     `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint        `json:"stock"`
+	TotalStock    int         `json:"totalStock"`
 	Size          string      `json:"size" gorm:"type:ENUM('SMALL', 'MEDIUM', 'LARGE');not null;default:'SMALL'"`
 	Image         string      `json:"image"`
 }

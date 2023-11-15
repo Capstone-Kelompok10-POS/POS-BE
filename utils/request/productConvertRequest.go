@@ -13,7 +13,7 @@ func ProductCreateRequestToProductDomain(request web.ProductCreateRequest) *doma
 		Name:          request.Name,
 		Description:   request.Description,
 		Price:         request.Price,
-		Stock:         request.Stock,
+		TotalStock:    request.TotalStock,
 		Size:          request.Size,
 		Image:         request.Image,
 	}
@@ -25,7 +25,7 @@ func ProductUpdateRequestToProductDomain(request web.ProductUpdateRequest) *doma
 		Name:          request.Name,
 		Description:   request.Description,
 		Price:         request.Price,
-		Stock:         request.Stock,
+		TotalStock:    request.TotalStock,
 		Size:          request.Size,
 		Image:         request.Image,
 	}
@@ -37,7 +37,7 @@ func ProductDomainToProductUpdateRequest(request *domain.Product) web.ProductUpd
 		Name:          request.Name,
 		Description:   request.Description,
 		Price:         request.Price,
-		Stock:         request.Stock,
+		TotalStock:    request.TotalStock,
 		Size:          request.Size,
 		Image:         request.Image,
 	}
@@ -51,7 +51,7 @@ func ProductDomainToProductSchema(request domain.Product) *schema.Product {
 		Name:          request.Name,
 		Description:   request.Description,
 		Price:         request.Price,
-		Stock:         request.Stock,
+		TotalStock:    request.TotalStock,
 		Size:          request.Size,
 		Image:         request.Image,
 	}

@@ -48,7 +48,9 @@ func (c *StockHandlerImpl) CreateIncreaseStockHandler(ctx echo.Context) error {
 
 	response := res.StockDomainToStockResponse(result)
 
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success increase stock", response))
+	responseCustom := res.StockResponseToStockResponseCreate(response)
+
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success increase stock", responseCustom))
 }
 
 func (c *StockHandlerImpl) CreateDecreaseStockHandler(ctx echo.Context) error {
@@ -64,6 +66,8 @@ func (c *StockHandlerImpl) CreateDecreaseStockHandler(ctx echo.Context) error {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+		case strings.Contains(err.Error(), "reduction amount is more than the stock amount"):
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("reduction amount is more than the stock amount"))
 		default:
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to increase stock"))
 		}
@@ -71,7 +75,9 @@ func (c *StockHandlerImpl) CreateDecreaseStockHandler(ctx echo.Context) error {
 
 	response := res.StockDomainToStockResponse(result)
 
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success increase stock", response))
+	responseCustom := res.StockResponseToStockResponseCreate(response)
+
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success increase stock", responseCustom))
 }
 
 func (c *StockHandlerImpl) FindAllStockHandler(ctx echo.Context) error {

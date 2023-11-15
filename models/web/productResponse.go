@@ -11,7 +11,7 @@ type ProductResponse struct {
 	Name          string             `json:"name"`
 	Description   string             `json:"description" gorm:"not null"`
 	Price         float64            `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint               `json:"stock"`
+	TotalStock    int                `json:"totalStock"`
 	Size          string             `json:"size"`
 	Image         string             `json:"image"`
 }
@@ -25,7 +25,7 @@ type ProductResponseCustom struct {
 	Name          string               `json:"name"`
 	Description   string               `json:"description" gorm:"not null"`
 	Price         float64              `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint                 `json:"stock"`
+	TotalStock    int                  `json:"totalStock"`
 	Size          string               `json:"size"`
 	Image         string               `json:"image"`
 }
@@ -37,7 +37,7 @@ type ProductCreateResponse struct {
 	Name          string  `json:"name"`
 	Description   string  `json:"description" gorm:"not null"`
 	Price         float64 `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint    `json:"stock"`
+	TotalStock    int     `json:"totalStock"`
 	Size          string  `json:"size"`
 	Image         string  `json:"image"`
 }
@@ -48,7 +48,7 @@ type ProductUpdateResponse struct {
 	Name          string  `json:"name"`
 	Description   string  `json:"description" gorm:"not null"`
 	Price         float64 `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint    `json:"stock"`
+	TotalStock    int     `json:"totalStock"`
 	Size          string  `json:"size"`
 	Image         string  `json:"image"`
 }

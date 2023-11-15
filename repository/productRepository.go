@@ -45,7 +45,7 @@ func (repository *ProductRepositoryImpl) Update(request *domain.Product, id uint
 		Name:          request.Name,
 		Description:   request.Description,
 		Price:         request.Price,
-		Stock:         request.Stock,
+		TotalStock:    request.TotalStock,
 		Size:          request.Size,
 		Image:         request.Image,
 	})

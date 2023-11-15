@@ -145,10 +145,6 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid price format"})
 	}
 
-	stock := ctx.FormValue("stock")
-	stockValue, _ := strconv.ParseUint(stock, 10, 64)
-	stockUint := uint(stockValue)
-
 	size := ctx.FormValue("size")
 
 	productRequest.ProductTypeID = productTypeID
@@ -156,7 +152,6 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	productRequest.Name = name
 	productRequest.Description = description
 	productRequest.Price = price
-	productRequest.Stock = stockUint
 	productRequest.Size = size
 	productRequest.Image = url
 
@@ -285,10 +280,6 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid price format"})
 	}
 
-	stock := ctx.FormValue("stock")
-	stockValue, _ := strconv.ParseUint(stock, 10, 64)
-	stockUint := uint(stockValue)
-
 	size := ctx.FormValue("size")
 
 	// Mengupdate nilai-nilai produk yang sudah ada
@@ -296,7 +287,6 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	existingProduct.Name = name
 	existingProduct.Description = description
 	existingProduct.Price = price
-	existingProduct.Stock = stockUint
 	existingProduct.Size = size
 	existingProduct.Image = imageURL // Gunakan imageURL yang baru diunggah
 

@@ -20,3 +20,10 @@ type StockResponseCustom struct {
 	Product   domain.ProductPreloadResponse `json:"product"`
 	Stock     int                           `json:"stock"`
 }
+
+type StockResponseCreate struct {
+	ID        uint      `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	ProductID uint      `json:"productID"`
+	Stock     int       `json:"stock"`
+}

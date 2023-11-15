@@ -9,7 +9,7 @@ type Product struct {
 	Name          string
 	Description   string
 	Price         float64
-	Stock         uint
+	TotalStock    int
 	Size          string
 	Image         string
 }
@@ -23,7 +23,7 @@ type ProductResponse struct {
 	Name          string
 	Description   string
 	Price         float64
-	Stock         uint
+	TotalStock    int
 	Size          string
 	Image         string
 }
@@ -35,7 +35,7 @@ type ProductPreloadResponse struct {
 	Name          string
 	Description   string
 	Price         float64
-	Stock         uint
+	TotalStock    int
 	Size          string
 	Image         string
 }

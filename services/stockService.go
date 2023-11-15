@@ -21,14 +21,16 @@ type StockService interface {
 }
 
 type StockServiceImpl struct {
-	StockRepository repository.StockRepository
-	validate        *validator.Validate
+	StockRepository   repository.StockRepository
+	ProductRepository repository.ProductRepository
+	validate          *validator.Validate
 }
 
-func NewStockService(repository repository.StockRepository, validate *validator.Validate) *StockServiceImpl {
+func NewStockService(repository repository.StockRepository, productRepo repository.ProductRepository, validate *validator.Validate) *StockServiceImpl {
 	return &StockServiceImpl{
-		StockRepository: repository,
-		validate:        validate,
+		StockRepository:   repository,
+		ProductRepository: productRepo,
+		validate:          validate,
 	}
 }
 
@@ -42,9 +44,15 @@ func (service *StockServiceImpl) CreateIncreaseStockService(ctx echo.Context, re
 
 	result, err := service.StockRepository.Create(req)
 
+	product, err := service.ProductRepository.FindById(req.ProductID)
+
+	product.TotalStock += req.Stock
+
 	if err != nil {
 		return nil, err
 	}
+
+	_, err = service.ProductRepository.Update(product, req.ProductID)
 
 	return result, nil
 }
@@ -61,9 +69,18 @@ func (service *StockServiceImpl) CreateDecreaseStockService(ctx echo.Context, re
 
 	result, err := service.StockRepository.Create(req)
 
+	product, err := service.ProductRepository.FindById(req.ProductID)
+
+	product.TotalStock += req.Stock
+	if product.TotalStock < 0 {
+		return nil, fmt.Errorf("reduction amount is more than the stock amount")
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
+	_, err = service.ProductRepository.Update(product, req.ProductID)
 
 	return result, nil
 }

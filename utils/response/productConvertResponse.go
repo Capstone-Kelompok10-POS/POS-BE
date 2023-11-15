@@ -14,7 +14,7 @@ func ProductSchemaToProductDomain(product *schema.Product) *domain.Product {
 		Name:          product.Name,
 		Description:   product.Description,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -30,7 +30,7 @@ func ProductDomainToProductResponse(product *domain.Product) web.ProductResponse
 		Name:          product.Name,
 		Description:   product.Description,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -44,7 +44,7 @@ func ProductDomainToProductCreateResponse(product *domain.Product) web.ProductCr
 		Name:          product.Name,
 		Description:   product.Description,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -57,7 +57,7 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 		Name:          product.Name,
 		Description:   product.Description,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -78,7 +78,7 @@ func ConvertProductResponse(products []domain.Product) []web.ProductResponseCust
 			Name:          product.Name,
 			Description:   product.Description,
 			Price:         product.Price,
-			Stock:         product.Stock,
+			TotalStock:    product.TotalStock,
 			Size:          product.Size,
 			Image:         product.Image,
 		}
@@ -100,7 +100,7 @@ func ProductResponseToProductCostumResponse(product web.ProductResponse) web.Pro
 		Name:          product.Name,
 		Description:   product.Description,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -119,7 +119,7 @@ func ProductResponseToProductsCostumResponse(product web.ProductResponse) web.Pr
 		Name:          product.Name,
 		Description:   product.Description,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Size,
 	}
@@ -133,7 +133,7 @@ func ProductResponseToProductPreloadResponse(response domain.Product) domain.Pro
 		Name:          response.Name,
 		Description:   response.Description,
 		Price:         response.Price,
-		Stock:         response.Stock,
+		TotalStock:    response.TotalStock,
 		Size:          response.Size,
 		Image:         response.Image,
 	}
@@ -147,7 +147,7 @@ func DomainProductToDomainResponseProduct(response domain.Product) domain.Produc
 		Name:          response.Name,
 		Description:   response.Description,
 		Price:         response.Price,
-		Stock:         response.Stock,
+		TotalStock:    response.TotalStock,
 		Size:          response.Size,
 		Image:         response.Image,
 	}

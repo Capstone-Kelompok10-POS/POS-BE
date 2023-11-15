@@ -37,6 +37,16 @@ func StockResponseToStockResponseCustom(response web.StockResponse) web.StockRes
 	}
 }
 
+func StockResponseToStockResponseCreate(response web.StockResponse) web.StockResponseCreate {
+
+	return web.StockResponseCreate{
+		ID:        response.ID,
+		CreatedAt: response.CreatedAt,
+		ProductID: response.ProductID,
+		Stock:     response.Stock,
+	}
+}
+
 func ConvertStockResponse(Stock []domain.Stock) []web.StockResponseCustom {
 	var results []web.StockResponseCustom
 	for _, stock := range Stock {
