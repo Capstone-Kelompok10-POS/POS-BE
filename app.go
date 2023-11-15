@@ -37,6 +37,7 @@ func main() {
 	routes.SuperAdminRoutes(myApp, drivers.DB, validate)
 	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
 	routes.ProductRoutes(myApp, drivers.DB, validate)
+	routes.StockRoutes(myApp, drivers.DB, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())

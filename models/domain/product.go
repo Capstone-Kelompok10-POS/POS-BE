@@ -27,3 +27,15 @@ type ProductResponse struct {
 	Size          string
 	Image         string
 }
+
+type ProductPreloadResponse struct {
+	ID            uint
+	ProductTypeID uint
+	AdminID       uint
+	Name          string
+	Description   string
+	Price         float64
+	Stock         uint
+	Size          string
+	Image         string
+}

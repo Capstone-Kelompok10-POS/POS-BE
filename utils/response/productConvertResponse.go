@@ -124,3 +124,31 @@ func ProductResponseToProductsCostumResponse(product web.ProductResponse) web.Pr
 		Image:         product.Size,
 	}
 }
+
+func ProductResponseToProductPreloadResponse(response domain.Product) domain.ProductPreloadResponse {
+	return domain.ProductPreloadResponse{
+		ID:            response.ID,
+		ProductTypeID: response.ProductTypeID,
+		AdminID:       response.AdminID,
+		Name:          response.Name,
+		Description:   response.Description,
+		Price:         response.Price,
+		Stock:         response.Stock,
+		Size:          response.Size,
+		Image:         response.Image,
+	}
+}
+
+func DomainProductToDomainResponseProduct(response domain.Product) domain.ProductPreloadResponse {
+	return domain.ProductPreloadResponse{
+		ID:            response.ID,
+		ProductTypeID: response.ProductTypeID,
+		AdminID:       response.AdminID,
+		Name:          response.Name,
+		Description:   response.Description,
+		Price:         response.Price,
+		Stock:         response.Stock,
+		Size:          response.Size,
+		Image:         response.Image,
+	}
+}
