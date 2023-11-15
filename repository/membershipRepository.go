@@ -2,6 +2,7 @@ package repository
 
 import (
 	"qbills/models/domain"
+	"qbills/models/schema"
 
 	req "qbills/utils/request"
 	res "qbills/utils/response"
@@ -14,8 +15,8 @@ type MembershipRepository interface {
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)	
-	// FindAll() ([]domain.Membership, error)
-	// Delete(id int) error
+	FindAll() ([]domain.Membership, error)
+	Delete(id int) error
 }
 
 type MembershipRepositoryImpl struct {
@@ -68,3 +69,22 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 
 	return &membership, nil
 }
+
+func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, error) {
+	membership := []domain.Membership{}
+
+	result := repository.DB.Find(&membership)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return membership, nil
+}
+
+func (repository *MembershipRepositoryImpl) Delete(id int) error {
+	result := repository.DB.Delete(&schema.Membership{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
