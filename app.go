@@ -45,5 +45,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":8080"))
+	myApp.Logger.Fatal(myApp.Start(":8443"))
 }
