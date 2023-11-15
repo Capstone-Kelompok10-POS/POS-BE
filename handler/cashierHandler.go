@@ -86,7 +86,7 @@ func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
 
 	cashierLoginResponse.Token = token
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success sign in", cashierLoginResponse))
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success sign in", cashierLoginResponse))
 }
 
 func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
