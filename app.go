@@ -46,5 +46,5 @@ func main() {
 	))
 
 
-	myApp.Logger.Fatal(myApp.Start(":443"))
+	myApp.Logger.Fatal(myApp.Start(":80"))
 }
