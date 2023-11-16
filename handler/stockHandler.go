@@ -85,10 +85,10 @@ func (c *StockHandlerImpl) FindAllStockHandler(ctx echo.Context) error {
 
 	if err != nil {
 		if strings.Contains(err.Error(), "update stock not found") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("update stock not found"))
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("stock not found"))
 		}
 
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update stock data error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("stock data error"))
 	}
 
 	response := res.ConvertStockResponse(result)
@@ -111,7 +111,7 @@ func (c *StockHandlerImpl) FindByIdStockHandler(ctx echo.Context) error {
 
 		if strings.Contains(err.Error(), "stocks not found") {
 			statusCode = http.StatusNotFound
-			errorMessage = "update stock not found"
+			errorMessage = "stock not found"
 		}
 
 		return ctx.JSON(statusCode, helpers.ErrorResponse(errorMessage))
@@ -121,7 +121,7 @@ func (c *StockHandlerImpl) FindByIdStockHandler(ctx echo.Context) error {
 
 	responseCustom := res.StockResponseToStockResponseCustom(response)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get increase stock", responseCustom))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get stock by id", responseCustom))
 }
 
 func (c *StockHandlerImpl) FindIncreaseStockHandler(ctx echo.Context) error {

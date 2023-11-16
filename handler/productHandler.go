@@ -5,6 +5,7 @@ import (
 	"context"
 	firebase "firebase.google.com/go"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"google.golang.org/api/option"
 	"io"
@@ -18,7 +19,6 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type ProductHandler interface {
@@ -50,8 +50,14 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error initializing app: %v", err))
 	}
 
+	// Generate a new UUID
+	newUUID := uuid.New()
+
+	// Convert the UUID to a string
+	uuidString := newUUID.String()
+
 	// Set the destination path in Firebase Storage
-	storagePath := "product/" + time.Now().Format("2006-01-02_15:04:05") + ".png"
+	storagePath := "product/" + uuidString + ".png"
 
 	// Open the uploaded file
 	file, err := ctx.FormFile("image")
@@ -213,8 +219,14 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 			return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error initializing app: %v", err))
 		}
 
+		// Generate a new UUID
+		newUUID := uuid.New()
+
+		// Convert the UUID to a string
+		uuidString := newUUID.String()
+
 		// Set the destination path in Firebase Storage
-		storagePath := "product/" + time.Now().Format("2006-01-02_15:04:05") + filepath.Ext(file.Filename)
+		storagePath := "product/" + uuidString + filepath.Ext(file.Filename)
 
 		// Initialize Google Cloud Storage client
 		client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(serviceAccountKeyPath))
