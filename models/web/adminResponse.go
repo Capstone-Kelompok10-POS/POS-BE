@@ -3,6 +3,7 @@ package web
 type AdminLoginResponse struct {
 	FullName string `json:"fullname"`
 	Username string `json:"username"`
+	Role     string `json:"role"`
 	Token    string `json:"token"`
 }
 
