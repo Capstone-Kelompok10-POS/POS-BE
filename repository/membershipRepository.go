@@ -16,6 +16,7 @@ type MembershipRepository interface {
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)	
 	FindAll() ([]domain.Membership, error)
+	FindByTelephone(telephone string) (*domain.Membership, error)
 	Delete(id int) error
 }
 
@@ -56,6 +57,17 @@ func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership
 	if result.Error != nil {
 		return nil, result.Error
 	}
+	return &membership, nil
+}
+
+func (repository *MembershipRepositoryImpl) FindByTelephone(telephone string) (*domain.Membership, error) {
+	membership := domain.Membership{}
+
+	result := repository.DB.Where("telephone = ?", telephone).First(&membership)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
 	return &membership, nil
 }
 

@@ -39,9 +39,9 @@ func (service *MembershipServiceImpl) CreateMembership(ctx echo.Context, request
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-	existingMembership, _ := service.MembershipRepository.FindByName(request.Name)
+	existingMembership, _ := service.MembershipRepository.FindByTelephone(request.Telephone)
 	if existingMembership != nil {
-		return nil, fmt.Errorf("name already exist")
+		return nil, fmt.Errorf("telephone already exist")
 	}
 	membership := req.MembershipCreateRequestToMembershipDomain(request)
 
