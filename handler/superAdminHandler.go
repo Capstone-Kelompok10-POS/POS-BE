@@ -58,7 +58,7 @@ func (c *SuperAdminHandlerImpl) LoginSuperAdminHandler(ctx echo.Context) error {
 	}
 
 	superAdminLoginResponse.Token = token
-
+	superAdminLoginResponse.Role = "SuperAdmin"
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully Sign In", superAdminLoginResponse))
 }
 
