@@ -87,7 +87,7 @@ func (c *AdminHandlerImpl) LoginAdminHandler(ctx echo.Context) error {
 	}
 
 	adminLoginResponse.Token = token
-
+	adminLoginResponse.Role = "Admin"
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully Sign In", adminLoginResponse))
 }
 
