@@ -42,8 +42,8 @@ func (c *MembershipHandlerImpl) RegisterMembershipHandler(ctx echo.Context) erro
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
 
-		if strings.Contains(err.Error(), "telephone already exist") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("telephone already exist"))
+		if strings.Contains(err.Error(), "phone_number already exist") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("phone_number already exist"))
 		}
 
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
