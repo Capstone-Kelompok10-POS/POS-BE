@@ -12,9 +12,9 @@ func ProductSchemaToProductDomain(product *schema.Product) *domain.Product {
 		ProductTypeID: product.ProductTypeID,
 		AdminID:       product.AdminID,
 		Name:          product.Name,
-		Description:   product.Description,
+		Ingredients:   product.Ingredients,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -28,9 +28,9 @@ func ProductDomainToProductResponse(product *domain.Product) web.ProductResponse
 		AdminID:       product.AdminID,
 		Admin:         product.Admin,
 		Name:          product.Name,
-		Description:   product.Description,
+		Ingredients:   product.Ingredients,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -42,9 +42,9 @@ func ProductDomainToProductCreateResponse(product *domain.Product) web.ProductCr
 		ProductTypeID: product.ProductTypeID,
 		AdminID:       product.AdminID,
 		Name:          product.Name,
-		Description:   product.Description,
+		Ingredients:   product.Ingredients,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -55,9 +55,9 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 		ID:            product.ID,
 		ProductTypeID: product.ProductTypeID,
 		Name:          product.Name,
-		Description:   product.Description,
+		Ingredients:   product.Ingredients,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -76,9 +76,9 @@ func ConvertProductResponse(products []domain.Product) []web.ProductResponseCust
 			AdminID:       product.AdminID,
 			Admin:         Admins,
 			Name:          product.Name,
-			Description:   product.Description,
+			Ingredients:   product.Ingredients,
 			Price:         product.Price,
-			Stock:         product.Stock,
+			TotalStock:    product.TotalStock,
 			Size:          product.Size,
 			Image:         product.Image,
 		}
@@ -98,9 +98,9 @@ func ProductResponseToProductCostumResponse(product web.ProductResponse) web.Pro
 		AdminID:       product.AdminID,
 		Admin:         admin,
 		Name:          product.Name,
-		Description:   product.Description,
+		Ingredients:   product.Ingredients,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Image,
 	}
@@ -117,10 +117,38 @@ func ProductResponseToProductsCostumResponse(product web.ProductResponse) web.Pr
 		AdminID:       product.AdminID,
 		Admin:         admin,
 		Name:          product.Name,
-		Description:   product.Description,
+		Ingredients:   product.Ingredients,
 		Price:         product.Price,
-		Stock:         product.Stock,
+		TotalStock:    product.TotalStock,
 		Size:          product.Size,
 		Image:         product.Size,
+	}
+}
+
+func ProductResponseToProductPreloadResponse(response domain.Product) domain.ProductPreloadResponse {
+	return domain.ProductPreloadResponse{
+		ID:            response.ID,
+		ProductTypeID: response.ProductTypeID,
+		AdminID:       response.AdminID,
+		Name:          response.Name,
+		Ingredients:   response.Ingredients,
+		Price:         response.Price,
+		TotalStock:    response.TotalStock,
+		Size:          response.Size,
+		Image:         response.Image,
+	}
+}
+
+func DomainProductToDomainResponseProduct(response domain.Product) domain.ProductPreloadResponse {
+	return domain.ProductPreloadResponse{
+		ID:            response.ID,
+		ProductTypeID: response.ProductTypeID,
+		AdminID:       response.AdminID,
+		Name:          response.Name,
+		Ingredients:   response.Ingredients,
+		Price:         response.Price,
+		TotalStock:    response.TotalStock,
+		Size:          response.Size,
+		Image:         response.Image,
 	}
 }
