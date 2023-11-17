@@ -8,6 +8,7 @@ import (
 
 func AdminDomainToAdminLoginResponse(admin *domain.Admin) web.AdminLoginResponse {
 	return web.AdminLoginResponse{
+		FullName: admin.FullName,
 		Username: admin.Username,
 	}
 }

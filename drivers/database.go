@@ -39,6 +39,8 @@ func Migrate() {
 		&schema.Admin{},
 		&schema.ProductType{},
 		&schema.Product{})
+		&schema.Cashier{},
+		&schema.Membership{})
 	if err != nil {
 		log.Fatal("Failed to Migrate Database")
 	}
