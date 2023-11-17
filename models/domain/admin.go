@@ -7,3 +7,9 @@ type Admin struct {
 	Username     string
 	Password     string
 }
+type AdminResponse struct {
+	ID           uint
+	SuperAdminID uint
+	FullName     string
+	Username     string
+}

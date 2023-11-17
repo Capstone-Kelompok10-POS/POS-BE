@@ -37,9 +37,10 @@ func Migrate() {
 	err := DB.AutoMigrate(
 		&schema.SuperAdmin{},
 		&schema.Admin{},
+		&schema.ProductType{},
+		&schema.Product{})
 		&schema.Cashier{},
-		&schema.Membership{},
-		&schema.ProductType{})
+		&schema.Membership{})
 	if err != nil {
 		log.Fatal("Failed to Migrate Database")
 	}
