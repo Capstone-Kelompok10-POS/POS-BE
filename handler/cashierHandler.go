@@ -20,7 +20,7 @@ type CashierHandler interface {
 	DeleteCashierHandler(ctx echo.Context) error
 	GetCashierHandler(ctx echo.Context) error
 	GetCashiersHandler(ctx echo.Context) error
-	GetCashierByNameHandler(ctx echo.Context) error
+	GetCashierByUsernameHandler(ctx echo.Context) error
 }
 
 type CashierHandlerImpl struct {
@@ -108,10 +108,10 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully get data cashier", response))
 }
 
-func (c CashierHandlerImpl) GetCashierByNameHandler(ctx echo.Context) error {
+func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error {
 	cashierName := ctx.Param("name")
 
-	result, err := c.CashierService.FindByName(ctx, cashierName)
+	result, err := c.CashierService.FindByUsername(ctx, cashierName)
 	if err != nil {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
@@ -186,4 +186,6 @@ func (c CashierHandlerImpl) DeleteCashierHandler(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete cashier", nil))
+
 }
+

@@ -126,17 +126,17 @@ func (c AdminHandlerImpl) GetAdminsHandler(ctx echo.Context) error {
 }
 
 func (c AdminHandlerImpl) GetAdminByNameHandler(ctx echo.Context) error {
-	adminName := ctx.Param("name")
+	adminName := ctx.Param("username")
 
 	result, err := c.AdminService.FindByName(ctx, adminName)
 	if err != nil {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data by name error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data by username error"))
 	}
 	response := res.AdminDomainToAdminResponse(result)
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully get admin data by name", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully get admin data by username", response))
 }
 
 func (c AdminHandlerImpl) UpdateAdminHandler(ctx echo.Context) error {

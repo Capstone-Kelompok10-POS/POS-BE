@@ -9,15 +9,9 @@ type ProductResponse struct {
 	AdminID       uint               `json:"adminID"`
 	Admin         domain.Admin       `json:"admin"`
 	Name          string             `json:"name"`
-<<<<<<< Updated upstream
-	Description   string             `json:"description" gorm:"not null"`
-	Price         float64            `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint               `json:"stock"`
-=======
 	Ingredients   string             `json:"ingredients" gorm:"not null"`
 	Price         float64            `json:"price" gorm:"type:decimal(10,2);not null"`
 	TotalStock    int                `json:"totalStock"`
->>>>>>> Stashed changes
 	Size          string             `json:"size"`
 	Image         string             `json:"image"`
 }
@@ -29,15 +23,9 @@ type ProductResponseCustom struct {
 	AdminID       uint                 `json:"adminID"`
 	Admin         domain.AdminResponse `json:"admin"`
 	Name          string               `json:"name"`
-<<<<<<< Updated upstream
-	Description   string               `json:"description" gorm:"not null"`
-	Price         float64              `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint                 `json:"stock"`
-=======
 	Ingredients   string               `json:"ingredients" gorm:"not null"`
 	Price         float64              `json:"price" gorm:"type:decimal(10,2);not null"`
 	TotalStock    int                  `json:"totalStock"`
->>>>>>> Stashed changes
 	Size          string               `json:"size"`
 	Image         string               `json:"image"`
 }
@@ -47,15 +35,9 @@ type ProductCreateResponse struct {
 	ProductTypeID uint    `json:"productTypeID"`
 	AdminID       uint    `json:"adminID"`
 	Name          string  `json:"name"`
-<<<<<<< Updated upstream
-	Description   string  `json:"description" gorm:"not null"`
-	Price         float64 `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint    `json:"stock"`
-=======
 	Ingredients   string  `json:"ingredients" gorm:"not null"`
 	Price         float64 `json:"price" gorm:"type:decimal(10,2);not null"`
 	TotalStock    int     `json:"totalStock"`
->>>>>>> Stashed changes
 	Size          string  `json:"size"`
 	Image         string  `json:"image"`
 }
@@ -64,15 +46,9 @@ type ProductUpdateResponse struct {
 	ID            uint    `json:"ID"`
 	ProductTypeID uint    `json:"productTypeID"`
 	Name          string  `json:"name"`
-<<<<<<< Updated upstream
-	Description   string  `json:"description" gorm:"not null"`
-	Price         float64 `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint    `json:"stock"`
-=======
 	Ingredients   string  `json:"ingredients" gorm:"not null"`
 	Price         float64 `json:"price" gorm:"type:decimal(10,2);not null"`
 	TotalStock    int     `json:"totalStock"`
->>>>>>> Stashed changes
 	Size          string  `json:"size"`
 	Image         string  `json:"image"`
 }

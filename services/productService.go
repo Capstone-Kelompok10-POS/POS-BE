@@ -1,11 +1,6 @@
 package services
 
 import (
-<<<<<<< Updated upstream
-	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-=======
 	"cloud.google.com/go/storage"
 	"context"
 	firebase "firebase.google.com/go"
@@ -18,16 +13,12 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
->>>>>>> Stashed changes
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
-<<<<<<< Updated upstream
-=======
 	"strings"
->>>>>>> Stashed changes
 )
 
 type ProductService interface {
@@ -37,10 +28,7 @@ type ProductService interface {
 	FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error)
 	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
-<<<<<<< Updated upstream
-=======
 	UploadImageProduct(ctx echo.Context) (string, error)
->>>>>>> Stashed changes
 }
 
 type ProductServiceImpl struct {
@@ -78,11 +66,7 @@ func (service *ProductServiceImpl) UpdateProductService(ctx echo.Context, reques
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-<<<<<<< Updated upstream
-	exitingAdmin, err := service.ProductRepository.FindById(id)
-=======
 	exitingAdmin, _ := service.ProductRepository.FindById(id)
->>>>>>> Stashed changes
 
 	if exitingAdmin == nil {
 		return nil, fmt.Errorf("product not found")
@@ -144,8 +128,6 @@ func (service *ProductServiceImpl) DeleteProductService(ctx echo.Context, id uin
 
 	return nil
 }
-<<<<<<< Updated upstream
-=======
 
 func (service *ProductServiceImpl) UploadImageProduct(ctx echo.Context) (string, error) {
 
@@ -230,4 +212,3 @@ func (service *ProductServiceImpl) UploadImageProduct(ctx echo.Context) (string,
 
 	return url, nil
 }
->>>>>>> Stashed changes

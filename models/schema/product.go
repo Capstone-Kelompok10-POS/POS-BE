@@ -11,14 +11,14 @@ type Product struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	ProductTypeID uint        `gorm:"index"`
+	ProductTypeID uint        `gorm:"index;not null"`
 	ProductType   ProductType `gorm:"foreignKey:ProductTypeID"`
-	AdminID       uint        `gorm:"index"`
+	AdminID       uint        `gorm:"index;not null"`
 	Admin         Admin       `gorm:"foreignKey:AdminID"`
-	Name          string      `json:"name"`
-	Description   string      `json:"description" gorm:"not null"`
+	Name          string      `json:"name" gorm:"not null"`
+	Ingredients   string      `json:"ingredients" gorm:"not null"`
 	Price         float64     `json:"price" gorm:"type:decimal(10,2);not null"`
-	Stock         uint        `json:"stock"`
-	Size          string      `json:"size" gorm:"type:ENUM('SMALL', 'MEDIUM', 'LARGE');not null;default:'SMALL'"`
-	Image         string      `json:"image"`
+	TotalStock    int         `json:"totalStock" gorm:"not null"`
+	Size          string      `json:"size" gorm:"type:ENUM('SMALL', 'NORMAL', 'LARGE');not null;default:'NORMAL'"`
+	Image         string      `json:"image" gorm:"not null"`
 }

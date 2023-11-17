@@ -7,9 +7,9 @@ type Product struct {
 	AdminID       uint
 	Admin         Admin
 	Name          string
-	Description   string
+	Ingredients   string
 	Price         float64
-	Stock         uint
+	TotalStock    int
 	Size          string
 	Image         string
 }
@@ -21,9 +21,21 @@ type ProductResponse struct {
 	AdminID       uint
 	Admin         AdminResponse
 	Name          string
-	Description   string
+	Ingredients   string
 	Price         float64
-	Stock         uint
+	TotalStock    int
+	Size          string
+	Image         string
+}
+
+type ProductPreloadResponse struct {
+	ID            uint
+	ProductTypeID uint
+	AdminID       uint
+	Name          string
+	Ingredients   string
+	Price         float64
+	TotalStock    int
 	Size          string
 	Image         string
 }
