@@ -76,7 +76,6 @@ func ExtractTokenSuperAdminId(e echo.Context) float64 {
 	return 0
 }
 
-
 func ExtractTokenAdminId(e echo.Context) float64 {
 	user := e.Get("user").(*jwt.Token)
 	if user.Valid {
