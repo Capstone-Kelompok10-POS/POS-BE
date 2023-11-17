@@ -27,7 +27,11 @@ func CashierRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	cashierGroup.POST("/register", CashierHandler.RegisterCashierHandler, middleware.AuthMiddleware("Admin"))
 	cashierGroup.GET("/:id", CashierHandler.GetCashierHandler, middleware.AuthMiddleware("Admin"))
 	cashierGroup.GET("", CashierHandler.GetCashiersHandler, middleware.AuthMiddleware("Admin"))
+<<<<<<< Updated upstream
 	cashierGroup.GET("/name/:name", CashierHandler.GetCashierByNameHandler, middleware.AuthMiddleware("Admin"))
+=======
+	cashierGroup.GET("/name/:name", CashierHandler.GetCashierByUsernameHandler, middleware.AuthMiddleware("Admin"))
+>>>>>>> Stashed changes
 	cashierGroup.PUT("/:id", CashierHandler.UpdateCashierHandler, middleware.AuthMiddleware("Cashier"))
 	cashierGroup.DELETE("/:id", CashierHandler.DeleteCashierHandler, middleware.AuthMiddleware("Cashier"))
 }
