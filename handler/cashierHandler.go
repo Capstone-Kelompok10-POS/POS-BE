@@ -188,4 +188,3 @@ func (c CashierHandlerImpl) DeleteCashierHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete cashier", nil))
 
 }
-
