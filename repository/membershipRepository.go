@@ -14,9 +14,9 @@ type MembershipRepository interface {
 	Create(membership *domain.Membership) (*domain.Membership, error)
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
 	FindById(id int) (*domain.Membership, error)
-	FindByName(name string) (*domain.Membership, error)	
+	FindByName(name string) (*domain.Membership, error)
 	FindAll() ([]domain.Membership, error)
-	FindByTelephone(telephone string) (*domain.Membership, error)
+	FindByPhoneNumber(phone_number string) (*domain.Membership, error)
 	Delete(id int) error
 }
 
@@ -41,8 +41,8 @@ func (repository *MembershipRepositoryImpl) Create(membership *domain.Membership
 
 func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership, id int) (*domain.Membership, error) {
 	result := repository.DB.Table("memberships").Where("id = ?", id).Updates(domain.Membership{
-		Name: membership.Name,
-		Telephone: membership.Telephone})
+		Name:         membership.Name,
+		Phone_Number: membership.Phone_Number})
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -60,10 +60,10 @@ func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership
 	return &membership, nil
 }
 
-func (repository *MembershipRepositoryImpl) FindByTelephone(telephone string) (*domain.Membership, error) {
+func (repository *MembershipRepositoryImpl) FindByPhoneNumber(phone_number string) (*domain.Membership, error) {
 	membership := domain.Membership{}
 
-	result := repository.DB.Where("telephone = ?", telephone).First(&membership)
+	result := repository.DB.Where("phone_number = ?", phone_number).First(&membership)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -99,4 +99,3 @@ func (repository *MembershipRepositoryImpl) Delete(id int) error {
 	}
 	return nil
 }
-
