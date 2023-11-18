@@ -58,8 +58,8 @@ func (c *SuperAdminHandlerImpl) LoginSuperAdminHandler(ctx echo.Context) error {
 	}
 
 	superAdminLoginResponse.Token = token
-
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("Succesfully Sign In", superAdminLoginResponse))
+	superAdminLoginResponse.Role = "SuperAdmin"
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully Sign In", superAdminLoginResponse))
 }
 
 func (c *SuperAdminHandlerImpl) GetSuperAdminHandler(ctx echo.Context) error {
