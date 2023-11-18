@@ -72,6 +72,7 @@ func (service *StockServiceImpl) CreateDecreaseStockService(ctx echo.Context, re
 	product, err := service.ProductRepository.FindById(req.ProductID)
 
 	product.TotalStock += req.Stock
+
 	if product.TotalStock < 0 {
 		return nil, fmt.Errorf("reduction amount is more than the stock amount")
 	}

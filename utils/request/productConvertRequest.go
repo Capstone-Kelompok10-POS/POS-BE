@@ -22,6 +22,7 @@ func ProductCreateRequestToProductDomain(request web.ProductCreateRequest) *doma
 func ProductUpdateRequestToProductDomain(request web.ProductUpdateRequest) *domain.Product {
 	return &domain.Product{
 		ProductTypeID: request.ProductTypeID,
+		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
 		Price:         request.Price,
@@ -34,6 +35,7 @@ func ProductUpdateRequestToProductDomain(request web.ProductUpdateRequest) *doma
 func ProductDomainToProductUpdateRequest(request *domain.Product) web.ProductUpdateRequest {
 	return web.ProductUpdateRequest{
 		ProductTypeID: request.ProductTypeID,
+		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
 		Price:         request.Price,
