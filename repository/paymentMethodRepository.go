@@ -9,8 +9,8 @@ import (
 )
 
 type PaymentMethodRepository interface {
-	Create(membership *domain.PaymentMethod) (*domain.PaymentMethod, error)
-	Update(membership *domain.PaymentMethod, id int) (*domain.PaymentMethod, error)
+	Create(paymentMethod *domain.PaymentMethod) (*domain.PaymentMethod, error)
+	Update(paymentMethod *domain.PaymentMethod, id int) (*domain.PaymentMethod, error)
 	FindById(id int) (*domain.PaymentMethod, error)
 	FindByName(name string) (*domain.PaymentMethod, error)
 	FindAll() ([]domain.PaymentMethod, error)
@@ -19,6 +19,10 @@ type PaymentMethodRepository interface {
 
 type PaymentMethodRepositoryImpl struct {
 	DB *gorm.DB
+}
+
+func NewPaymentMethodRepository(DB *gorm.DB) PaymentMethodRepository {
+	return &PaymentMethodRepositoryImpl{DB: DB}
 }
 
 func (repository *PaymentMethodRepositoryImpl) Create(paymentMethod *domain.PaymentMethod) (*domain.PaymentMethod, error) {

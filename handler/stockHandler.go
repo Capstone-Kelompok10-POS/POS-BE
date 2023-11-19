@@ -12,8 +12,7 @@ import (
 )
 
 type StockHandler interface {
-	CreateIncreaseStockHandler(ctx echo.Context) error
-	CreateDecreaseStockHandler(ctx echo.Context) error
+	UpdateStockHandler(ctx echo.Context) error
 	FindAllStockHandler(ctx echo.Context) error
 	FindByIdStockHandler(ctx echo.Context) error
 	FindIncreaseStockHandler(ctx echo.Context) error
@@ -28,46 +27,19 @@ func NewStockHandler(stockService services.StockService) StockHandler {
 	return &StockHandlerImpl{StockService: stockService}
 }
 
-func (c *StockHandlerImpl) CreateIncreaseStockHandler(ctx echo.Context) error {
+func (c *StockHandlerImpl) UpdateStockHandler(ctx echo.Context) error {
 	request := new(web.StockCreateRequest)
 
 	if err := ctx.Bind(request); err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
 	}
 
-	result, err := c.StockService.CreateIncreaseStockService(ctx, *request)
+	result, err := c.StockService.UpdateStockService(ctx, *request)
 
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-		default:
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to increase stock"))
-		}
-	}
-
-	response := res.StockDomainToStockResponse(result)
-
-	responseCustom := res.StockResponseToStockResponseCreate(response)
-
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success increase stock", responseCustom))
-}
-
-func (c *StockHandlerImpl) CreateDecreaseStockHandler(ctx echo.Context) error {
-	request := new(web.StockCreateRequest)
-
-	if err := ctx.Bind(request); err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
-	}
-
-	result, err := c.StockService.CreateDecreaseStockService(ctx, *request)
-
-	if err != nil {
-		switch {
-		case strings.Contains(err.Error(), "validation error"):
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-		case strings.Contains(err.Error(), "reduction amount is more than the stock amount"):
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("reduction amount is more than the stock amount"))
 		default:
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to increase stock"))
 		}
