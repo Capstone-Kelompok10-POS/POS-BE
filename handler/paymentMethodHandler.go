@@ -54,33 +54,33 @@ func (c *PaymentMethodHandlerImpl) UpdatePaymentMethodHandler(ctx echo.Context) 
 	paymentMethodId := ctx.Param("id")
 	paymentMethodIdInt, err := strconv.Atoi(paymentMethodId)
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("invalid param id"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid payment method ID"))
 	}
 
 	paymentUpdateRequest := web.PaymentMethodRequest{}
-	err = ctx.Bind(&paymentUpdateRequest)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+	if err := ctx.Bind(&paymentUpdateRequest); err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid request payload"))
 	}
 
-	_, err = c.service.UpdatePaymentMethod(ctx, paymentUpdateRequest, paymentMethodIdInt)
-	if err != nil {
+	// Update Payment Method
+	if _, err := c.service.UpdatePaymentMethod(ctx, paymentUpdateRequest, paymentMethodIdInt); err != nil {
 		if strings.Contains(err.Error(), "validation failed") {
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-		}
-		if strings.Contains(err.Error(), "payment method not found") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("validation failed"))
+		} else if strings.Contains(err.Error(), "payment method not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment method not found"))
 		}
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update payment method error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to update payment method"))
 	}
+
+	// Find and return the updated payment method
 	results, err := c.service.FindById(ctx, paymentMethodIdInt)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to retrieve updated data"))
 	}
 
 	response := res.PaymentMethodDomainToPaymentMethodResponse(results)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully updated data payment method", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully updated payment method", response))
 }
 
 func (c *PaymentMethodHandlerImpl) GetPaymentMethodHandler(ctx echo.Context) error {

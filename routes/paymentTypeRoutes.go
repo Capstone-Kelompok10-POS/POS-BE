@@ -2,10 +2,8 @@ package routes
 
 import (
 	"github.com/go-playground/validator"
-	echoJwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
-	"os"
 	"qbills/handler"
 	"qbills/repository"
 	"qbills/services"
@@ -18,9 +16,9 @@ func PaymentTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) 
 
 	paymentTypeGroup := e.Group("api/v1/paymentType")
 
-	paymentTypeGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
+	//paymentTypeGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
-	paymentTypeGroup.POST("/register", paymentTypeHandler.CreatePaymentTypeHandler)
+	paymentTypeGroup.POST("", paymentTypeHandler.CreatePaymentTypeHandler)
 	paymentTypeGroup.GET("/:id", paymentTypeHandler.GetPaymentTypeHandler)
 	paymentTypeGroup.GET("", paymentTypeHandler.GetPaymentTypesHandler)
 	paymentTypeGroup.GET("/name/:name", paymentTypeHandler.GetPaymentTypeByNameHandler)
