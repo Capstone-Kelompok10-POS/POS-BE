@@ -13,5 +13,5 @@ type ConvertPoint struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
 	Point uint `json:"point"`
-	PointValue int `json:"point_value"`
+	ValuePoint int `json:"value_point"`
 }

@@ -119,7 +119,8 @@ func (service *AdminServiceImpl) FindAll(ctx echo.Context) ([]domain.Admin, erro
 }
 
 func (service *AdminServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Admin, error) {
-	admin, _ := service.AdminRepository.FindByName(name)
+	admin, _ := service.AdminRepository.FindByUsername(name)
+	fmt.Println(admin)
 	if admin == nil {
 		return nil, fmt.Errorf("admin not found")
 	}

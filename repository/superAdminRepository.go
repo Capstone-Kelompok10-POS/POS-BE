@@ -22,33 +22,35 @@ func NewSuperAdminRepository(DB *gorm.DB) SuperAdminRepository {
 
 
 func (repository *SuperAdminRepositoryImpl) FindById(id int) (*domain.SuperAdmin, error) {
-	SuperAdmin := domain.SuperAdmin{}
+	superAdmin := domain.SuperAdmin{}
 
-	result := repository.DB.First(&SuperAdmin, id)
+	result := repository.DB.First(&superAdmin, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &SuperAdmin, nil
+	return &superAdmin, nil
 }
 
 func (repository *SuperAdminRepositoryImpl) FindByUsername(username string) (*domain.SuperAdmin, error) {
-	SuperAdmin := domain.SuperAdmin{}
+	superAdmin := domain.SuperAdmin{}
 
-	result := repository.DB.Where("username = ?", username).First(&SuperAdmin)
+	query := "SELECT super_admins.* FROM super_admins WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
+
+	result := repository.DB.Raw(query, username).Scan(&superAdmin)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &SuperAdmin, nil
+	return &superAdmin, nil
 }
 
 func (repository *SuperAdminRepositoryImpl) FindAll() ([]domain.SuperAdmin, error) {
-	SuperAdmin := []domain.SuperAdmin{}
+	superAdmin := []domain.SuperAdmin{}
 
-	result := repository.DB.Find(&SuperAdmin)
+	result := repository.DB.Find(&superAdmin)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return SuperAdmin, nil
+	return superAdmin, nil
 }
 

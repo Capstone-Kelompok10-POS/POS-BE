@@ -66,8 +66,7 @@ func (service *ProductServiceImpl) UpdateProductService(ctx echo.Context, reques
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-	exitingProduct, err := service.ProductRepository.FindById(id)
-
+	exitingProduct, _ := service.ProductRepository.FindById(id)
 	if exitingProduct == nil {
 		return nil, fmt.Errorf("product not found")
 	}
