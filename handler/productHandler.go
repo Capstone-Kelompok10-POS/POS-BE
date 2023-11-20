@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/firebase"
 	"qbills/utils/request"
 	res "qbills/utils/response"
 	"strconv"
@@ -31,7 +32,7 @@ func NewProductHandler(ProductService services.ProductService) ProductHandler {
 
 func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 
-	url, err := c.ProductService.UploadImageProduct(ctx)
+	url, err := firebase.UploadImageProduct(ctx)
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
@@ -119,7 +120,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 		imageURL = existingProduct.Image
 	} else {
 		// Jika ada file gambar yang diunggah, proses unggah gambar baru
-		url, err := c.ProductService.UploadImageProduct(ctx)
+		url, err := firebase.UploadImageProduct(ctx)
 		if err != nil {
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
 		}
