@@ -20,3 +20,8 @@ type Membership struct {
 	Point        uint      `json:"point"`
 	Phone_Number string    `json:"phone_number"`
 }
+
+func (membership *Membership) BeforeCreate(tx *gorm.DB) error {
+	membership.CodeMember = uuid.NewV4()
+	return nil
+}
