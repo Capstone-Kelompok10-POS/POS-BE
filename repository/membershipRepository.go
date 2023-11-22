@@ -47,6 +47,7 @@ func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership
 		return nil, result.Error
 	}
 
+	
 	return membership, nil
 }
 

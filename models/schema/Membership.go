@@ -3,6 +3,7 @@ package schema
 import (
 	"time"
 
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -12,9 +13,10 @@ type Membership struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	CashierID    uint    `gorm:"index"`
-	Cashier      Cashier `gorm:"foreignKey:CashierID"`
-	Name         string  `gorm:"name"`
-	Point        uint    `json:"point"`
-	Phone_Number string  `json:"phone_number"`
+	CashierID    uint      `gorm:"index"`
+	Cashier      Cashier   `gorm:"foreignKey:CashierID"`
+	Name         string    `gorm:"name"`
+	CodeMember   uuid.UUID `gorm:"type:char(36);notnull"`
+	Point        uint      `json:"point"`
+	Phone_Number string    `json:"phone_number"`
 }

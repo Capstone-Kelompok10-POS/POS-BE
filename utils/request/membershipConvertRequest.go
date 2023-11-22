@@ -27,6 +27,7 @@ func MembershipDomainintoMembershipSchema(request domain.Membership) *schema.Mem
 	return &schema.Membership{
 		CashierID:    request.CashierID,
 		Name:         request.Name,
+		CodeMember:   request.CodeMember,
 		Point:        request.Point,
 		Phone_Number: request.Phone_Number,
 	}
