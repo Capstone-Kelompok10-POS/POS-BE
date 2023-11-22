@@ -14,6 +14,12 @@ require (
 )
 
 require (
+	github.com/jinzhu/gorm v1.9.16 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
+)
+
+require (
+	github.com/boombuler/barcode v1.0.1
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
