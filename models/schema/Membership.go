@@ -3,7 +3,7 @@ package schema
 import (
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -19,4 +19,9 @@ type Membership struct {
 	CodeMember   uuid.UUID `gorm:"type:char(36);notnull"`
 	Point        uint      `json:"point"`
 	Phone_Number string    `json:"phone_number"`
+}
+
+func (membership *Membership) BeforeCreate(tx *gorm.DB) error {
+	membership.CodeMember = uuid.NewV4()
+	return nil
 }
