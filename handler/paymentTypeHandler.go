@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/firebase"
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
@@ -18,8 +19,8 @@ type PaymentTypeHandler interface {
 	GetPaymentTypesHandler(ctx echo.Context) error
 	GetPaymentTypeByNameHandler(ctx echo.Context) error
 	DeletePaymentTypeHandler(ctx echo.Context) error
+	UploadBarcode(ctx echo.Context) error
 }
-
 type PaymentTypeHandlerImpl struct {
 	service services.PaymentTypeService
 }
@@ -148,4 +149,10 @@ func (c *PaymentTypeHandlerImpl) DeletePaymentTypeHandler(ctx echo.Context) erro
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete data payment type", nil))
+}
+
+func (c *PaymentTypeHandlerImpl) UploadBarcode(ctx echo.Context) error {
+	url, _ := firebase.GenerateBarcodeAndUploadToFirebase(ctx, "alimultaik")
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete data payment type", url))
 }

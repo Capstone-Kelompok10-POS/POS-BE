@@ -43,7 +43,8 @@ func Migrate() {
 		&schema.Stock{},
 		&schema.Cashier{},
 		&schema.Membership{},
-		&schema.PaymentType{})
+		&schema.PaymentType{},
+		&schema.PaymentMethod{})
 
 	if err != nil {
 		log.Fatal("Failed to Migrate Database")
