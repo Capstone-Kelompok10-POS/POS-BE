@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"qbills/services"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/firebase"
+
 	// res "qbills/utils/response"
 	"strconv"
 	"strings"
@@ -39,4 +42,15 @@ func (c *MembershipCardHandlerImpl) PrintMembershipCardHandler(ctx echo.Context)
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success print membership card", result))
+}
+
+func ShowBarcodeHandler(ctx echo.Context) error {
+	code_Member := ctx.Param("Code_Member")
+
+	barcodeURL, err := firebase.GenerateBarcodeAndUploadToFirebase(ctx, code_Member)
+	if err != nil {
+		return ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error generating barcode: %v", err))
+	}
+
+	return ctx.Redirect(http.StatusTemporaryRedirect, barcodeURL)
 }
