@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"qbills/services"
 	"qbills/utils/helpers"
-	res "qbills/utils/response"
+	// res "qbills/utils/response"
 	"strconv"
 	"strings"
 
@@ -12,7 +12,7 @@ import (
 )
 
 type MembershipCardHandler interface {
-	PrintMembershipCard(ctx echo.Context) error
+	PrintMembershipCardHandler(ctx echo.Context) error
 }
 
 type MembershipCardHandlerImpl struct {
@@ -23,21 +23,20 @@ func NewMembershipCardHandler(membershipCardService services.MembershipCardServi
 	return &MembershipCardHandlerImpl{MembershipCardService: membershipCardService}
 }
 
-func (c *MembershipCardHandlerImpl) PrintMembershipCard(ctx echo.Context) error {
+func (c *MembershipCardHandlerImpl) PrintMembershipCardHandler(ctx echo.Context) error {
 	membershipCardId := ctx.Param("id")
 	membershipIdInt, err := strconv.Atoi(membershipCardId)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("invalid param id"))
 	}
 
-	result, err := c.MembershipCardService.FindById(ctx, membershipIdInt)
+	result, err := c.MembershipCardService.PrintMembershipCard(ctx, membershipIdInt)
 	if err != nil {
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
 		}
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("get membership data error"))
 	}
-	response := res.MembershipDomainToMembershipResponse(result)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success print membership card", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success print membership card", result))
 }

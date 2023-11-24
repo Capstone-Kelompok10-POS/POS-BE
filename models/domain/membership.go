@@ -6,7 +6,7 @@ type Membership struct {
 	ID           uint
 	CashierID    uint
 	Name         string
-	CodeMember   uuid.UUID
+	Code_Member   uuid.UUID
 	Point        uint
 	Phone_Number string
 }

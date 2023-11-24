@@ -9,9 +9,8 @@ import (
 )
 
 type MembershipCardRepository interface {
+	PrintMembershipCard(id int) (*domain.Membership, error)
 	FindById(id int) (*domain.Membership, error)
-	Print(id int) (*domain.Membership, error)
-	// Preview(Phone_Number string) (*domain.Membership, error)
 }
 
 type MembershipCardRepositoryImpl struct {
@@ -21,7 +20,6 @@ type MembershipCardRepositoryImpl struct {
 func NewMembershipCardRepository(DB *gorm.DB) MembershipCardRepository {
 	return &MembershipCardRepositoryImpl{DB: DB}
 }
-
 
 func (repository *MembershipCardRepositoryImpl) FindById(id int) (*domain.Membership, error) {
 	membership := domain.Membership{}
@@ -33,7 +31,7 @@ func (repository *MembershipCardRepositoryImpl) FindById(id int) (*domain.Member
 	return &membership, nil
 }
 
-func (repository *MembershipCardRepositoryImpl) Print(id int) (*domain.Membership, error) {
+func (repository *MembershipCardRepositoryImpl) PrintMembershipCard(id int) (*domain.Membership, error) {
 	membership, err := repository.FindById(id)
 	if err != nil {
 		return nil, err
@@ -41,10 +39,10 @@ func (repository *MembershipCardRepositoryImpl) Print(id int) (*domain.Membershi
 
 	AvailableDate := time.Now().AddDate(1, 0, 0)
 
-    fmt.Println("Name:", membership.Name)
-    fmt.Println("Phone_Number:", membership.Phone_Number)
-    fmt.Println("CodeMember:", membership.CodeMember)
-	fmt.Println("Available: ", AvailableDate)
+	fmt.Println("Name:", membership.Name)
+	fmt.Println("Phone_Number:", membership.Phone_Number)
+	fmt.Println("CodeMember:", membership.Code_Member)
+	fmt.Println("Available until: ", AvailableDate)
 
 	return membership, nil
 }
