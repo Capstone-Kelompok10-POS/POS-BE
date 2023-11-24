@@ -41,6 +41,7 @@ func main() {
 	routes.ProductRoutes(myApp, drivers.DB, validate)
 	routes.StockRoutes(myApp, drivers.DB, validate)
 	routes.MembershipRoutes(myApp, drivers.DB, validate)
+	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())
@@ -50,5 +51,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":80"))
+	myApp.Logger.Fatal(myApp.Start(":8005"))
 }
