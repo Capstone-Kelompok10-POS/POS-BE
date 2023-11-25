@@ -23,17 +23,10 @@ func MembershipRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	membershipGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	membershipGroup.POST("/register", MembershipHandler.RegisterMembershipHandler, middleware.AuthMiddleware("Cashier"))
-<<<<<<< Updated upstream
 	membershipGroup.GET("/:id", MembershipHandler.GetMembershipHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.GET("s", MembershipHandler.GetMembershipsHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.GET("/name/:name", MembershipHandler.GetMembershipByNameHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.PUT("/:id", MembershipHandler.UpdateMembershipHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.DELETE("/:id", MembershipHandler.DeleteMembershipHandler, middleware.AuthMiddleware("Cashier"))
-=======
-	membershipGroup.GET("/:id", MembershipHandler.GetMembershipHandler)
-	membershipGroup.GET("s", MembershipHandler.GetMembershipsHandler)
-	membershipGroup.GET("/name/:name", MembershipHandler.GetMembershipByNameHandler)
-	membershipGroup.PUT("/:id", MembershipHandler.UpdateMembershipHandler, middleware.AuthMiddleware("Admin"))
-	membershipGroup.DELETE("/:id", MembershipHandler.DeleteMembershipHandler, middleware.AuthMiddleware("Admin"))
->>>>>>> Stashed changes
+
 }

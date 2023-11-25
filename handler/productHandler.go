@@ -19,6 +19,7 @@ type ProductHandler interface {
 	GetProductsHandler(ctx echo.Context) error
 	GetProductByNameHandler(ctx echo.Context) error
 	DeleteProductHandler(ctx echo.Context) error
+	FindPaginationProduct(ctx echo.Context) error
 }
 
 type ProductHandlerImpl struct {
@@ -256,4 +257,22 @@ func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("succesfully delete data product", nil))
+}
+
+func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
+
+	response, meta, err := c.ProductService.FindPaginationProduct(ctx)
+
+	if err != nil {
+
+		if strings.Contains(err.Error(), "Product is empty") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed get pagination product"))
+	}
+
+	productResponse := res.ConvertProductResponse(response)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully delete data product", productResponse, meta))
 }

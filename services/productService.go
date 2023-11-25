@@ -18,6 +18,7 @@ import (
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
+	"strconv"
 	"strings"
 )
 
@@ -29,6 +30,7 @@ type ProductService interface {
 	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
 	UploadImageProduct(ctx echo.Context) (string, error)
+	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
 }
 
 type ProductServiceImpl struct {
@@ -211,4 +213,26 @@ func (service *ProductServiceImpl) UploadImageProduct(ctx echo.Context) (string,
 	url := fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media", bucketName, url.QueryEscape(storagePath))
 
 	return url, nil
+}
+
+func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error) {
+
+	orderBy := ctx.QueryParam("orderBy")
+	QueryLimit := ctx.QueryParam("limit")
+	QueryPage := ctx.QueryParam("page")
+
+	Page, _ := strconv.Atoi(QueryPage)
+	Limit, _ := strconv.Atoi(QueryLimit)
+
+	Paginate := helpers.Pagination{
+		Page:  uint(Page),
+		Limit: uint(Limit),
+	}
+
+	result, paginate, err := service.ProductRepository.FindPaginationProduct(orderBy, Paginate)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Product is empty")
+	}
+
+	return result, paginate, nil
 }

@@ -12,9 +12,9 @@ type Membership struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	CashierID    uint    `gorm:"index"`
-	Cashier      Cashier `gorm:"foreignKey:CashierID"`
-	Name         string  `gorm:"name"`
-	Point        uint    `json:"point"`
-	Phone_Number string  `json:"phone_number"`
+	CashierID   uint    `gorm:"index"`
+	Cashier     Cashier `gorm:"foreignKey:CashierID"`
+	Name        string  `gorm:"name"`
+	Point       uint    `json:"point"`
+	PhoneNumber string  `json:"phoneNumber"`
 }

@@ -18,11 +18,7 @@ type CashierService interface {
 	UpdateCashier(ctx echo.Context, request web.CashierUpdateRequest, id int) (*domain.Cashier, error)
 	FindById(ctx echo.Context, id int) (*domain.Cashier, error)
 	FindAll(ctx echo.Context) ([]domain.Cashier, error)
-<<<<<<< Updated upstream
 	FindByName(ctx echo.Context, name string) (*domain.Cashier, error)
-=======
-	FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error)
->>>>>>> Stashed changes
 	DeleteCashier(ctx echo.Context, id int) error
 }
 
@@ -30,7 +26,6 @@ type CashierServiceImpl struct {
 	CashierRepository repository.CashierRepository
 	Validate          *validator.Validate
 }
-
 
 func NewCashierService(cashierRepository repository.CashierRepository, validate *validator.Validate) *CashierServiceImpl {
 	return &CashierServiceImpl{
@@ -121,14 +116,9 @@ func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, 
 	return cashiers, nil
 }
 
-<<<<<<< Updated upstream
 func (service *CashierServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Cashier, error) {
-	cashier, _ := service.CashierRepository.FindByName(name)
-=======
-func (service *CashierServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error) {
 	cashier, _ := service.CashierRepository.FindByUsername(name)
-	fmt.Println(cashier)
->>>>>>> Stashed changes
+
 	if cashier == nil {
 		return nil, fmt.Errorf("cashier not found")
 	}
@@ -136,10 +126,6 @@ func (service *CashierServiceImpl) FindByUsername(ctx echo.Context, name string)
 	return cashier, nil
 }
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 func (service *CashierServiceImpl) DeleteCashier(ctx echo.Context, id int) error {
 	existingCashier, _ := service.CashierRepository.FindById(id)
 	if existingCashier == nil {
