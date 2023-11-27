@@ -6,8 +6,7 @@ import (
 
 type MembershipCardResponse struct {
 	Name           string    `json:"name"`
-	Code_Member    uuid.UUID `json:"Code_Member"`
-	Phone_Number   string    `json:"phone_number"`
-	Available_Date string	 `json:"available_date"`
+	CodeMember     uuid.UUID `json:"CodeMember"`
+	AvailableDate string    `json:"availableDate"`
 	Barcode        string    `json:"barcode"`
 }

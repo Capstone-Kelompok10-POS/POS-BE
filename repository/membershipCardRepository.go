@@ -35,7 +35,7 @@ func (repository *MembershipCardRepositoryImpl) FindById(id int) (*domain.Member
 }
 
 func (repository *MembershipCardRepositoryImpl) UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error) {
-	barcode, err := firebase.GenerateBarcodeAndUploadToFirebase(ctx, membership.Code_Member.String())
+	barcode, err := firebase.GenerateBarcodeAndUploadToFirebase(ctx, membership.CodeMember.String())
 	if err != nil {
 		return "", fmt.Errorf("error upload %s", err.Error())
 	}
@@ -61,20 +61,12 @@ func (repository *MembershipCardRepositoryImpl) PrintMembershipCard(ctx echo.Con
         return nil, fmt.Errorf("error uploading barcode %s", err.Error())
     }
 
-    // AvailableDate := time.Now().AddDate(1, 0, 0)
-
 	membership.Barcode = barcode
 
     // Update hanya kolom barcode di database
     if err := repository.UpdateBarcode(int(membership.ID), barcode); err != nil {
         return nil, fmt.Errorf("error updating barcode in membership record %s", err.Error())
     }
-
-    // fmt.Println("Name:", membership.Name)
-    // fmt.Println("Phone_Number:", membership.Phone_Number)
-    // fmt.Println("CodeMember:", membership.Code_Member)
-    // fmt.Println("Available until: ", AvailableDate)
-	// fmt.Println("Barcode: ", barcode)
 
     return membership, nil
 }

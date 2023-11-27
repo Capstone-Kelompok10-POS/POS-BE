@@ -53,7 +53,7 @@ func (service *MembershipServiceImpl) CreateMembership(ctx echo.Context, request
 		return nil, fmt.Errorf("error creating membership %s", err.Error())
 	}
 
-	fmt.Println(result.Code_Member)
+	fmt.Println(result.CodeMember)
 
 	return result, nil
 }
