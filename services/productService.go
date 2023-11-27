@@ -28,6 +28,7 @@ type ProductService interface {
 	FindByIdProductService(ctx echo.Context, id uint) (*domain.Product, error)
 	FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error)
 	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
+	FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
 	UploadImageProduct(ctx echo.Context) (string, error)
 	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
@@ -114,6 +115,16 @@ func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, na
 	}
 
 	return products, nil
+}
+
+func (service *ProductServiceImpl) FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error) {
+	product, err := service.ProductRepository.FindByCategory(productTypeID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return product, nil
 }
 
 func (service *ProductServiceImpl) DeleteProductService(ctx echo.Context, id uint) error {

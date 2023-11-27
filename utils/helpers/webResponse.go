@@ -12,8 +12,8 @@ type TSuccessResponse struct {
 
 type TSuccessResponseWithMeta struct {
 	Meta       TResponseMeta `json:"meta"`
-	Results    interface{}   `json:"results"`
 	Pagination any           `json:"pagination,omitempty"`
+	Results    interface{}   `json:"results"`
 }
 
 type TErrorResponse struct {

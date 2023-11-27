@@ -18,6 +18,7 @@ type ProductRepository interface {
 	FindById(id uint) (*domain.Product, error)
 	FindAll() ([]domain.Product, error)
 	FindByName(name string) ([]domain.Product, error)
+	FindByCategory(ProductTypeID uint) ([]domain.Product, error)
 	Delete(id uint) error
 	FindPaginationProduct(orderBy string, paginate helpers.Pagination) ([]domain.Product, *helpers.Pagination, error)
 }
@@ -83,6 +84,18 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
 	}
 
 	return product, nil
+}
+
+func (repository *ProductRepositoryImpl) FindByCategory(ProductTypeID uint) ([]domain.Product, error) {
+	products := []domain.Product{}
+
+	result := repository.DB.Preload("ProductType").Preload("Admin").Where("product_type_id = ?", ProductTypeID).Find(&products)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return products, nil
 }
 
 func (repository *ProductRepositoryImpl) FindByName(name string) ([]domain.Product, error) {

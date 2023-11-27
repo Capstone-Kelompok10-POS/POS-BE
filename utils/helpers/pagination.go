@@ -9,10 +9,10 @@ import (
 type Pagination struct {
 	Page         uint   `json:"page,omitempty"`
 	Limit        uint   `json:"limit,omitempty"`
-	TotalPage    uint   `json:"total_page,omitempty"`
-	TotalData    uint   `json:"total_rows,omitempty"`
-	NextPage     string `json:"next_page,omitempty"`
-	PreviousPage string `json:"previous_page,omitempty"`
+	TotalPage    uint   `json:"totalPage,omitempty"`
+	TotalData    uint   `json:"totalRows,omitempty"`
+	NextPage     string `json:"nextPage,omitempty"`
+	PreviousPage string `json:"previousPage,omitempty"`
 }
 
 func (p *Pagination) GetPage() uint {

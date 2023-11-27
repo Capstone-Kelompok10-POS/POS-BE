@@ -18,6 +18,7 @@ type ProductHandler interface {
 	GetProductHandler(ctx echo.Context) error
 	GetProductsHandler(ctx echo.Context) error
 	GetProductByNameHandler(ctx echo.Context) error
+	GetProductByCategoryHandler(ctx echo.Context) error
 	DeleteProductHandler(ctx echo.Context) error
 	FindPaginationProduct(ctx echo.Context) error
 }
@@ -237,6 +238,24 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product type by name", response))
 }
 
+func (c *ProductHandlerImpl) GetProductByCategoryHandler(ctx echo.Context) error {
+	productTypeID := ctx.Param("productTypeID")
+	productTypeIDUint64, err := strconv.ParseUint(productTypeID, 10, 64)
+
+	result, err := c.ProductService.FindByCategoryProductService(ctx, uint(productTypeIDUint64))
+
+	if err != nil {
+		if strings.Contains(err.Error(), "failed to find products with the category") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+		}
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get product data by category"))
+	}
+
+	response := res.ConvertProductResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product by category", response))
+}
+
 func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {
 	productId := ctx.Param("id")
 	productIdInt, err := strconv.Atoi(productId)
@@ -274,5 +293,5 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 
 	productResponse := res.ConvertProductResponse(response)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully delete data product", productResponse, meta))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
 }
