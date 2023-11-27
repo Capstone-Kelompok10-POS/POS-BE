@@ -9,4 +9,5 @@ type Membership struct {
 	Code_Member   uuid.UUID
 	Point        uint
 	Phone_Number string
+	Barcode      string
 }

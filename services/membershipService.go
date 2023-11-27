@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
+
 	req "qbills/utils/request"
 
 	"github.com/go-playground/validator"
@@ -43,16 +44,20 @@ func (service *MembershipServiceImpl) CreateMembership(ctx echo.Context, request
 	if existingMembership != nil {
 		return nil, fmt.Errorf("phone_number already exist")
 	}
+
 	membership := req.MembershipCreateRequestToMembershipDomain(request)
+	fmt.Println(membership)
 
 	result, err := service.MembershipRepository.Create(membership)
-
 	if err != nil {
 		return nil, fmt.Errorf("error creating membership %s", err.Error())
 	}
 
+	fmt.Println(result.Code_Member)
+
 	return result, nil
 }
+
 
 func (service *MembershipServiceImpl) FindById(ctx echo.Context, id int) (*domain.Membership, error) {
 	existingMembership, _ := service.MembershipRepository.FindById(id)

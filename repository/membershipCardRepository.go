@@ -3,13 +3,16 @@ package repository
 import (
 	"fmt"
 	"qbills/models/domain"
-	"time"
+	"qbills/utils/helpers/firebase"
 
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
 type MembershipCardRepository interface {
-	PrintMembershipCard(id int) (*domain.Membership, error)
+	UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error)
+	UpdateBarcode(id int, barcode string) error
+	PrintMembershipCard(ctx echo.Context, id int) (*domain.Membership, error)
 	FindById(id int) (*domain.Membership, error)
 }
 
@@ -31,18 +34,47 @@ func (repository *MembershipCardRepositoryImpl) FindById(id int) (*domain.Member
 	return &membership, nil
 }
 
-func (repository *MembershipCardRepositoryImpl) PrintMembershipCard(id int) (*domain.Membership, error) {
-	membership, err := repository.FindById(id)
+func (repository *MembershipCardRepositoryImpl) UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error) {
+	barcode, err := firebase.GenerateBarcodeAndUploadToFirebase(ctx, membership.Code_Member.String())
 	if err != nil {
-		return nil, err
+		return "", fmt.Errorf("error upload %s", err.Error())
 	}
+	return barcode, nil
+}
 
-	AvailableDate := time.Now().AddDate(1, 0, 0)
+func (repository *MembershipCardRepositoryImpl) UpdateBarcode(id int, barcode string) error {
+    result := repository.DB.Model(&domain.Membership{}).Where("id = ?", id).Update("Barcode", barcode)
+    if result.Error != nil {
+        return result.Error
+    }
+    return nil
+}
 
-	fmt.Println("Name:", membership.Name)
-	fmt.Println("Phone_Number:", membership.Phone_Number)
-	fmt.Println("CodeMember:", membership.Code_Member)
-	fmt.Println("Available until: ", AvailableDate)
+func (repository *MembershipCardRepositoryImpl) PrintMembershipCard(ctx echo.Context, id int) (*domain.Membership, error) {
+    membership, err := repository.FindById(id)
+    if err != nil {
+        return nil, err
+    }
 
-	return membership, nil
+	barcode, err := repository.UploadBarcodeToFirebase(ctx, *membership)
+	if err != nil {
+        return nil, fmt.Errorf("error uploading barcode %s", err.Error())
+    }
+
+    // AvailableDate := time.Now().AddDate(1, 0, 0)
+
+	membership.Barcode = barcode
+
+    // Update hanya kolom barcode di database
+    if err := repository.UpdateBarcode(int(membership.ID), barcode); err != nil {
+        return nil, fmt.Errorf("error updating barcode in membership record %s", err.Error())
+    }
+
+    // fmt.Println("Name:", membership.Name)
+    // fmt.Println("Phone_Number:", membership.Phone_Number)
+    // fmt.Println("CodeMember:", membership.Code_Member)
+    // fmt.Println("Available until: ", AvailableDate)
+	// fmt.Println("Barcode: ", barcode)
+
+    return membership, nil
 }

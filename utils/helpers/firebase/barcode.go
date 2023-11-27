@@ -14,9 +14,9 @@ import (
 	"net/http"
 )
 
-func GenerateBarcodeAndUploadToFirebase(ctx echo.Context, codeMember string) (string, error) {
+func GenerateBarcodeAndUploadToFirebase(ctx echo.Context, Code_Member string) (string, error) {
 	// Generate the barcode
-	barcodeEncode, err := code128.Encode(codeMember)
+	barcodeEncode, err := code128.Encode(Code_Member)
 	if err != nil {
 		return "", ctx.String(http.StatusInternalServerError, fmt.Sprintf("Error generating barcode: %v", err))
 	}
@@ -48,7 +48,7 @@ func GenerateBarcodeAndUploadToFirebase(ctx echo.Context, codeMember string) (st
 	contentType := "image/png"
 
 	// Set the destination path in Firebase Storage
-	storagePath := "barcode/" + codeMember + ".png"
+	storagePath := "barcode/" + Code_Member + ".png"
 
 	// Upload the file to Firebase Storage with the determined content type
 	object := client.Bucket(bucketName).Object(storagePath)

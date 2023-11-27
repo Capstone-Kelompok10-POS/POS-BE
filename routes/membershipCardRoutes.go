@@ -22,5 +22,5 @@ func MembershipCardRoutes(e *echo.Echo, db *gorm.DB) {
 	membershipCardGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	membershipCardGroup.GET("/:id", MembershipCardHandler.PrintMembershipCardHandler, middleware.AuthMiddleware("Cashier"))
-	membershipCardGroup.GET("/barcode", handler.ShowBarcodeHandler, middleware.AuthMiddleware("Cashier"))
+	// membershipCardGroup.GET("/barcode/:", handler.ShowBarcodeHandler, middleware.AuthMiddleware("Cashier"))
 }

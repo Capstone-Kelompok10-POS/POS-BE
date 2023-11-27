@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"qbills/models/domain"
 	"qbills/repository"
+	// "qbills/utils/helpers/firebase"
 
 	// "github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -27,7 +28,7 @@ func NewMembershipCardService(membershipCardRepository repository.MembershipCard
 }
 
 func (service *MembershipCardServiceImpl) FindById(ctx echo.Context, id int) (*domain.Membership, error) {
-	existingMembership, _ := service.MembershipCardRepository.PrintMembershipCard(id)
+	existingMembership, _ := service.MembershipCardRepository.PrintMembershipCard(ctx, id)
 	if existingMembership == nil {
 		return nil, fmt.Errorf("membership not found")
 	}
@@ -41,7 +42,7 @@ func (service *MembershipCardServiceImpl) PrintMembershipCard(ctx echo.Context, 
 		return nil, fmt.Errorf("membership not found")
 	}
 
-	result, err := service.MembershipCardRepository.PrintMembershipCard(id)
+	result, err := service.MembershipCardRepository.PrintMembershipCard(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("error creating membership card: %s", err.Error())
 	}
