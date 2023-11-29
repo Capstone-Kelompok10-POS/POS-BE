@@ -10,7 +10,6 @@ import (
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
 	"strconv"
-	"strings"
 )
 
 type ProductService interface {
@@ -21,7 +20,6 @@ type ProductService interface {
 	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
 	FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
-	UploadImageProduct(ctx echo.Context) (string, error)
 	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
 }
 
