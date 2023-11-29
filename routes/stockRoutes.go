@@ -17,8 +17,7 @@ func StockRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 
 	Group := e.Group("/api/v1/stocks")
 
-	Group.POST("/increase", stockHandler.CreateIncreaseStockHandler)
-	Group.POST("/decrease", stockHandler.CreateDecreaseStockHandler)
+	Group.POST("", stockHandler.UpdateStockHandler)
 	Group.GET("", stockHandler.FindAllStockHandler)
 	Group.GET("/:id", stockHandler.FindByIdStockHandler)
 	Group.GET("/get/increase", stockHandler.FindIncreaseStockHandler)

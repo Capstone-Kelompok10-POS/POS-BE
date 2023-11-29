@@ -18,7 +18,7 @@ type CashierService interface {
 	UpdateCashier(ctx echo.Context, request web.CashierUpdateRequest, id int) (*domain.Cashier, error)
 	FindById(ctx echo.Context, id int) (*domain.Cashier, error)
 	FindAll(ctx echo.Context) ([]domain.Cashier, error)
-	FindByName(ctx echo.Context, name string) (*domain.Cashier, error)
+	FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error)
 	DeleteCashier(ctx echo.Context, id int) error
 }
 
@@ -116,13 +116,12 @@ func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, 
 	return cashiers, nil
 }
 
-func (service *CashierServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Cashier, error) {
+func (service *CashierServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error) {
 	cashier, _ := service.CashierRepository.FindByUsername(name)
-
 	if cashier == nil {
 		return nil, fmt.Errorf("cashier not found")
 	}
-
+	
 	return cashier, nil
 }
 

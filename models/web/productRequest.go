@@ -12,6 +12,7 @@ type ProductCreateRequest struct {
 }
 
 type ProductUpdateRequest struct {
+	AdminID       uint    `json:"adminID" gorm:"index;not null"`
 	ProductTypeID uint    `json:"productTypeID"`
 	Name          string  `json:"name"`
 	Ingredients   string  `json:"ingredients"`

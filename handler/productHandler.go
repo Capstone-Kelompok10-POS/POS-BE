@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/firebase"
 	"qbills/utils/request"
 	res "qbills/utils/response"
 	"strconv"
@@ -33,11 +34,12 @@ func NewProductHandler(ProductService services.ProductService) ProductHandler {
 
 func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 
-	url, err := c.ProductService.UploadImageProduct(ctx)
+	url, err := firebase.UploadImageProduct(ctx)
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
 	}
+
 	productRequest := new(web.ProductCreateRequest)
 
 	if err := ctx.Bind(productRequest); err != nil {
@@ -60,7 +62,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 
 	name := ctx.FormValue("name")
 
-	ingredient := ctx.FormValue("ingredient")
+	ingredients := ctx.FormValue("ingredients")
 
 	priceStr := ctx.FormValue("price")
 
@@ -75,7 +77,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = adminId
 	productRequest.Name = name
-	productRequest.Ingredients = ingredient
+	productRequest.Ingredients = ingredients
 	productRequest.Price = price
 	productRequest.Size = size
 	productRequest.Image = url
@@ -120,7 +122,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 		imageURL = existingProduct.Image
 	} else {
 		// Jika ada file gambar yang diunggah, proses unggah gambar baru
-		url, err := c.ProductService.UploadImageProduct(ctx)
+		url, err := firebase.UploadImageProduct(ctx)
 		if err != nil {
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
 		}
@@ -135,7 +137,8 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	productTypeID := uint(productTypeInt)
 
 	name := ctx.FormValue("name")
-	ingredient := ctx.FormValue("ingredient")
+
+	ingredients := ctx.FormValue("ingredients")
 
 	priceStr := ctx.FormValue("price")
 	// Mengonversi string ke float64
@@ -149,13 +152,14 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	// Mengupdate nilai-nilai produk yang sudah ada
 	existingProduct.ProductTypeID = productTypeID
 	existingProduct.Name = name
-	existingProduct.Ingredients = ingredient
+	existingProduct.Ingredients = ingredients
 	existingProduct.Price = price
 	existingProduct.Size = size
 	existingProduct.Image = imageURL // Gunakan imageURL yang baru diunggah
 
 	// Lakukan pembaruan data produk ke dalam database
 	req := request.ProductDomainToProductUpdateRequest(existingProduct)
+
 	result, err := c.ProductService.UpdateProductService(ctx, req, uint(productID))
 
 	result.ID = existingProduct.ID
