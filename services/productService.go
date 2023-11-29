@@ -9,6 +9,7 @@ import (
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
+	"strconv"
 )
 
 type ProductService interface {
@@ -17,7 +18,9 @@ type ProductService interface {
 	FindByIdProductService(ctx echo.Context, id uint) (*domain.Product, error)
 	FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error)
 	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
+	FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
+	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
 }
 
 type ProductServiceImpl struct {
@@ -102,6 +105,16 @@ func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, na
 	return products, nil
 }
 
+func (service *ProductServiceImpl) FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error) {
+	product, err := service.ProductRepository.FindByCategory(productTypeID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return product, nil
+}
+
 func (service *ProductServiceImpl) DeleteProductService(ctx echo.Context, id uint) error {
 	exitingProduct, _ := service.ProductRepository.FindById(id)
 	if exitingProduct == nil {
@@ -115,4 +128,26 @@ func (service *ProductServiceImpl) DeleteProductService(ctx echo.Context, id uin
 	}
 
 	return nil
+}
+
+func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error) {
+
+	orderBy := ctx.QueryParam("orderBy")
+	QueryLimit := ctx.QueryParam("limit")
+	QueryPage := ctx.QueryParam("page")
+
+	Page, _ := strconv.Atoi(QueryPage)
+	Limit, _ := strconv.Atoi(QueryLimit)
+
+	Paginate := helpers.Pagination{
+		Page:  uint(Page),
+		Limit: uint(Limit),
+	}
+
+	result, paginate, err := service.ProductRepository.FindPaginationProduct(orderBy, Paginate)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Product is empty")
+	}
+
+	return result, paginate, nil
 }

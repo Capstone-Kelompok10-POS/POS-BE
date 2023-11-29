@@ -111,7 +111,7 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error {
 	cashierName := ctx.Param("name")
 
-	result, err := c.CashierService.FindByUsername(ctx, cashierName)
+	result, err := c.CashierService.FindByName(ctx, cashierName)
 	if err != nil {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))

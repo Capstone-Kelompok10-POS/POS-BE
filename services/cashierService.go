@@ -27,7 +27,6 @@ type CashierServiceImpl struct {
 	Validate          *validator.Validate
 }
 
-
 func NewCashierService(cashierRepository repository.CashierRepository, validate *validator.Validate) *CashierServiceImpl {
 	return &CashierServiceImpl{
 		CashierRepository: cashierRepository,
@@ -119,7 +118,6 @@ func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, 
 
 func (service *CashierServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error) {
 	cashier, _ := service.CashierRepository.FindByUsername(name)
-	fmt.Println(cashier)
 	if cashier == nil {
 		return nil, fmt.Errorf("cashier not found")
 	}
