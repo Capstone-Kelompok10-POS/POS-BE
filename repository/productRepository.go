@@ -46,7 +46,7 @@ func (repository *ProductRepositoryImpl) Create(request *domain.Product) (*domai
 }
 
 func (repository *ProductRepositoryImpl) Update(request *domain.Product, id uint) (*domain.Product, error) {
-	result := repository.DB.Table("products").Where("id = ?", id).Save(request)
+	result := repository.DB.Table("products").Where("id = ?", id).Updates(request)
 
 	if result.Error != nil {
 		return nil, result.Error

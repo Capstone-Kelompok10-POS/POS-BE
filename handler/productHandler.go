@@ -33,72 +33,59 @@ func NewProductHandler(ProductService services.ProductService) ProductHandler {
 }
 
 func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
-
 	url, err := firebase.UploadImageProduct(ctx)
 
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
+		if url == "" {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("File not found"))
+		}
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to upload file"))
 	}
 
 	productRequest := new(web.ProductCreateRequest)
 
 	if err := ctx.Bind(productRequest); err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input"))
 	}
 
 	productTypeIDStr := ctx.FormValue("productTypeID")
 	productTypeInt, err := strconv.Atoi(productTypeIDStr)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input product type"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input product type"))
 	}
 	productTypeID := uint(productTypeInt)
 
 	strAdminId := ctx.FormValue("adminID")
 	adminIdInt, err := strconv.Atoi(strAdminId)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input admin id"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input admin id"))
 	}
 	adminId := uint(adminIdInt)
 
 	name := ctx.FormValue("name")
-
 	ingredients := ctx.FormValue("ingredients")
-
-	priceStr := ctx.FormValue("price")
-
-	// Mengonversi string ke float64
-	price, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid price format"})
-	}
-
-	size := ctx.FormValue("size")
 
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = adminId
 	productRequest.Name = name
 	productRequest.Ingredients = ingredients
-	productRequest.Price = price
-	productRequest.Size = size
 	productRequest.Image = url
 
 	result, err := c.ProductService.CreateProductService(ctx, *productRequest)
 
-	result.ProductTypeID = productTypeID
-
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid validation"))
 		default:
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to create product"))
+			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to create product"))
 		}
 	}
 
+	result.ProductTypeID = productTypeID
 	response := res.ProductDomainToProductCreateResponse(result)
 
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success create product", response))
-
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("Success create product", response))
 }
 
 func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
@@ -140,21 +127,10 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 
 	ingredients := ctx.FormValue("ingredients")
 
-	priceStr := ctx.FormValue("price")
-	// Mengonversi string ke float64
-	price, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid price format"})
-	}
-
-	size := ctx.FormValue("size")
-
 	// Mengupdate nilai-nilai produk yang sudah ada
 	existingProduct.ProductTypeID = productTypeID
 	existingProduct.Name = name
 	existingProduct.Ingredients = ingredients
-	existingProduct.Price = price
-	existingProduct.Size = size
 	existingProduct.Image = imageURL // Gunakan imageURL yang baru diunggah
 
 	// Lakukan pembaruan data produk ke dalam database
