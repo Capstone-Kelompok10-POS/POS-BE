@@ -9,9 +9,9 @@ import (
 	"github.com/boombuler/barcode/code128"
 )
 
-func GenerateBarcode(Code_Member string) error {
+func GenerateBarcode(CodeMember string) error {
 	// Generate the barcode
-	barcodeEncode, err := code128.Encode(Code_Member)
+	barcodeEncode, err := code128.Encode(CodeMember)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -19,7 +19,7 @@ func GenerateBarcode(Code_Member string) error {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	file, err := os.Create(Code_Member+".png")
+	file, err := os.Create(CodeMember+".png")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
