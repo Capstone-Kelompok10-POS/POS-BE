@@ -13,7 +13,7 @@ func MembershipDomainToMembershipResponse(membership *domain.Membership) web.Mem
 		Name:         membership.Name,
 		CodeMember:   membership.CodeMember,
 		Point:        membership.Point,
-		Phone_Number: membership.Phone_Number,
+		PhoneNumber: membership.PhoneNumber,
 	}
 }
 
@@ -24,7 +24,7 @@ func MembershipSchemaToMembershipDomain(membership *schema.Membership) *domain.M
 		Name:         membership.Name,
 		CodeMember:   membership.CodeMember,
 		Point:        membership.Point,
-		Phone_Number: membership.Phone_Number,
+		PhoneNumber: membership.PhoneNumber,
 	}
 }
 
@@ -37,7 +37,7 @@ func ConvertMembershipResponse(memberships []domain.Membership) []web.Membership
 			Name:         membership.Name,
 			CodeMember:   membership.CodeMember,
 			Point:        membership.Point,
-			Phone_Number: membership.Phone_Number,
+			PhoneNumber: membership.PhoneNumber,
 		}
 		results = append(results, membershipResponse)
 	}

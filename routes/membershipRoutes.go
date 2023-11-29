@@ -28,4 +28,5 @@ func MembershipRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	membershipGroup.GET("/name/:name", MembershipHandler.GetMembershipByNameHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.PUT("/:id", MembershipHandler.UpdateMembershipHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.DELETE("/:id", MembershipHandler.DeleteMembershipHandler, middleware.AuthMiddleware("Cashier"))
+
 }

@@ -37,6 +37,7 @@ func Migrate() {
 	err := DB.AutoMigrate(
 		&schema.SuperAdmin{},
 		&schema.Admin{},
+    &schema.ConvertPoint{},
 		&schema.ProductType{},
 		&schema.Product{},
 		&schema.Stock{},

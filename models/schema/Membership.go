@@ -18,7 +18,7 @@ type Membership struct {
 	Name         string    `gorm:"name"`
 	CodeMember   uuid.UUID `gorm:"type:char(36);notnull"`
 	Point        uint      `json:"point"`
-	Phone_Number string    `json:"phone_number"`
+	PhoneNumber string    `json:"phoneNumber"`
 	Barcode      string    `json:"barcode"`
 }
 

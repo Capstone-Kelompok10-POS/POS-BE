@@ -36,6 +36,7 @@ func main() {
 	routes.AdminRoutes(myApp, drivers.DB, validate)
 	routes.CashierRoutes(myApp, drivers.DB, validate)
 	routes.SuperAdminRoutes(myApp, drivers.DB, validate)
+	routes.ConvertPointRoutes(myApp, drivers.DB, validate)
 	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
 	routes.ProductRoutes(myApp, drivers.DB, validate)
 	routes.StockRoutes(myApp, drivers.DB, validate)

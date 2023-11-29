@@ -1,11 +1,15 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
+	"os"
 	"qbills/models/domain"
 	"qbills/models/schema"
+	"qbills/utils/helpers"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+	"strconv"
 )
 
 type ProductRepository interface {
@@ -14,7 +18,9 @@ type ProductRepository interface {
 	FindById(id uint) (*domain.Product, error)
 	FindAll() ([]domain.Product, error)
 	FindByName(name string) ([]domain.Product, error)
+	FindByCategory(ProductTypeID uint) ([]domain.Product, error)
 	Delete(id uint) error
+	FindPaginationProduct(orderBy string, paginate helpers.Pagination) ([]domain.Product, *helpers.Pagination, error)
 }
 
 type ProductRepositoryImpl struct {
@@ -72,6 +78,18 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
 	return product, nil
 }
 
+func (repository *ProductRepositoryImpl) FindByCategory(ProductTypeID uint) ([]domain.Product, error) {
+	products := []domain.Product{}
+
+	result := repository.DB.Preload("ProductType").Preload("Admin").Where("product_type_id = ?", ProductTypeID).Find(&products)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return products, nil
+}
+
 func (repository *ProductRepositoryImpl) FindByName(name string) ([]domain.Product, error) {
 	products := []domain.Product{}
 
@@ -93,4 +111,38 @@ func (repository *ProductRepositoryImpl) Delete(id uint) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (repository *ProductRepositoryImpl) FindPaginationProduct(orderBy string, paginate helpers.Pagination) ([]domain.Product, *helpers.Pagination, error) {
+	var products []domain.Product
+
+	result := repository.DB.Scopes(helpers.Paginate(products, &paginate, repository.DB)).Preload("Admin").Preload("ProductType")
+
+	if orderBy != "" {
+		result.Order("name " + orderBy).Find(&products)
+	} else {
+		result.Find(&products)
+	}
+
+	if result.Error != nil {
+		return nil, nil, result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, nil, fmt.Errorf("products is empty")
+	}
+
+	if paginate.Page <= 1 {
+		paginate.PreviousPage = ""
+	} else {
+		paginate.PreviousPage = os.Getenv("MAIN_URL") + "/api/" + os.Getenv("API_VERSION") + "/product/pagination?page=" + strconv.Itoa(int(paginate.Page)-1)
+	}
+
+	if paginate.Page >= paginate.TotalPage {
+		paginate.NextPage = ""
+	} else {
+		paginate.NextPage = os.Getenv("MAIN_URL") + "/api/" + os.Getenv("API_VERSION") + "/product/pagination?page=" + strconv.Itoa(int(paginate.Page)+1)
+	}
+
+	return products, &paginate, nil
 }

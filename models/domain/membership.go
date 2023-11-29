@@ -8,6 +8,6 @@ type Membership struct {
 	Name         string
 	CodeMember   uuid.UUID
 	Point        uint
-	Phone_Number string
+	PhoneNumber string
 	Barcode      string
 }

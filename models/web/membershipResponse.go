@@ -9,6 +9,6 @@ type MembershipResponse struct {
 	Name         string    `json:"name"`
 	CodeMember   uuid.UUID `json:"CodeMember"`
 	Point        uint      `json:"point"`
-	Phone_Number string    `json:"phone_number"`
+	PhoneNumber string    `json:"phoneNumber"`
 	Barcode      string    `json:"barcode"`
 }
