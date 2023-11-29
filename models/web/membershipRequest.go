@@ -12,4 +12,3 @@ type MembershipUpdateRequest struct {
 	Point       uint   `json:"point"`
 	PhoneNumber string `json:"phoneNumber" validate:"required,min=1,max=15"`
 }
-
