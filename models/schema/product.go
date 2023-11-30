@@ -17,8 +17,5 @@ type Product struct {
 	Admin         Admin       `gorm:"foreignKey:AdminID"`
 	Name          string      `json:"name" gorm:"not null"`
 	Ingredients   string      `json:"ingredients" gorm:"not null"`
-	Price         float64     `json:"price" gorm:"type:decimal(10,2);not null"`
-	TotalStock    int         `json:"totalStock" gorm:"not null"`
-	Size          string      `json:"size" gorm:"type:ENUM('SMALL', 'NORMAL', 'LARGE');not null;default:'NORMAL'"`
 	Image         string      `json:"image" gorm:"not null"`
 }

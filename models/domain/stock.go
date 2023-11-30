@@ -14,6 +14,6 @@ type StockResponse struct {
 	ID        uint
 	CreatedAt time.Time
 	ProductID uint
-	Product   ProductResponse
+	Product   Product
 	Stock     int
 }

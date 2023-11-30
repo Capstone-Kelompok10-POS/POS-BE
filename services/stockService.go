@@ -45,7 +45,7 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 
 	product, err := service.ProductRepository.FindById(req.ProductID)
 
-	product.TotalStock += req.Stock
+	//product.TotalStock += req.Stock
 
 	if err != nil {
 		return nil, err

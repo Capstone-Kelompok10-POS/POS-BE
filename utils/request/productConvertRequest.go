@@ -12,9 +12,6 @@ func ProductCreateRequestToProductDomain(request web.ProductCreateRequest) *doma
 		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
-		Price:         request.Price,
-		TotalStock:    request.TotalStock,
-		Size:          request.Size,
 		Image:         request.Image,
 	}
 }
@@ -25,9 +22,6 @@ func ProductUpdateRequestToProductDomain(request web.ProductUpdateRequest) *doma
 		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
-		Price:         request.Price,
-		TotalStock:    request.TotalStock,
-		Size:          request.Size,
 		Image:         request.Image,
 	}
 }
@@ -38,9 +32,6 @@ func ProductDomainToProductUpdateRequest(request *domain.Product) web.ProductUpd
 		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
-		Price:         request.Price,
-		TotalStock:    request.TotalStock,
-		Size:          request.Size,
 		Image:         request.Image,
 	}
 }
@@ -52,9 +43,6 @@ func ProductDomainToProductSchema(request domain.Product) *schema.Product {
 		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
-		Price:         request.Price,
-		TotalStock:    request.TotalStock,
-		Size:          request.Size,
 		Image:         request.Image,
 	}
 }
