@@ -8,15 +8,17 @@ type ProductResponse struct {
 	ProductType   domain.ProductType `json:"productType"`
 	AdminID       uint               `json:"adminID"`
 	Admin         domain.Admin       `json:"admin"`
-	Name          string             `json:"name"`
-	Ingredients   string             `json:"ingredients" gorm:"not null"`
-	Image         string             `json:"image"`
+	ProductDetail []domain.ProductDetail
+	Name          string `json:"name"`
+	Ingredients   string `json:"ingredients" gorm:"not null"`
+	Image         string `json:"image"`
 }
 
 type ProductResponseCustom struct {
-	ID            uint                 `json:"ID"`
-	ProductTypeID uint                 `json:"productTypeID"`
-	ProductType   domain.ProductType   `json:"productType"`
+	ID            uint               `json:"ID"`
+	ProductTypeID uint               `json:"productTypeID"`
+	ProductType   domain.ProductType `json:"productType"`
+	ProductDetail []domain.ProductDetail
 	AdminID       uint                 `json:"adminID"`
 	Admin         domain.AdminResponse `json:"admin"`
 	Name          string               `json:"name"`

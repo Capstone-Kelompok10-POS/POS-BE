@@ -27,6 +27,7 @@ func ProductDomainToProductResponse(product *domain.Product) web.ProductResponse
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
 		Image:         product.Image,
+		ProductDetail: product.ProductDetail,
 	}
 }
 
@@ -66,6 +67,7 @@ func ConvertProductResponse(products []domain.Product) []web.ProductResponseCust
 			Name:          product.Name,
 			Ingredients:   product.Ingredients,
 			Image:         product.Image,
+			ProductDetail: product.ProductDetail,
 		}
 		results = append(results, productResponse)
 	}
@@ -85,6 +87,7 @@ func ProductResponseToProductCostumResponse(product web.ProductResponse) web.Pro
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
 		Image:         product.Image,
+		ProductDetail: product.ProductDetail,
 	}
 }
 
@@ -112,6 +115,7 @@ func ProductResponseToProductPreloadResponse(response domain.Product) domain.Pro
 		Name:          response.Name,
 		Ingredients:   response.Ingredients,
 		Image:         response.Image,
+		ProductDetail: response.ProductDetail,
 	}
 }
 
@@ -123,5 +127,6 @@ func DomainProductToDomainResponseProduct(response domain.Product) domain.Produc
 		Name:          response.Name,
 		Ingredients:   response.Ingredients,
 		Image:         response.Image,
+		ProductDetail: response.ProductDetail,
 	}
 }
