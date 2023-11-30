@@ -6,11 +6,11 @@ import (
 )
 
 type Product struct {
-	ID        uint           `gorm:"primaryKey"`
-	CreatedAt time.Time      `gorm:"autoCreateTime"`
-	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-
+	ID            uint           `gorm:"primaryKey"`
+	CreatedAt     time.Time      `gorm:"autoCreateTime"`
+	UpdatedAt     time.Time      `gorm:"autoUpdateTime"`
+	DeletedAt     gorm.DeletedAt `gorm:"index"`
+	ProductDetail []ProductDetail
 	ProductTypeID uint        `gorm:"index;not null"`
 	ProductType   ProductType `gorm:"foreignKey:ProductTypeID"`
 	AdminID       uint        `gorm:"index;not null"`
