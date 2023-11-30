@@ -98,3 +98,4 @@ func (repository *MembershipRepositoryImpl) Delete(id int) error {
 		return result.Error
 	}
 	return nil
+}
