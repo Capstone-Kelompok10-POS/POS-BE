@@ -7,3 +7,9 @@ type Admin struct {
 	Username     string
 	Password     string
 }
+type AdminResponse struct {
+	ID           uint   `json:"id"`
+	SuperAdminID uint   `json:"superAdminID"`
+	FullName     string `json:"fullName"`
+	Username     string `json:"username"`
+}

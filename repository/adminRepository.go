@@ -15,7 +15,6 @@ type AdminRepository interface {
 	FindById(id int) (*domain.Admin, error)
 	FindByUsername(username string) (*domain.Admin, error)
 	FindAll() ([]domain.Admin, error)
-	FindByName(name string) (*domain.Admin, error)
 	Delete(id int) error
 }
 
@@ -40,9 +39,9 @@ func (repository *AdminRepositoryImpl) Create(admin *domain.Admin) (*domain.Admi
 
 func (repository *AdminRepositoryImpl) Update(admin *domain.Admin, id int) (*domain.Admin, error) {
 	result := repository.DB.Table("admins").Where("id = ?", id).Updates(domain.Admin{
-		FullName:           admin.FullName,
-		Username:          admin.Username,
-		Password:       admin.Password})
+		FullName: admin.FullName,
+		Username: admin.Username,
+		Password: admin.Password})
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -54,6 +53,7 @@ func (repository *AdminRepositoryImpl) FindById(id int) (*domain.Admin, error) {
 	admin := domain.Admin{}
 
 	result := repository.DB.First(&admin, id)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -63,13 +63,15 @@ func (repository *AdminRepositoryImpl) FindById(id int) (*domain.Admin, error) {
 func (repository *AdminRepositoryImpl) FindByUsername(username string) (*domain.Admin, error) {
 	admin := domain.Admin{}
 
-	result := repository.DB.Where("username = ?", username).First(&admin)
+	query := "SELECT admins.* FROM admins WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
+	result := repository.DB.Raw(query, username).Scan(&admin)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	return &admin, nil
 }
+
 
 func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 	admin := []domain.Admin{}
@@ -81,15 +83,6 @@ func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 	return admin, nil
 }
 
-func (repository *AdminRepositoryImpl) FindByName(name string) (*domain.Admin, error) {
-	admin := domain.Admin{}
-	result := repository.DB.Where("LOWER(full_name) LIKE LOWER(?)", "%"+name+"%").First(&admin)
-
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &admin, nil
-}
 
 func (repository *AdminRepositoryImpl) Delete(id int) error {
 	result := repository.DB.Delete(&schema.Admin{}, id)

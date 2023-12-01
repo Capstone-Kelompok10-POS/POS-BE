@@ -42,8 +42,9 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 
 	existingAdmin, _ := service.AdminRepository.FindByUsername(request.Username)
 	if existingAdmin != nil {
-		return nil, fmt.Errorf("email already exists")
+		return nil, fmt.Errorf("username already exists")
 	}
+
 	admin := req.AdminCreateRequestToAdminDomain(request)
 
 	admin.Password = helpers.HashPassword(admin.Password)
@@ -64,14 +65,14 @@ func (service *AdminServiceImpl) LoginAdmin(ctx echo.Context, request web.AdminL
 
 	existingAdmin, err := service.AdminRepository.FindByUsername(request.Username)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	admin := req.AdminLoginRequestToAdminDomain(request)
 
 	err = helpers.ComparePassword(existingAdmin.Password, admin.Password)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	return existingAdmin, nil
@@ -118,7 +119,8 @@ func (service *AdminServiceImpl) FindAll(ctx echo.Context) ([]domain.Admin, erro
 }
 
 func (service *AdminServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Admin, error) {
-	admin, _ := service.AdminRepository.FindByName(name)
+	admin, _ := service.AdminRepository.FindByUsername(name)
+	fmt.Println(admin)
 	if admin == nil {
 		return nil, fmt.Errorf("admin not found")
 	}
