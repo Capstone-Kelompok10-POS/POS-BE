@@ -6,19 +6,19 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-func ProductAI(userInput, openAIKey string) (string, error) {
+func ProductAI(mapproduct, openAIKey string) (string, error) {
 	ctx := context.Background()
 	client := openai.NewClient(openAIKey)
 	model := openai.GPT3Dot5Turbo
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "",
+			Content: "Give one product recommendation from:",
 		},
 
 		{
 			Role:    openai.ChatMessageRoleUser,
-			Content: userInput,
+			Content: mapproduct,
 		},
 	}
 
