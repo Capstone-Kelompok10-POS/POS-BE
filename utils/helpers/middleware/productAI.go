@@ -2,9 +2,32 @@ package middleware
 
 import (
 	"context"
+	"qbills/models/domain"
 
+	"github.com/jinzhu/gorm"
 	"github.com/sashabaranov/go-openai"
 )
+
+type MiddlewareImpl struct {
+	DB *gorm.DB
+}
+
+func (middleware *MiddlewareImpl) GetAllPruducts() (map[uint]string, error) {
+	products := []domain.Product{}
+
+	result := middleware.DB.Preload("Name").Where("deleted_at IS NULL").Find(&products)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	productMap := make(map[uint]string)
+	for _, product := range products {
+		productMap[product.ID] = product.Name
+	}
+
+	return productMap, nil
+}
 
 func ProductAI(mapproduct, openAIKey string) (string, error) {
 	ctx := context.Background()
