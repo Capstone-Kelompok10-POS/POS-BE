@@ -1,9 +1,9 @@
 package web
 
 type AdminCreateRequest struct {
-	SuperAdminID uint   `json:"superAdminID"`
+	SuperAdminID uint   `json:"superAdminId"`
 	FullName     string `json:"fullname" validate:"required,min=1,max=255"`
-	Username     string `json:"username" validate:"required,min=1"`
+	Username     string `json:"username" validate:"required,alphanum,min=1"`
 	Password     string `json:"password" validate:"required,min=8"`
 }
 
@@ -13,8 +13,8 @@ type AdminLoginRequest struct {
 }
 
 type AdminUpdateRequest struct {
-	SuperAdminID uint   `json:"superAdminID"`
-	FullName     string `json:"fullname" validate:"required,min=1,max=255"`
-	Username     string `json:"username" validate:"required,min=1"`
+	SuperAdminID uint   `json:"superAdminId"`
+	FullName     string `json:"fullname" validate:"required,alpha,min=1,max=255"`
+	Username     string `json:"username" validate:"required,alphanum,min=1"`
 	Password     string `json:"password" validate:"required,min=8"`
 }

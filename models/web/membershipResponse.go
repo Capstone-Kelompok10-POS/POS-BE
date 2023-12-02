@@ -7,11 +7,6 @@ type MembershipResponse struct {
 	ID           uint      `json:"id"`
 	CashierID    uint      `json:"cashierId"`
 	Name         string    `json:"name"`
-<<<<<<< Updated upstream
-	CodeMember   uuid.UUID `json:"CodeMember"`
-	Point        uint      `json:"point"`
-	Phone_Number string    `json:"phone_number"`
-=======
 	CodeMember   uuid.UUID `json:"codeMember"`
 	Point        int       `json:"point"`
 	PhoneNumber string     `json:"phoneNumber"`
@@ -23,5 +18,4 @@ type MembershipTransactionResponse struct {
 	CodeMember   uuid.UUID `json:"codeMember"`
 	Point        int       `json:"point"`
 	PhoneNumber string     `json:"phoneNumber"`
->>>>>>> Stashed changes
 }

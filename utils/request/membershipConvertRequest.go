@@ -8,18 +8,18 @@ import (
 
 func MembershipCreateRequestToMembershipDomain(request web.MembershipCreateRequest) *domain.Membership {
 	return &domain.Membership{
-		CashierID:    request.CashierID,
-		Name:         request.Name,
-		Phone_Number: request.Phone_Number,
+		CashierID:   request.CashierID,
+		Name:        request.Name,
+		PhoneNumber: request.PhoneNumber,
 	}
 }
 
 func MembershipUpdateRequestToMembershipDomain(request web.MembershipUpdateRequest) *domain.Membership {
 	return &domain.Membership{
-		CashierID:    request.CashierID,
-		Name:         request.Name,
-		Point:        request.Point,
-		Phone_Number: request.Phone_Number,
+		CashierID:   request.CashierID,
+		Name:        request.Name,
+		Point:       request.Point,
+		PhoneNumber: request.PhoneNumber,
 	}
 }
 
@@ -27,8 +27,8 @@ func MembershipDomainintoMembershipSchema(request domain.Membership) *schema.Mem
 	return &schema.Membership{
 		CashierID:    request.CashierID,
 		Name:         request.Name,
-		CodeMember:   request.CodeMember,
+		CodeMember:  request.CodeMember,
 		Point:        request.Point,
-		Phone_Number: request.Phone_Number,
+		PhoneNumber: request.PhoneNumber,
 	}
 }
