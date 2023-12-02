@@ -115,6 +115,9 @@ func (c *AdminHandlerImpl) GetAdminHandler(ctx echo.Context) error {
 
 func (c AdminHandlerImpl) GetAdminsHandler(ctx echo.Context) error {
 	result, err := c.AdminService.FindAll(ctx)
+	if result == nil {
+		return ctx.JSON(http.StatusNoContent, helpers.ErrorResponse("admins not found"))
+	}
 	if err != nil {
 		if strings.Contains(err.Error(), "admins not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admins not found"))

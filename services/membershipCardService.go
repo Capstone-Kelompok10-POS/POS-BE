@@ -40,9 +40,13 @@ func (service *MembershipCardServiceImpl) PrintMembershipCard(ctx echo.Context, 
 	membership.Barcode = barcode
 
     // Update hanya kolom barcode di database
-	result, err := service.MembershipCardRepository.UpdateBarcode(int(membership.ID), membership.Barcode)
+	_ , err = service.MembershipCardRepository.UpdateBarcode(int(membership.ID), membership.Barcode)
 	if err != nil {
 		return nil, fmt.Errorf("error creating membership card: %s", err.Error())
+	}
+	result , _ := service.MembershipCardRepository.FindById(id)
+	if result == nil {
+		return nil, fmt.Errorf("membership not found")
 	}
 
 	return result, nil

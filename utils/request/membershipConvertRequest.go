@@ -16,7 +16,6 @@ func MembershipCreateRequestToMembershipDomain(request web.MembershipCreateReque
 
 func MembershipUpdateRequestToMembershipDomain(request web.MembershipUpdateRequest) *domain.Membership {
 	return &domain.Membership{
-		CashierID:   request.CashierID,
 		Name:        request.Name,
 		Point:       request.Point,
 		PhoneNumber: request.PhoneNumber,

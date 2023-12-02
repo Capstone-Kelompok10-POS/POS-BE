@@ -33,7 +33,11 @@ func NewCashierHandler(cashierService services.CashierService) CashierHandler {
 }
 
 func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
-	cashierCreateRequest := web.CashierCreateRequest{}
+	adminID := middleware.ExtractTokenAdminId(ctx)
+	if adminID == 0.0 {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid token admin"))
+	}
+	cashierCreateRequest := web.CashierCreateRequest{AdminID: uint(adminID)}
 	err := ctx.Bind(&cashierCreateRequest)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid input"))
@@ -113,7 +117,7 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 }
 
 func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error {
-	cashierName := ctx.Param("name")
+	cashierName := ctx.Param("username")
 
 	result, err := c.CashierService.FindByUsername(ctx, cashierName)
 	if err != nil {

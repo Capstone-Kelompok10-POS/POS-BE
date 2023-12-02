@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
+	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -9,6 +9,8 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 
 	"github.com/sirupsen/logrus"
 )
@@ -69,6 +71,7 @@ func (c *PaymentMethodHandlerImpl) UpdatePaymentMethodHandler(ctx echo.Context) 
 
 	// Update Payment Method
 	if _, err := c.service.UpdatePaymentMethod(ctx, paymentUpdateRequest, paymentMethodIdInt); err != nil {
+		fmt.Print(err)
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("validation failed"))
 		} else if strings.Contains(err.Error(), "payment method not found") {

@@ -74,7 +74,8 @@ func (repository *AdminRepositoryImpl) FindByUsername(username string) (*domain.
 
 func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 	admin := []domain.Admin{}
-	result := repository.DB.Find(&admin)
+	query := "SELECT * FROM admins WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&admin)
 	if result.Error != nil {
 		return nil, result.Error
 	}

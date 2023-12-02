@@ -298,7 +298,7 @@ func (service *ProductServiceImpl) UploadImageProduct(ctx echo.Context) (string,
 
 	result, paginate, err := service.ProductRepository.FindPaginationProduct(orderBy, Paginate)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Product is empty")
+		return nil, nil, fmt.Errorf("product is empty")
 	}
 
 <<<<<<< Updated upstream
