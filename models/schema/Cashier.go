@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 package schema 
+=======
+package schema
+>>>>>>> Stashed changes
 
 import (
 	"time"
