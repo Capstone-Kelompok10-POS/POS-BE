@@ -9,6 +9,8 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type PaymentMethodHandler interface {
@@ -41,7 +43,10 @@ func (c *PaymentMethodHandlerImpl) CreatePaymentMethodHandler(ctx echo.Context) 
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-
+		if strings.Contains(err.Error(), "number") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("Payment Type ID is not valid must contain only number value"))
+		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("create payment method error"))
 	}
 

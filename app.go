@@ -41,8 +41,10 @@ func main() {
 	routes.ProductRoutes(myApp, drivers.DB, validate)
 	routes.StockRoutes(myApp, drivers.DB, validate)
 	routes.MembershipRoutes(myApp, drivers.DB, validate)
+	routes.MembershipCardRoutes(myApp, drivers.DB)
 	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
 	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
+	routes.ProductDetailRoutes(myApp, drivers.DB, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())

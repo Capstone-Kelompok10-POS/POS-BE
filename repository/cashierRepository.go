@@ -59,12 +59,12 @@ func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
 	return cashier, nil
 }
 
+
 func (repository *CashierRepositoryImpl) FindByUsername(name string) (*domain.Cashier, error) {
 	cashier := domain.Cashier{}
 	
-	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
-
-	result := repository.DB.Raw(query, name).Scan(&cashier)
+	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(cashiers.username) LIKE LOWER(?) AND deleted_at IS NULL"
+	result := repository.DB.Raw(query, name).First(&cashier)
 	if result.Error != nil {
 		return nil, result.Error
 	}
