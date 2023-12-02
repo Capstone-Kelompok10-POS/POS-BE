@@ -1,7 +1,7 @@
 package service
 
 import (
-  "art-local/features/core"
+  	"art-local/features/core"
 	"art-local/mocks"
 	"errors"
 	"testing"
