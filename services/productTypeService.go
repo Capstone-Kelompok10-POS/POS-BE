@@ -40,6 +40,11 @@ func (service *ProductTypeImpl) CreateProductType(ctx echo.Context, request web.
 
 	productType := req.ProductTypeCreateToProductTypeDomain(request)
 
+	existingProductType, _ := service.ProductTypeRepository.FindByName(request.TypeName)
+	if existingProductType != nil {
+		return nil, fmt.Errorf("product type name already exist")
+	}
+
 	result, err := service.ProductTypeRepository.Create(productType)
 
 	if err != nil {

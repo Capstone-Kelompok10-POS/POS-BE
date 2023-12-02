@@ -13,9 +13,6 @@ func ProductSchemaToProductDomain(product *schema.Product) *domain.Product {
 		AdminID:       product.AdminID,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
-		Price:         product.Price,
-		TotalStock:    product.TotalStock,
-		Size:          product.Size,
 		Image:         product.Image,
 	}
 }
@@ -29,10 +26,8 @@ func ProductDomainToProductResponse(product *domain.Product) web.ProductResponse
 		Admin:         product.Admin,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
-		Price:         product.Price,
-		TotalStock:    product.TotalStock,
-		Size:          product.Size,
 		Image:         product.Image,
+		ProductDetail: product.ProductDetail,
 	}
 }
 
@@ -43,9 +38,6 @@ func ProductDomainToProductCreateResponse(product *domain.Product) web.ProductCr
 		AdminID:       product.AdminID,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
-		Price:         product.Price,
-		TotalStock:    product.TotalStock,
-		Size:          product.Size,
 		Image:         product.Image,
 	}
 }
@@ -56,9 +48,6 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 		ProductTypeID: product.ProductTypeID,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
-		Price:         product.Price,
-		TotalStock:    product.TotalStock,
-		Size:          product.Size,
 		Image:         product.Image,
 	}
 }
@@ -77,10 +66,8 @@ func ConvertProductResponse(products []domain.Product) []web.ProductResponseCust
 			Admin:         Admins,
 			Name:          product.Name,
 			Ingredients:   product.Ingredients,
-			Price:         product.Price,
-			TotalStock:    product.TotalStock,
-			Size:          product.Size,
 			Image:         product.Image,
+			ProductDetail: product.ProductDetail,
 		}
 		results = append(results, productResponse)
 	}
@@ -99,10 +86,8 @@ func ProductResponseToProductCostumResponse(product web.ProductResponse) web.Pro
 		Admin:         admin,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
-		Price:         product.Price,
-		TotalStock:    product.TotalStock,
-		Size:          product.Size,
 		Image:         product.Image,
+		ProductDetail: product.ProductDetail,
 	}
 }
 
@@ -118,10 +103,7 @@ func ProductResponseToProductsCostumResponse(product web.ProductResponse) web.Pr
 		Admin:         admin,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
-		Price:         product.Price,
-		TotalStock:    product.TotalStock,
-		Size:          product.Size,
-		Image:         product.Size,
+		Image:         product.Image,
 	}
 }
 
@@ -132,10 +114,8 @@ func ProductResponseToProductPreloadResponse(response domain.Product) domain.Pro
 		AdminID:       response.AdminID,
 		Name:          response.Name,
 		Ingredients:   response.Ingredients,
-		Price:         response.Price,
-		TotalStock:    response.TotalStock,
-		Size:          response.Size,
 		Image:         response.Image,
+		ProductDetail: response.ProductDetail,
 	}
 }
 
@@ -146,9 +126,7 @@ func DomainProductToDomainResponseProduct(response domain.Product) domain.Produc
 		AdminID:       response.AdminID,
 		Name:          response.Name,
 		Ingredients:   response.Ingredients,
-		Price:         response.Price,
-		TotalStock:    response.TotalStock,
-		Size:          response.Size,
 		Image:         response.Image,
+		ProductDetail: response.ProductDetail,
 	}
 }

@@ -8,21 +8,23 @@ import (
 
 func MembershipDomainToMembershipResponse(membership *domain.Membership) web.MembershipResponse {
 	return web.MembershipResponse{
-		ID:        membership.ID,
-		CashierID: membership.CashierID,
-		Name:      membership.Name,
-		Point:     membership.Point,
-		Telephone: membership.Telephone,
+		ID:           membership.ID,
+		CashierID:    membership.CashierID,
+		Name:         membership.Name,
+		CodeMember:   membership.CodeMember,
+		Point:        membership.Point,
+		PhoneNumber: membership.PhoneNumber,
 	}
 }
 
 func MembershipSchemaToMembershipDomain(membership *schema.Membership) *domain.Membership {
 	return &domain.Membership{
-		ID:        membership.ID,
-		CashierID: membership.CashierID,
-		Name:      membership.Name,
-		Point:     membership.Point,
-		Telephone: membership.Telephone,
+		ID:           membership.ID,
+		CashierID:    membership.CashierID,
+		Name:         membership.Name,
+		CodeMember:   membership.CodeMember,
+		Point:        membership.Point,
+		PhoneNumber: membership.PhoneNumber,
 	}
 }
 
@@ -30,11 +32,12 @@ func ConvertMembershipResponse(memberships []domain.Membership) []web.Membership
 	var results []web.MembershipResponse
 	for _, membership := range memberships {
 		membershipResponse := web.MembershipResponse{
-			ID:        membership.ID,
-			CashierID: membership.CashierID,
-			Name:      membership.Name,
-			Point:     membership.Point,
-			Telephone: membership.Telephone,
+			ID:           membership.ID,
+			CashierID:    membership.CashierID,
+			Name:         membership.Name,
+			CodeMember:   membership.CodeMember,
+			Point:        membership.Point,
+			PhoneNumber: membership.PhoneNumber,
 		}
 		results = append(results, membershipResponse)
 	}

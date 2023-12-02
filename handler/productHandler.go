@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/firebase"
 	"qbills/utils/request"
 	res "qbills/utils/response"
 	"strconv"
@@ -18,7 +19,9 @@ type ProductHandler interface {
 	GetProductHandler(ctx echo.Context) error
 	GetProductsHandler(ctx echo.Context) error
 	GetProductByNameHandler(ctx echo.Context) error
+	GetProductByCategoryHandler(ctx echo.Context) error
 	DeleteProductHandler(ctx echo.Context) error
+	FindPaginationProduct(ctx echo.Context) error
 }
 
 type ProductHandlerImpl struct {
@@ -30,72 +33,59 @@ func NewProductHandler(ProductService services.ProductService) ProductHandler {
 }
 
 func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
-
-	url, err := c.ProductService.UploadImageProduct(ctx)
+	url, err := firebase.UploadImageProduct(ctx)
 
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
+		if url == "" {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("File not found"))
+		}
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to upload file"))
 	}
 
 	productRequest := new(web.ProductCreateRequest)
 
 	if err := ctx.Bind(productRequest); err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input"))
 	}
 
 	productTypeIDStr := ctx.FormValue("productTypeID")
 	productTypeInt, err := strconv.Atoi(productTypeIDStr)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input product type"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input product type"))
 	}
 	productTypeID := uint(productTypeInt)
 
 	strAdminId := ctx.FormValue("adminID")
 	adminIdInt, err := strconv.Atoi(strAdminId)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input admin id"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input admin id"))
 	}
 	adminId := uint(adminIdInt)
 
 	name := ctx.FormValue("name")
-
 	ingredients := ctx.FormValue("ingredients")
-
-	priceStr := ctx.FormValue("price")
-
-	// Mengonversi string ke float64
-	price, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid price format"})
-	}
-
-	size := ctx.FormValue("size")
 
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = adminId
 	productRequest.Name = name
 	productRequest.Ingredients = ingredients
-	productRequest.Price = price
-	productRequest.Size = size
 	productRequest.Image = url
 
 	result, err := c.ProductService.CreateProductService(ctx, *productRequest)
 
-	result.ProductTypeID = productTypeID
-
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid validation"))
 		default:
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to create product"))
+			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to create product"))
 		}
 	}
 
+	result.ProductTypeID = productTypeID
 	response := res.ProductDomainToProductCreateResponse(result)
 
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success create product", response))
-
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("Success create product", response))
 }
 
 func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
@@ -119,7 +109,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 		imageURL = existingProduct.Image
 	} else {
 		// Jika ada file gambar yang diunggah, proses unggah gambar baru
-		url, err := c.ProductService.UploadImageProduct(ctx)
+		url, err := firebase.UploadImageProduct(ctx)
 		if err != nil {
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
 		}
@@ -137,21 +127,10 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 
 	ingredients := ctx.FormValue("ingredients")
 
-	priceStr := ctx.FormValue("price")
-	// Mengonversi string ke float64
-	price, err := strconv.ParseFloat(priceStr, 64)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid price format"})
-	}
-
-	size := ctx.FormValue("size")
-
 	// Mengupdate nilai-nilai produk yang sudah ada
 	existingProduct.ProductTypeID = productTypeID
 	existingProduct.Name = name
 	existingProduct.Ingredients = ingredients
-	existingProduct.Price = price
-	existingProduct.Size = size
 	existingProduct.Image = imageURL // Gunakan imageURL yang baru diunggah
 
 	// Lakukan pembaruan data produk ke dalam database
@@ -239,6 +218,24 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product type by name", response))
 }
 
+func (c *ProductHandlerImpl) GetProductByCategoryHandler(ctx echo.Context) error {
+	productTypeID := ctx.Param("productTypeID")
+	productTypeIDUint64, err := strconv.ParseUint(productTypeID, 10, 64)
+
+	result, err := c.ProductService.FindByCategoryProductService(ctx, uint(productTypeIDUint64))
+
+	if err != nil {
+		if strings.Contains(err.Error(), "failed to find products with the category") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+		}
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get product data by category"))
+	}
+
+	response := res.ConvertProductResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product by category", response))
+}
+
 func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {
 	productId := ctx.Param("id")
 	productIdInt, err := strconv.Atoi(productId)
@@ -259,4 +256,22 @@ func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("succesfully delete data product", nil))
+}
+
+func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
+
+	response, meta, err := c.ProductService.FindPaginationProduct(ctx)
+
+	if err != nil {
+
+		if strings.Contains(err.Error(), "Product is empty") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed get pagination product"))
+	}
+
+	productResponse := res.ConvertProductResponse(response)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
 }

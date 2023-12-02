@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type MembershipHandler interface {
@@ -41,11 +42,13 @@ func (c *MembershipHandlerImpl) RegisterMembershipHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-
-		if strings.Contains(err.Error(), "telephone already exist") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("telephone already exist"))
+		if strings.Contains(err.Error(), "phone_number already exist") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("phone number already exist"))
 		}
-
+		if strings.Contains(err.Error(), "number") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("phone number is not valid must contain only number value"))
+		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
 	}
 
