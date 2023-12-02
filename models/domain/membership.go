@@ -7,6 +7,12 @@ type Membership struct {
 	CashierID    uint
 	Name         string
 	CodeMember   uuid.UUID
+<<<<<<< Updated upstream
 	Point        uint
 	Phone_Number string
+=======
+	Point        int
+	PhoneNumber string
+	Barcode      string
+>>>>>>> Stashed changes
 }

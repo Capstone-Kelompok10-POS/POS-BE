@@ -93,6 +93,10 @@ func (service *MembershipServiceImpl) UpdateMembership(ctx echo.Context, request
 	}
 
 	membership := req.MembershipUpdateRequestToMembershipDomain(request)
+	existingMembershipPhoneNumber, _ := service.MembershipRepository.FindByPhoneNumber(membership.PhoneNumber)
+	if existingMembershipPhoneNumber != nil {
+		return nil, fmt.Errorf("phone_number already exist")
+	}
 	result, err := service.MembershipRepository.Update(membership, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data membership: %s", err.Error())

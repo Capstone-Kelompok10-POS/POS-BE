@@ -13,6 +13,7 @@ import (
 type MembershipRepository interface {
 	Create(membership *domain.Membership) (*domain.Membership, error)
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
+	UpdatePoint(tx *gorm.DB, membership *domain.Membership) error
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)
 	FindAll() ([]domain.Membership, error)
@@ -49,6 +50,15 @@ func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership
 
 	
 	return membership, nil
+}
+
+func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership *domain.Membership) error {
+
+	if err := tx.Model(&schema.Membership{}).Where("id = ?", membership.ID).Where("deleted_at IS NULL").Update("point", membership.Point).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership, error) {
@@ -100,3 +110,7 @@ func (repository *MembershipRepositoryImpl) Delete(id int) error {
 	}
 	return nil
 }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
