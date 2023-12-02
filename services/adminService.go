@@ -70,11 +70,6 @@ func (service *AdminServiceImpl) LoginAdmin(ctx echo.Context, request web.AdminL
 
 	admin := req.AdminLoginRequestToAdminDomain(request)
 
-	existingAdminUsername, _ := service.AdminRepository.FindByUsername(admin.Username)
-	if existingAdminUsername != nil {
-		return nil, fmt.Errorf("username already exists")
-	}
-
 	err = helpers.ComparePassword(existingAdmin.Password, admin.Password)
 	if err != nil {
 		return nil, fmt.Errorf("invalid username or password")
@@ -96,6 +91,13 @@ func (service *AdminServiceImpl) UpdateAdmin(ctx echo.Context, request web.Admin
 	}
 
 	admin := req.AdminUpdateRequestToAdminDomain(request)
+	if existingAdmin.Username != admin.Username {
+		existingAdminUsername, _ := service.AdminRepository.FindByUsername(admin.Username)
+		if existingAdminUsername != nil {
+			return nil, fmt.Errorf("username already exists")
+		}
+	}
+	
 	admin.Password = helpers.HashPassword(admin.Password)
 	result, err := service.AdminRepository.Update(admin, id)
 	if err != nil {

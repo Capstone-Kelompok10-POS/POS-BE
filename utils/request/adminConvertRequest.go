@@ -24,7 +24,6 @@ func AdminLoginRequestToAdminDomain(request web.AdminLoginRequest) *domain.Admin
 
 func AdminUpdateRequestToAdminDomain(request web.AdminUpdateRequest) *domain.Admin {
 	return &domain.Admin{
-		SuperAdminID: request.SuperAdminID,
 		FullName:       request.FullName,
 		Username:       request.Username,
 		Password:       request.Password,

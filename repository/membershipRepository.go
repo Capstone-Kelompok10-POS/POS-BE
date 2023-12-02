@@ -83,7 +83,6 @@ func (repository *MembershipRepositoryImpl) FindByPhoneNumber(phoneNumber string
 
 func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Membership, error) {
 	membership := domain.Membership{}
-
 	result := repository.DB.Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&membership)
 	if result.Error != nil {
 		return nil, result.Error
@@ -94,8 +93,8 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 
 func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, error) {
 	membership := []domain.Membership{}
-
-	result := repository.DB.Find(&membership)
+	query := "SELECT * FROM memberships WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&membership)
 	if result.Error != nil {
 		return nil, result.Error
 	}

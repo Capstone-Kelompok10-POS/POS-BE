@@ -51,8 +51,8 @@ func (repository *CashierRepositoryImpl) FindById(id int) (*domain.Cashier, erro
 
 func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
 	cashier := []domain.Cashier{}
-
-	result := repository.DB.Find(&cashier)
+	query := "SELECT * FROM cashiers WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&cashier)
 	if result.Error != nil {
 		return nil, result.Error
 	}

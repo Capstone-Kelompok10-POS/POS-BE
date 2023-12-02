@@ -146,7 +146,7 @@ func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]do
 
 	result, paginate, err := service.ProductRepository.FindPaginationProduct(orderBy, Paginate)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Product is empty")
+		return nil, nil, fmt.Errorf("product is empty")
 	}
 
 	return result, paginate, nil
