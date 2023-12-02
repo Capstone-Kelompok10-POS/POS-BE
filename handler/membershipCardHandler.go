@@ -5,11 +5,19 @@ import (
 	"qbills/services"
 	"qbills/utils/helpers"
 	res "qbills/utils/response"
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 	// res "qbills/utils/response"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+<<<<<<< Updated upstream
+=======
+	"github.com/sirupsen/logrus"
+>>>>>>> Stashed changes
 )
 
 type MembershipCardHandler interface {
@@ -36,6 +44,10 @@ func (c *MembershipCardHandlerImpl) PrintMembershipCardHandler(ctx echo.Context)
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
 		}
+<<<<<<< Updated upstream
+=======
+		logrus.Error(err.Error())
+>>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("get membership data error"))
 	}
 

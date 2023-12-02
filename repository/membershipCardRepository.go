@@ -1,18 +1,27 @@
 package repository
 
 import (
+<<<<<<< Updated upstream
 	"fmt"
 	"qbills/models/domain"
 	"qbills/utils/helpers/firebase"
 
 	"github.com/labstack/echo/v4"
+=======
+	"qbills/models/domain"
+
+>>>>>>> Stashed changes
 	"gorm.io/gorm"
 )
 
 type MembershipCardRepository interface {
+<<<<<<< Updated upstream
 	UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error)
 	UpdateBarcode(id int, barcode string) error
 	PrintMembershipCard(ctx echo.Context, id int) (*domain.Membership, error)
+=======
+	UpdateBarcode(id int, barcode string) (*domain.Membership, error)
+>>>>>>> Stashed changes
 	FindById(id int) (*domain.Membership, error)
 }
 
@@ -34,6 +43,7 @@ func (repository *MembershipCardRepositoryImpl) FindById(id int) (*domain.Member
 	return &membership, nil
 }
 
+<<<<<<< Updated upstream
 func (repository *MembershipCardRepositoryImpl) UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error) {
 	barcode, err := firebase.GenerateBarcodeAndUploadToFirebase(ctx, membership.CodeMember.String())
 	if err != nil {
@@ -70,3 +80,16 @@ func (repository *MembershipCardRepositoryImpl) PrintMembershipCard(ctx echo.Con
 
     return membership, nil
 }
+=======
+
+
+func (repository *MembershipCardRepositoryImpl) UpdateBarcode(id int, barcode string) (*domain.Membership, error) {
+	membership := domain.Membership{}
+    result := repository.DB.Model(&membership).Where("id = ?", id).Update("Barcode", barcode)
+    if result.Error != nil {
+        return nil, result.Error
+    }
+    return &membership, nil
+}
+
+>>>>>>> Stashed changes
