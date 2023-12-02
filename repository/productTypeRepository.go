@@ -40,6 +40,7 @@ func (repository *ProductTypeRepositoryImpl) Create(productType *domain.ProductT
 }
 
 func (repository *ProductTypeRepositoryImpl) Update(productType *domain.ProductType, id uint) (*domain.ProductType, error) {
+
 	result := repository.DB.Table("product_types").Where("id = ?", id).Updates(domain.ProductType{
 		TypeName:        productType.TypeName,
 		TypeDescription: productType.TypeDescription,
