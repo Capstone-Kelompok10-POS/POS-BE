@@ -26,4 +26,15 @@ func PaymentTypeRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) 
 	paymentTypeGroup.GET("/name/:name", paymentTypeHandler.GetPaymentTypeByNameHandler)
 	paymentTypeGroup.PUT("/:id", paymentTypeHandler.UpdatePaymentTypeHandler)
 	paymentTypeGroup.DELETE("/:id", paymentTypeHandler.DeletePaymentTypeHandler)
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	paymentTypeGroup.GET("/upload", paymentTypeHandler.UploadBarcode)
+=======
+<<<<<<< Updated upstream
+	paymentTypeGroup.GET("/upload", paymentTypeHandler.UploadBarcode)
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 }
