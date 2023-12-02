@@ -18,15 +18,7 @@ type CashierService interface {
 	UpdateCashier(ctx echo.Context, request web.CashierUpdateRequest, id int) (*domain.Cashier, error)
 	FindById(ctx echo.Context, id int) (*domain.Cashier, error)
 	FindAll(ctx echo.Context) ([]domain.Cashier, error)
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	FindByName(ctx echo.Context, name string) (*domain.Cashier, error)
-=======
 	FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error)
->>>>>>> Stashed changes
-=======
-	FindByName(ctx echo.Context, name string) (*domain.Cashier, error)
->>>>>>> Stashed changes
 	DeleteCashier(ctx echo.Context, id int) error
 }
 
@@ -34,7 +26,6 @@ type CashierServiceImpl struct {
 	CashierRepository repository.CashierRepository
 	Validate          *validator.Validate
 }
-
 
 func NewCashierService(cashierRepository repository.CashierRepository, validate *validator.Validate) *CashierServiceImpl {
 	return &CashierServiceImpl{
@@ -96,16 +87,13 @@ func (service *CashierServiceImpl) UpdateCashier(ctx echo.Context, request web.C
 	if existingCashier == nil {
 		return nil, fmt.Errorf("cashier not found")
 	}
-<<<<<<< Updated upstream
 
-	cashier := req.CashierUpdateRequestToCashierDomain(request)
-=======
 	cashier := req.CashierUpdateRequestToCashierDomain(request)
 	existingCashierUsername, _ := service.CashierRepository.FindByUsername(cashier.Username)
 	if existingCashierUsername != nil {
 		return nil, fmt.Errorf("username already exists")
 	}
->>>>>>> Stashed changes
+
 	cashier.Password = helpers.HashPassword(cashier.Password)
 	result, err := service.CashierRepository.Update(cashier, id)
 	if err != nil {
@@ -133,33 +121,16 @@ func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, 
 	return cashiers, nil
 }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-func (service *CashierServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Cashier, error) {
-	cashier, _ := service.CashierRepository.FindByName(name)
-=======
 func (service *CashierServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error) {
 	cashier, _ := service.CashierRepository.FindByUsername(name)
-	fmt.Println(cashier)
->>>>>>> Stashed changes
-=======
-func (service *CashierServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Cashier, error) {
-	cashier, _ := service.CashierRepository.FindByName(name)
->>>>>>> Stashed changes
 	if cashier == nil {
 		return nil, fmt.Errorf("cashier not found")
 	}
-
+	
 	return cashier, nil
 }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 func (service *CashierServiceImpl) DeleteCashier(ctx echo.Context, id int) error {
 	existingCashier, _ := service.CashierRepository.FindById(id)
 	if existingCashier == nil {

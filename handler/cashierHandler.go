@@ -11,10 +11,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-<<<<<<< Updated upstream
-=======
 	"github.com/sirupsen/logrus"
->>>>>>> Stashed changes
 )
 
 type CashierHandler interface {
@@ -24,11 +21,7 @@ type CashierHandler interface {
 	DeleteCashierHandler(ctx echo.Context) error
 	GetCashierHandler(ctx echo.Context) error
 	GetCashiersHandler(ctx echo.Context) error
-<<<<<<< Updated upstream
 	GetCashierByUsernameHandler(ctx echo.Context) error
-=======
-	GetCashierByNameHandler(ctx echo.Context) error
->>>>>>> Stashed changes
 }
 
 type CashierHandlerImpl struct {
@@ -51,12 +44,6 @@ func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-<<<<<<< Updated upstream
-
-		if strings.Contains(err.Error(), "username already exist") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username already exist"))
-		}
-=======
 		if strings.Contains(err.Error(), "username already exist") {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username already exist"))
 		}
@@ -64,8 +51,6 @@ func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username is not valid must contain only alphanumeric characters"))
 		}
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
-
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
 	}
 
@@ -91,11 +76,7 @@ func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "invalid username or password") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid username or password"))
 		}
-<<<<<<< Updated upstream
-
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign in error"))
 	}
 
@@ -108,11 +89,7 @@ func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
 
 	cashierLoginResponse.Token = token
 
-<<<<<<< Updated upstream
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success sign in", cashierLoginResponse))
-=======
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success sign in", cashierLoginResponse))
->>>>>>> Stashed changes
 }
 
 func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
@@ -127,10 +104,7 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
-<<<<<<< Updated upstream
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get Cashier data error"))
 	}
 	response := res.CashierDomainToCashierResponse(result)
@@ -138,21 +112,15 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully get data cashier", response))
 }
 
-<<<<<<< Updated upstream
 func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error {
 	cashierName := ctx.Param("name")
 
 	result, err := c.CashierService.FindByUsername(ctx, cashierName)
-=======
-func (c CashierHandlerImpl) GetCashierByNameHandler(ctx echo.Context) error {
-	cashierName := ctx.Param("name")
-
-	result, err := c.CashierService.FindByName(ctx, cashierName)
->>>>>>> Stashed changes
 	if err != nil {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
+    logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashier data by name error"))
 	}
 	response := res.CashierDomainToCashierResponse(result)
@@ -165,11 +133,7 @@ func (c CashierHandlerImpl) GetCashiersHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashiers not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashiers not found"))
 		}
-<<<<<<< Updated upstream
-
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashiers data error"))
 	}
 
@@ -199,10 +163,7 @@ func (c CashierHandlerImpl) UpdateCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
-<<<<<<< Updated upstream
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update cashier error"))
 	}
 	results, err := c.CashierService.FindById(ctx, cashierIdInt)
@@ -226,19 +187,9 @@ func (c CashierHandlerImpl) DeleteCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
-<<<<<<< Updated upstream
-
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data cashier error"))
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete cashier", nil))
-<<<<<<< Updated upstream
-
 }
-
-=======
-}
->>>>>>> Stashed changes
