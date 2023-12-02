@@ -46,7 +46,7 @@ func ProductAI(productMap map[string]uint, openAIKey string) (string, error) {
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Give one product recommendation from:",
+			Content: "You are the person who works at the cafe. You are a very experienced person in your field. You will be asked to give us one of your best recommendations of ",
 		},
 
 		{
