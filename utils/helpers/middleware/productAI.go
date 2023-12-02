@@ -2,37 +2,47 @@ package middleware
 
 import (
 	"context"
-	"qbills/models/domain"
+	"fmt"
+	"strings"
 
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo/v4"
 	"github.com/sashabaranov/go-openai"
 )
 
-type MiddlewareImpl struct {
+type ProductsAI interface {
+	GetAllPruducts(ctx echo.Context, id uint) (map[uint]string, error)
+	ProductAI(productMap, openAIKey string) (string, error)
+}
+
+type ProductAIImpl struct {
 	DB *gorm.DB
 }
 
-func (middleware *MiddlewareImpl) GetAllPruducts() (map[uint]string, error) {
-	products := []domain.Product{}
+// func (middleware *ProductAIImpl) GetAllPruducts(ctx echo.Context, id uint) (map[uint]string, error) {
+// 	products := []domain.Product{}
 
-	result := middleware.DB.Preload("Name").Where("deleted_at IS NULL").Find(&products)
+// 	result := middleware.DB.Preload("ID").Preload("Name").Where("deleted_at IS NULL").Find(&products)
 
-	if result.Error != nil {
-		return nil, result.Error
-	}
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
 
-	productMap := make(map[uint]string)
-	for _, product := range products {
-		productMap[product.ID] = product.Name
-	}
+// 	productMap := make(map[uint]string)
+// 	for _, product := range products {
+// 		productMap[product.ID] = product.Name
+// 	}
 
-	return productMap, nil
-}
+// 	return productMap, nil
+// }
 
-func ProductAI(mapproduct, openAIKey string) (string, error) {
+func ProductAI(productMap map[string]uint, openAIKey string) (string, error) {
 	ctx := context.Background()
 	client := openai.NewClient(openAIKey)
 	model := openai.GPT3Dot5Turbo
+
+	productMapStr := convertMapToString(productMap)
+
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
@@ -41,7 +51,7 @@ func ProductAI(mapproduct, openAIKey string) (string, error) {
 
 		{
 			Role:    openai.ChatMessageRoleUser,
-			Content: mapproduct,
+			Content: productMapStr,
 		},
 	}
 
@@ -51,6 +61,15 @@ func ProductAI(mapproduct, openAIKey string) (string, error) {
 	}
 	answer := resp.Choices[0].Message.Content
 	return answer, nil
+}
+
+func convertMapToString(productMap map[string]uint) string {
+    // Implementasi konversi map menjadi string, contoh:
+    var result []string
+    for key, value := range productMap {
+        result = append(result, fmt.Sprintf("%s:%d", key, value))
+    }
+    return strings.Join(result, ", ")
 }
 
 func getCompletionFromMessages(

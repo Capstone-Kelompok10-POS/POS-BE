@@ -1,16 +1,20 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
 	"qbills/utils/helpers/firebase"
+	"qbills/utils/helpers/middleware"
 	"qbills/utils/request"
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 type ProductHandler interface {
@@ -22,14 +26,19 @@ type ProductHandler interface {
 	GetProductByCategoryHandler(ctx echo.Context) error
 	DeleteProductHandler(ctx echo.Context) error
 	FindPaginationProduct(ctx echo.Context) error
+	ProductAIHandler(ctx echo.Context) error
 }
 
 type ProductHandlerImpl struct {
 	ProductService services.ProductService
+	Middleware middleware.ProductsAI 
 }
 
 func NewProductHandler(ProductService services.ProductService) ProductHandler {
-	return &ProductHandlerImpl{ProductService: ProductService}
+	return &ProductHandlerImpl{
+		ProductService: ProductService,
+		// OpenAIKey: openAIKey,
+	}
 }
 
 func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
@@ -298,4 +307,42 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 	productResponse := res.ConvertProductResponse(response)
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
+}
+
+func (c *ProductHandlerImpl) getProductNames(ctx echo.Context) (map[string]uint, error) {
+	productMap := make(map[string]uint)
+
+	products, err := c.ProductService.FindAllProductService(ctx)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "product not found") {
+			return productMap, ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+		}
+
+		return productMap, ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product data error"))
+	}
+
+	for _, product := range products {
+        productMap[product.Name] = uint(product.ID)
+    }
+
+	return productMap, nil
+}
+
+func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
+	openAIKey := os.Getenv("openAIKey")
+	productMap, err := c.getProductNames(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
+	}
+
+	result, err := middleware.ProductAI(productMap, openAIKey)
+	if err != nil {
+		log.Error("Error calling ProductAI:", err)
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
+	}
+
+	log.Info("ProductAI Result:", result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
 }

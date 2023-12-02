@@ -1,19 +1,19 @@
 package routes
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 	"qbills/handler"
 	"qbills/repository"
 	"qbills/services"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	productRepository := repository.NewProductRepository(db)
 	productService := services.NewProductService(productRepository, validate)
 	ProductHandler := handler.NewProductHandler(productService)
-	//ProductUtils := middleware.
 
 	Group := e.Group("api/v1/product")
 
@@ -25,5 +25,5 @@ func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	Group.GET("/category/:productTypeID", ProductHandler.GetProductByCategoryHandler)
 	Group.PUT("/:id", ProductHandler.UpdateProductHandler)
 	Group.DELETE("/:id", ProductHandler.DeleteProductHandler)
-	//Group.POST("/recommendation/:id, ")
+	Group.GET("/recommendation", ProductHandler.ProductAIHandler)
 }
