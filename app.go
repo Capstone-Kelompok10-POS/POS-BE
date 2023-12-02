@@ -10,7 +10,39 @@ import (
 	"os"
 	"qbills/drivers"
 	"qbills/routes"
+<<<<<<< Updated upstream
 	"qbills/utils/helpers"
+=======
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	"qbills/utils/helpers"
+=======
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	"qbills/utils/helpers"
+=======
+<<<<<<< Updated upstream
+=======
+	"qbills/utils/helpers"
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+
+	"github.com/go-playground/validator"
+	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 )
 
 func main() {
@@ -36,15 +68,92 @@ func main() {
 	routes.AdminRoutes(myApp, drivers.DB, validate)
 	routes.CashierRoutes(myApp, drivers.DB, validate)
 	routes.SuperAdminRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
 	routes.ConvertPointRoutes(myApp, drivers.DB, validate)
 	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
 	routes.ProductRoutes(myApp, drivers.DB, validate)
 	routes.StockRoutes(myApp, drivers.DB, validate)
 	routes.MembershipRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+	routes.ConvertPointRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	routes.ConvertPointRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	routes.ConvertPointRoutes(myApp, drivers.DB, validate)
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
+	routes.ProductRoutes(myApp, drivers.DB, validate)
+	routes.StockRoutes(myApp, drivers.DB, validate)
+	routes.MembershipRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
+	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
+	routes.ProductDetailRoutes(myApp, drivers.DB, validate)
+=======
+=======
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
+=======
+	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+=======
+	routes.MembershipCardRoutes(myApp, drivers.DB)
+	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
+	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
+=======
+<<<<<<< Updated upstream
+=======
+	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
+=======
+	routes.MembershipRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 	routes.MembershipCardRoutes(myApp, drivers.DB)
 	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
 	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
 	routes.ProductDetailRoutes(myApp, drivers.DB, validate)
+<<<<<<< Updated upstream
+=======
+	routes.TransactionRoutes(myApp, drivers.DB, validate)
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())

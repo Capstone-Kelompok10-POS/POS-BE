@@ -13,9 +13,51 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/echo/v4 v4.11.2
+<<<<<<< Updated upstream
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/crypto v0.14.0
 	google.golang.org/api v0.151.0
+=======
+<<<<<<< Updated upstream
+	golang.org/x/crypto v0.14.0
+=======
+<<<<<<< Updated upstream
+	golang.org/x/crypto v0.15.0
+	google.golang.org/api v0.150.0
+=======
+<<<<<<< Updated upstream
+	golang.org/x/crypto v0.14.0
+	google.golang.org/api v0.151.0
+=======
+<<<<<<< Updated upstream
+	golang.org/x/crypto v0.15.0
+	google.golang.org/api v0.150.0
+=======
+<<<<<<< Updated upstream
+	golang.org/x/crypto v0.14.0
+	google.golang.org/api v0.151.0
+=======
+<<<<<<< Updated upstream
+	golang.org/x/crypto v0.15.0
+	google.golang.org/api v0.150.0
+=======
+<<<<<<< Updated upstream
+	github.com/satori/go.uuid v1.2.0
+=======
+<<<<<<< Updated upstream
+=======
+	github.com/satori/go.uuid v1.2.0
+	github.com/sirupsen/logrus v1.9.3
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+	golang.org/x/crypto v0.14.0
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
 )
