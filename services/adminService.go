@@ -18,7 +18,7 @@ type AdminService interface {
 	UpdateAdmin(ctx echo.Context, request web.AdminUpdateRequest, id int) (*domain.Admin, error)
 	FindById(ctx echo.Context, id int) (*domain.Admin, error)
 	FindAll(ctx echo.Context) ([]domain.Admin, error)
-	FindByName(ctx echo.Context, name string) (*domain.Admin, error)
+	FindByUsername(ctx echo.Context, name string) (*domain.Admin, error)
 	DeleteAdmin(ctx echo.Context, id int) error
 }
 
@@ -70,6 +70,11 @@ func (service *AdminServiceImpl) LoginAdmin(ctx echo.Context, request web.AdminL
 
 	admin := req.AdminLoginRequestToAdminDomain(request)
 
+	existingAdminUsername, _ := service.AdminRepository.FindByUsername(admin.Username)
+	if existingAdminUsername != nil {
+		return nil, fmt.Errorf("username already exists")
+	}
+
 	err = helpers.ComparePassword(existingAdmin.Password, admin.Password)
 	if err != nil {
 		return nil, fmt.Errorf("invalid username or password")
@@ -118,9 +123,19 @@ func (service *AdminServiceImpl) FindAll(ctx echo.Context) ([]domain.Admin, erro
 	return admins, nil
 }
 
+<<<<<<< Updated upstream
 func (service *AdminServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Admin, error) {
+<<<<<<< Updated upstream
 	admin, _ := service.AdminRepository.FindByUsername(name)
 	fmt.Println(admin)
+=======
+	admin, _ := service.AdminRepository.FindByName(name)
+=======
+func (service *AdminServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Admin, error) {
+	admin, _ := service.AdminRepository.FindByUsername(name)
+	fmt.Println(admin)
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 	if admin == nil {
 		return nil, fmt.Errorf("admin not found")
 	}
