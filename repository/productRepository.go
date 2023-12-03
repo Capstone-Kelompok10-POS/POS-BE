@@ -46,7 +46,7 @@ func (repository *ProductRepositoryImpl) Create(request *domain.Product) (*domai
 }
 
 func (repository *ProductRepositoryImpl) Update(request *domain.Product, id uint) (*domain.Product, error) {
-	result := repository.DB.Table("products").Where("id = ?", id).Save(request)
+	result := repository.DB.Table("products").Where("id = ?", id).Updates(request)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -58,7 +58,7 @@ func (repository *ProductRepositoryImpl) Update(request *domain.Product, id uint
 func (repository *ProductRepositoryImpl) FindById(id uint) (*domain.Product, error) {
 	product := domain.Product{}
 
-	result := repository.DB.Preload("ProductType").Preload("Admin").Where("deleted_at IS NULL").First(&product, id)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("deleted_at IS NULL").First(&product, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -69,7 +69,7 @@ func (repository *ProductRepositoryImpl) FindById(id uint) (*domain.Product, err
 func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
 	product := []domain.Product{}
 
-	result := repository.DB.Preload("ProductType").Preload("Admin").Where("deleted_at IS NULL").Find(&product)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("deleted_at IS NULL").Find(&product)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -81,7 +81,7 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
 func (repository *ProductRepositoryImpl) FindByCategory(ProductTypeID uint) ([]domain.Product, error) {
 	products := []domain.Product{}
 
-	result := repository.DB.Preload("ProductType").Preload("Admin").Where("product_type_id = ?", ProductTypeID).Find(&products)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("product_type_id = ?", ProductTypeID).Find(&products)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -94,7 +94,7 @@ func (repository *ProductRepositoryImpl) FindByName(name string) ([]domain.Produ
 	products := []domain.Product{}
 
 	// Menambahkan klausa pencarian berdasarkan nama ke query
-	result := repository.DB.Preload("ProductType").Preload("Admin").Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&products)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&products)
 
 	// Memeriksa kesalahan pada query
 	if result.Error != nil {
@@ -116,7 +116,7 @@ func (repository *ProductRepositoryImpl) Delete(id uint) error {
 func (repository *ProductRepositoryImpl) FindPaginationProduct(orderBy string, paginate helpers.Pagination) ([]domain.Product, *helpers.Pagination, error) {
 	var products []domain.Product
 
-	result := repository.DB.Scopes(helpers.Paginate(products, &paginate, repository.DB)).Preload("Admin").Preload("ProductType")
+	result := repository.DB.Scopes(helpers.Paginate(products, &paginate, repository.DB)).Preload("Admin").Preload("ProductType").Preload("ProductDetail")
 
 	if orderBy != "" {
 		result.Order("name " + orderBy).Find(&products)

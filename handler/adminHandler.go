@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type AdminHandler interface {
@@ -19,7 +20,7 @@ type AdminHandler interface {
 	UpdateAdminHandler(ctx echo.Context) error
 	GetAdminHandler(ctx echo.Context) error
 	GetAdminsHandler(ctx echo.Context) error
-	GetAdminByNameHandler(ctx echo.Context) error
+	GetAdminByUsernameHandler(ctx echo.Context) error
 	DeleteAdminHandler(ctx echo.Context) error
 }
 
@@ -32,7 +33,8 @@ func NewAdminHandler(adminService services.AdminService) AdminHandler {
 }
 
 func (c *AdminHandlerImpl) RegisterAdminHandler(ctx echo.Context) error {
-	adminCreateRequest := web.AdminCreateRequest{}
+	admin := middleware.ExtractTokenAdminId(ctx)
+	adminCreateRequest := web.AdminCreateRequest{SuperAdminID: uint(admin)}
 	err := ctx.Bind(&adminCreateRequest)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
@@ -42,14 +44,14 @@ func (c *AdminHandlerImpl) RegisterAdminHandler(ctx echo.Context) error {
 	if err != nil {
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-
 		}
-
 		if strings.Contains(err.Error(), "username already exist") {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username already exist"))
-
 		}
-
+		if strings.Contains(err.Error(), "alphanum") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username is not valid must contain only alphanumeric characters"))
+		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
 	}
 
@@ -75,7 +77,7 @@ func (c *AdminHandlerImpl) LoginAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "invalid username or password") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid username or password"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign in error"))
 	}
 
@@ -103,6 +105,7 @@ func (c *AdminHandlerImpl) GetAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data error"))
 	}
 	response := res.AdminDomainToAdminResponse(result)
@@ -112,11 +115,14 @@ func (c *AdminHandlerImpl) GetAdminHandler(ctx echo.Context) error {
 
 func (c AdminHandlerImpl) GetAdminsHandler(ctx echo.Context) error {
 	result, err := c.AdminService.FindAll(ctx)
+	if result == nil {
+		return ctx.JSON(http.StatusNoContent, helpers.ErrorResponse("admins not found"))
+	}
 	if err != nil {
 		if strings.Contains(err.Error(), "admins not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admins not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admins data error"))
 	}
 
@@ -125,14 +131,16 @@ func (c AdminHandlerImpl) GetAdminsHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully Get All data Admins", response))
 }
 
-func (c AdminHandlerImpl) GetAdminByNameHandler(ctx echo.Context) error {
+
+func (c AdminHandlerImpl) GetAdminByUsernameHandler(ctx echo.Context) error {
 	adminName := ctx.Param("username")
 
-	result, err := c.AdminService.FindByName(ctx, adminName)
+	result, err := c.AdminService.FindByUsername(ctx, adminName)
 	if err != nil {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data by username error"))
 	}
 	response := res.AdminDomainToAdminResponse(result)
@@ -160,6 +168,7 @@ func (c AdminHandlerImpl) UpdateAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update admin error"))
 	}
 	results, err := c.AdminService.FindById(ctx, adminIdInt)
@@ -183,7 +192,7 @@ func (c AdminHandlerImpl) DeleteAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data admin error"))
 	}
 

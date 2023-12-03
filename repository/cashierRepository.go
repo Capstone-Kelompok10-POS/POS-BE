@@ -51,20 +51,20 @@ func (repository *CashierRepositoryImpl) FindById(id int) (*domain.Cashier, erro
 
 func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
 	cashier := []domain.Cashier{}
-
-	result := repository.DB.Find(&cashier)
+	query := "SELECT * FROM cashiers WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&cashier)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return cashier, nil
 }
 
+
 func (repository *CashierRepositoryImpl) FindByUsername(name string) (*domain.Cashier, error) {
 	cashier := domain.Cashier{}
 	
-	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
-
-	result := repository.DB.Raw(query, name).Scan(&cashier)
+	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(cashiers.username) LIKE LOWER(?) AND deleted_at IS NULL"
+	result := repository.DB.Raw(query, name).First(&cashier)
 	if result.Error != nil {
 		return nil, result.Error
 	}

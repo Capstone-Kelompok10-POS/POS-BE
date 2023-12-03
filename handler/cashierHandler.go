@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type CashierHandler interface {
@@ -32,7 +33,11 @@ func NewCashierHandler(cashierService services.CashierService) CashierHandler {
 }
 
 func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
-	cashierCreateRequest := web.CashierCreateRequest{}
+	adminID := middleware.ExtractTokenAdminId(ctx)
+	if adminID == 0.0 {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid token admin"))
+	}
+	cashierCreateRequest := web.CashierCreateRequest{AdminID: uint(adminID)}
 	err := ctx.Bind(&cashierCreateRequest)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid input"))
@@ -43,11 +48,13 @@ func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-
 		if strings.Contains(err.Error(), "username already exist") {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username already exist"))
 		}
-
+		if strings.Contains(err.Error(), "alphanum") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("username is not valid must contain only alphanumeric characters"))
+		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
 	}
 
@@ -73,7 +80,7 @@ func (c *CashierHandlerImpl) LoginCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "invalid username or password") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid username or password"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign in error"))
 	}
 
@@ -101,6 +108,7 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get Cashier data error"))
 	}
 	response := res.CashierDomainToCashierResponse(result)
@@ -109,13 +117,14 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 }
 
 func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error {
-	cashierName := ctx.Param("name")
+	cashierName := ctx.Param("username")
 
 	result, err := c.CashierService.FindByUsername(ctx, cashierName)
 	if err != nil {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
+    logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashier data by name error"))
 	}
 	response := res.CashierDomainToCashierResponse(result)
@@ -128,7 +137,7 @@ func (c CashierHandlerImpl) GetCashiersHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashiers not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashiers not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashiers data error"))
 	}
 
@@ -158,6 +167,7 @@ func (c CashierHandlerImpl) UpdateCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update cashier error"))
 	}
 	results, err := c.CashierService.FindById(ctx, cashierIdInt)
@@ -181,10 +191,9 @@ func (c CashierHandlerImpl) DeleteCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data cashier error"))
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete cashier", nil))
-
 }

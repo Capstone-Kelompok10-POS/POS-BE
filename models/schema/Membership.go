@@ -17,7 +17,7 @@ type Membership struct {
 	Cashier      Cashier   `gorm:"foreignKey:CashierID"`
 	Name         string    `gorm:"name"`
 	CodeMember   uuid.UUID `gorm:"type:char(36);notnull"`
-	Point        uint      `json:"point"`
+	Point        int      `json:"point"`
 	PhoneNumber string    `json:"phoneNumber"`
 	Barcode      string    `json:"barcode"`
 }

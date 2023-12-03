@@ -5,11 +5,11 @@ import (
 	"qbills/services"
 	"qbills/utils/helpers"
 	res "qbills/utils/response"
-	// res "qbills/utils/response"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type MembershipCardHandler interface {
@@ -36,6 +36,7 @@ func (c *MembershipCardHandlerImpl) PrintMembershipCardHandler(ctx echo.Context)
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("get membership data error"))
 	}
 

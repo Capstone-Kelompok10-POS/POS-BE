@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
+	"strings"
 
 	req "qbills/utils/request"
 
@@ -18,6 +19,7 @@ type MembershipService interface {
 	UpdateMembership(ctx echo.Context, request web.MembershipUpdateRequest, id int) (*domain.Membership, error)
 	FindById(ctx echo.Context, id int) (*domain.Membership, error)
 	FindByName(ctx echo.Context, name string) (*domain.Membership, error)
+	FindByPhoneNumber(ctx echo.Context, phoneNumber string) (*domain.Membership, error)
 	FindAll(ctx echo.Context) ([]domain.Membership, error)
 	DeleteMembership(ctx echo.Context, id int) error
 }
@@ -46,14 +48,11 @@ func (service *MembershipServiceImpl) CreateMembership(ctx echo.Context, request
 	}
 
 	membership := req.MembershipCreateRequestToMembershipDomain(request)
-	fmt.Println(membership)
 
 	result, err := service.MembershipRepository.Create(membership)
 	if err != nil {
 		return nil, fmt.Errorf("error creating membership %s", err.Error())
 	}
-
-	fmt.Println(result.CodeMember)
 
 	return result, nil
 }
@@ -78,13 +77,27 @@ func (service *MembershipServiceImpl) FindAll(ctx echo.Context) ([]domain.Member
 }
 
 func (service *MembershipServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Membership, error) {
-	membership, _ := service.MembershipRepository.FindByName(name)
+	name = strings.ToLower(name)
+	membership, err := service.MembershipRepository.FindByName(name)
+	if err != nil {
+		return nil, fmt.Errorf("membership not found")
+	}
+	if membership.Name == "" {
+		return nil, fmt.Errorf("membership not found")
+	}
+
+	return membership, nil
+}
+
+func (service *MembershipServiceImpl) FindByPhoneNumber(ctx echo.Context, phoneNumber string) (*domain.Membership, error) {
+	membership, _ := service.MembershipRepository.FindByPhoneNumber(phoneNumber)
 	if membership == nil {
 		return nil, fmt.Errorf("membership not found")
 	}
 
 	return membership, nil
 }
+
 
 func (service *MembershipServiceImpl) UpdateMembership(ctx echo.Context, request web.MembershipUpdateRequest, id int) (*domain.Membership, error) {
 	err := service.Validate.Struct(request)
@@ -98,6 +111,12 @@ func (service *MembershipServiceImpl) UpdateMembership(ctx echo.Context, request
 	}
 
 	membership := req.MembershipUpdateRequestToMembershipDomain(request)
+	if existingMembership.PhoneNumber != membership.PhoneNumber {
+		existingMembershipPhoneNumber, _ := service.MembershipRepository.FindByPhoneNumber(membership.PhoneNumber)
+		if existingMembershipPhoneNumber != nil {
+			return nil, fmt.Errorf("phone_number already exist")
+		}
+	}
 	result, err := service.MembershipRepository.Update(membership, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data membership: %s", err.Error())
