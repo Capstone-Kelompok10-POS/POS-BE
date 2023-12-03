@@ -17,7 +17,12 @@ type ProductAIImpl struct {
 	DB *gorm.DB
 }
 
-func ProductAI(productMap map[string]uint, openAIKey string) (string, error) {
+type ProductDataAIRecommended struct {
+    Name        string `json:"name"`
+    Ingredients string `json:"ingredients"`
+}
+
+func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey string) (string, error) {
 	ctx := context.Background()
 	client := openai.NewClient(openAIKey)
 	model := openai.GPT3Dot5Turbo
@@ -44,11 +49,11 @@ func ProductAI(productMap map[string]uint, openAIKey string) (string, error) {
 	return answer, nil
 }
 
-func convertMapToString(productMap map[string]uint) string {
+func convertMapToString(productMap map[uint]ProductDataAIRecommended) string {
     // Implementasi konversi map menjadi string, contoh:
     var result []string
     for key, value := range productMap {
-        result = append(result, fmt.Sprintf("%s:%d", key, value))
+        result = append(result, fmt.Sprintf("%d:%s:%s:", key, value.Name, value.Ingredients))
     }
     return strings.Join(result, ", ")
 }

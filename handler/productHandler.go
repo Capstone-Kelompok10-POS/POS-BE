@@ -27,7 +27,7 @@ type ProductHandler interface {
 	DeleteProductHandler(ctx echo.Context) error
 	FindPaginationProduct(ctx echo.Context) error
 	ProductAIHandler(ctx echo.Context) error
-	GetProductNames(ctx echo.Context) (map[string]uint, error)
+	GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error)
 }
 
 type ProductHandlerImpl struct {
@@ -38,7 +38,6 @@ type ProductHandlerImpl struct {
 func NewProductHandler(ProductService services.ProductService) ProductHandler {
 	return &ProductHandlerImpl{
 		ProductService: ProductService,
-		// OpenAIKey: openAIKey,
 	}
 }
 
@@ -286,8 +285,8 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
 }
 
-func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[string]uint, error) {
-	productMap := make(map[string]uint)
+func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error) {
+	productMap := make(map[uint]middleware.ProductDataAIRecommended)
 
 	products, err := c.ProductService.FindAllProductService(ctx)
 
@@ -300,7 +299,11 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[string]uint,
 	}
 
 	for _, product := range products {
-		productMap[product.Name] = uint(product.ID)
+		productData := middleware.ProductDataAIRecommended{
+			Name: product.Name,
+			Ingredients: product.Ingredients,
+		}
+		productMap[uint(product.ID)] = productData
 	}
 
 	return productMap, nil
