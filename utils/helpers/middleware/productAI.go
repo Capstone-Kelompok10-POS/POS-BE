@@ -18,8 +18,8 @@ type ProductAIImpl struct {
 }
 
 type ProductDataAIRecommended struct {
-    Name        string `json:"name"`
-    Ingredients string `json:"ingredients"`
+	Name        string `json:"name"`
+	Ingredients string `json:"ingredients"`
 }
 
 func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey string) (string, error) {
@@ -32,7 +32,7 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey string) (
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "You are the person who works at the cafe. You are a very experienced person in your field. You will be asked to give us one of your best recommendations of ",
+			Content: "Anda adalah orang yang bekerja di kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan salah satu rekomendasi terbaik Anda dari semua menu di cafe. Berikan satu rekomendasi terbaik anda.",
 		},
 
 		{
@@ -50,12 +50,12 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey string) (
 }
 
 func convertMapToString(productMap map[uint]ProductDataAIRecommended) string {
-    // Implementasi konversi map menjadi string, contoh:
-    var result []string
-    for key, value := range productMap {
-        result = append(result, fmt.Sprintf("%d:%s:%s:", key, value.Name, value.Ingredients))
-    }
-    return strings.Join(result, ", ")
+	// Implementasi konversi map menjadi string, contoh:
+	var result []string
+	for key, value := range productMap {
+		result = append(result, fmt.Sprintf("%d:%s:%s:", key, value.Name, value.Ingredients))
+	}
+	return strings.Join(result, ", ")
 }
 
 func getCompletionFromMessages(
