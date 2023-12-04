@@ -42,3 +42,10 @@ type ProductUpdateResponse struct {
 	Ingredients   string `json:"ingredients" gorm:"not null"`
 	Image         string `json:"image"`
 }
+
+type ProductTransactionResponse struct {
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Ingredients string `json:"ingredients"`
+	Image       string `json:"image"`
+}

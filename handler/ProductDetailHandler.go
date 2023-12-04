@@ -1,10 +1,8 @@
 package handler
 
 import (
-<<<<<<< Updated upstream
 	"github.com/labstack/echo/v4"
-=======
->>>>>>> Stashed changes
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -12,12 +10,6 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
-<<<<<<< Updated upstream
-=======
-
-	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
->>>>>>> Stashed changes
 )
 
 type ProductDetailHandler interface {
@@ -51,14 +43,10 @@ func (c *ProductDetailHandlerImpl) CreateProductDetailHandler(ctx echo.Context) 
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		case strings.Contains(err.Error(), "Cannot add or update a child row: a foreign key constraint fails"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-<<<<<<< Updated upstream
-		default:
-=======
-		case strings.Contains(err.Error(), "numeric"): 
+		case strings.Contains(err.Error(), "numeric"):
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("price is not valid must contain only numeric value"))
 		default:
 			logrus.Error(err.Error())
->>>>>>> Stashed changes
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to create product Detail"))
 		}
 	}
@@ -94,10 +82,8 @@ func (c *ProductDetailHandlerImpl) UpdateProductDetailHandler(ctx echo.Context) 
 		if strings.Contains(err.Error(), "product type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
-<<<<<<< Updated upstream
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
+
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update product detail error"))
 	}
 
@@ -128,11 +114,8 @@ func (c *ProductDetailHandlerImpl) GetProductDetailHandler(ctx echo.Context) err
 			statusCode = http.StatusNotFound
 			errorMessage = "Product detail not found"
 		}
-<<<<<<< Updated upstream
-
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
+
 		return ctx.JSON(statusCode, helpers.ErrorResponse(errorMessage))
 	}
 
@@ -147,11 +130,8 @@ func (c *ProductDetailHandlerImpl) GetProductDetailsHandler(ctx echo.Context) er
 		if strings.Contains(err.Error(), "record not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
-<<<<<<< Updated upstream
-
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
+
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product detail data error"))
 	}
 
@@ -176,11 +156,8 @@ func (c *ProductDetailHandlerImpl) DeleteProductDetailHandler(ctx echo.Context) 
 		if strings.Contains(err.Error(), "product detail not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
-<<<<<<< Updated upstream
-
-=======
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
+
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data product detail error"))
 	}
 
