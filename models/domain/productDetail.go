@@ -1,9 +1,9 @@
 package domain
 
 type ProductDetail struct {
-	ID         uint
-	ProductID  uint
-	Price      float64
-	TotalStock int
-	Size       string
+	ID         uint    `json:"id"`
+	ProductID  uint    `json:"productID"`
+	Price      float64 `json:"price"`
+	TotalStock int     `json:"totalStock"`
+	Size       string  `json:"size"`
 }
