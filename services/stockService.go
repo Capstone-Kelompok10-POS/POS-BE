@@ -8,7 +8,7 @@ import (
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
-	req2 "qbills/utils/request"
+	req "qbills/utils/request"
 )
 
 type StockService interface {
@@ -20,16 +20,16 @@ type StockService interface {
 }
 
 type StockServiceImpl struct {
-	StockRepository   repository.StockRepository
-	ProductRepository repository.ProductRepository
-	validate          *validator.Validate
+	StockRepository         repository.StockRepository
+	ProductDetailRepository repository.ProductDetailRepository
+	validate                *validator.Validate
 }
 
-func NewStockService(repository repository.StockRepository, productRepo repository.ProductRepository, validate *validator.Validate) *StockServiceImpl {
+func NewStockService(repository repository.StockRepository, productDetailRepo repository.ProductDetailRepository, validate *validator.Validate) *StockServiceImpl {
 	return &StockServiceImpl{
-		StockRepository:   repository,
-		ProductRepository: productRepo,
-		validate:          validate,
+		StockRepository:         repository,
+		ProductDetailRepository: productDetailRepo,
+		validate:                validate,
 	}
 }
 
@@ -39,19 +39,23 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-	req := req2.StockCreateRequestToStockDomain(request)
+	req := req.StockCreateRequestToStockDomain(request)
 
-	result, err := service.StockRepository.Create(req)
+	product, err := service.ProductDetailRepository.FindById(req.ProductDetailID)
 
-	product, err := service.ProductRepository.FindById(req.ProductID)
+	product.TotalStock += req.Stock
 
-	//product.TotalStock += req.Stock
+	if product.TotalStock < 0 {
+		return nil, fmt.Errorf("stock decrease more than stock")
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = service.ProductRepository.Update(product, req.ProductID)
+	_, err = service.ProductDetailRepository.Update(product, req.ProductDetailID)
+
+	result, err := service.StockRepository.Create(req)
 
 	return result, nil
 }
