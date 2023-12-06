@@ -34,112 +34,21 @@ func ConnectDB() {
 }
 
 func Migrate() {
-<<<<<<< Updated upstream
 	err := DB.AutoMigrate(
 		&schema.SuperAdmin{},
 		&schema.Admin{},
-<<<<<<< Updated upstream
+		&schema.Cashier{},
+		&schema.Membership{},
 		&schema.ConvertPoint{},
-=======
-<<<<<<< Updated upstream
-		&schema.ProductType{})
-=======
-<<<<<<< Updated upstream
-    &schema.ConvertPoint{},
-=======
-<<<<<<< Updated upstream
-		&schema.ConvertPoint{},
-=======
-<<<<<<< Updated upstream
-    &schema.ConvertPoint{},
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-    &schema.ConvertPoint{},
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		&schema.ProductType{},
 		&schema.Product{},
 		&schema.Stock{},
-		&schema.Cashier{},
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-		&schema.Membership{})
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-		&schema.Membership{})
-=======
-		&schema.Membership{},
-		&schema.PaymentType{})
-
-=======
-<<<<<<< Updated upstream
-		&schema.Cashier{},
-		&schema.Membership{},
-		&schema.ProductType{})
-=======
-<<<<<<< Updated upstream
-    &schema.ConvertPoint{},
->>>>>>> Stashed changes
-		&schema.ProductType{},
-		&schema.Product{},
-		&schema.Stock{},
-		&schema.Cashier{},
->>>>>>> Stashed changes
->>>>>>> Stashed changes
-		&schema.Membership{},
-		&schema.PaymentType{},
-		&schema.PaymentMethod{},
-		&schema.ProductDetail{})
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
-
-<<<<<<< Updated upstream
-=======
-=======
-    &schema.Cashier{},
-		&schema.ProductType{})
-=======
-<<<<<<< Updated upstream
-	err := DB.AutoMigrate(&schema.SuperAdmin{},
-		&schema.Admin{})
-=======
-	err := DB.AutoMigrate(
-		&schema.SuperAdmin{},
-		&schema.Admin{},
-<<<<<<< Updated upstream
-=======
-		&schema.Cashier{},
-		&schema.Membership{},
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-		&schema.ProductType{})
-=======
 		&schema.PaymentType{},
 		&schema.PaymentMethod{},
 		&schema.ProductDetail{},
 		&schema.Transaction{},
 		&schema.TransactionDetail{},
 	)
-
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	if err != nil {
 		log.Fatal("Failed to Migrate Database")
 	}
