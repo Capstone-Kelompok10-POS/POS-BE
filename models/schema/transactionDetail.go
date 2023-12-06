@@ -1,11 +1,7 @@
 package schema
 
-import "time"
-
 type TransactionDetail struct {
 	ID              uint      	  `gorm:"primaryKey"`
-	CreatedAt       time.Time 	  `gorm:"autoCreateTime"`
-
 	TransactionID   uint          `gorm:"index;not null"`
 	ProductDetailID uint          `gorm:"index;not null"`
 	ProductDetail   ProductDetail `gorm:"foreignKey:ProductDetailID"`
