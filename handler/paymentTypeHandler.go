@@ -6,10 +6,11 @@ import (
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
-	"qbills/utils/helpers/firebase"
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type PaymentTypeHandler interface {
@@ -19,7 +20,6 @@ type PaymentTypeHandler interface {
 	GetPaymentTypesHandler(ctx echo.Context) error
 	GetPaymentTypeByNameHandler(ctx echo.Context) error
 	DeletePaymentTypeHandler(ctx echo.Context) error
-	UploadBarcode(ctx echo.Context) error
 }
 type PaymentTypeHandlerImpl struct {
 	service services.PaymentTypeService
@@ -42,7 +42,10 @@ func (c *PaymentTypeHandlerImpl) CreatePaymentTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-
+		if strings.Contains(err.Error(), "alpha") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment method typename is not valid must contain only alphabetical characters"))
+		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("create payment type error"))
 	}
 
@@ -72,6 +75,7 @@ func (c *PaymentTypeHandlerImpl) UpdatePaymentTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update payment type error"))
 	}
 	results, err := c.service.FindById(ctx, paymentTypeIdInt)
@@ -96,6 +100,7 @@ func (c *PaymentTypeHandlerImpl) GetPaymentTypeHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "payment type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get payment type data error"))
 	}
 	response := res.PaymentTypeDomainToPaymentTypeRespone(result)
@@ -109,7 +114,7 @@ func (c *PaymentTypeHandlerImpl) GetPaymentTypesHandler(ctx echo.Context) error 
 		if strings.Contains(err.Error(), "payment type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get payment type data error"))
 	}
 
@@ -126,6 +131,7 @@ func (c *PaymentTypeHandlerImpl) GetPaymentTypeByNameHandler(ctx echo.Context) e
 		if strings.Contains(err.Error(), "payment type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("Get payment type data by name error"))
 	}
 	response := res.PaymentTypeDomainToPaymentTypeRespone(result)
@@ -144,15 +150,9 @@ func (c *PaymentTypeHandlerImpl) DeletePaymentTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "payment type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data payment type error"))
 	}
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete data payment type", nil))
-}
-
-func (c *PaymentTypeHandlerImpl) UploadBarcode(ctx echo.Context) error {
-	url, _ := firebase.GenerateBarcodeAndUploadToFirebase(ctx, "alimultaik")
-
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully delete data payment type", url))
 }

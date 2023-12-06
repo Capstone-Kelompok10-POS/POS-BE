@@ -16,7 +16,6 @@ import (
 func main() {
 	myApp := echo.New()
 	validate := validator.New()
-	helpers.ConnectAWS()
 
 	_, err := os.Stat(".env")
 	if err == nil {
@@ -54,5 +53,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":8005"))
+	myApp.Logger.Fatal(myApp.Start(":8080"))
 }

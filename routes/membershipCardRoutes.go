@@ -17,7 +17,7 @@ func MembershipCardRoutes(e *echo.Echo, db *gorm.DB) {
 	membershipCardService := services.NewMembershipCardService(membershipCardRepository)
 	MembershipCardHandler := handler.NewMembershipCardHandler(membershipCardService)
 
-	membershipCardGroup := e.Group("api/v1/membershipCard")
+	membershipCardGroup := e.Group("api/v1/membership/card")
 
 	membershipCardGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 

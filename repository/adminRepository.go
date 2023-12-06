@@ -62,19 +62,8 @@ func (repository *AdminRepositoryImpl) FindById(id int) (*domain.Admin, error) {
 
 func (repository *AdminRepositoryImpl) FindByUsername(username string) (*domain.Admin, error) {
 	admin := domain.Admin{}
-
-<<<<<<< Updated upstream
-	query := "SELECT admins.* FROM admins WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
-	result := repository.DB.Raw(query, username).Scan(&admin)
-=======
-<<<<<<< Updated upstream
-	result := repository.DB.Where("username = ?", username).First(&admin)
-=======
 	query := "SELECT admins.* FROM admins WHERE LOWER(admins.username) LIKE LOWER(?) AND deleted_at IS NULL"
-
 	result := repository.DB.Raw(query, username).First(&admin)
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -85,7 +74,8 @@ func (repository *AdminRepositoryImpl) FindByUsername(username string) (*domain.
 
 func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 	admin := []domain.Admin{}
-	result := repository.DB.Find(&admin)
+	query := "SELECT * FROM admins WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&admin)
 	if result.Error != nil {
 		return nil, result.Error
 	}

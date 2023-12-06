@@ -1,15 +1,18 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/middleware"
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type MembershipHandler interface {
@@ -18,6 +21,7 @@ type MembershipHandler interface {
 	GetMembershipHandler(ctx echo.Context) error
 	GetMembershipsHandler(ctx echo.Context) error
 	GetMembershipByNameHandler(ctx echo.Context) error
+	GetMembershipByPhoneNumber(ctx echo.Context) error
 	DeleteMembershipHandler(ctx echo.Context) error
 }
 
@@ -30,7 +34,11 @@ func NewMembershipHandler(membershipService services.MembershipService) Membersh
 }
 
 func (c *MembershipHandlerImpl) RegisterMembershipHandler(ctx echo.Context) error {
-	membershipCreateRequest := web.MembershipCreateRequest{}
+	cashierId := middleware.ExtractTokenCashierId(ctx)
+	if cashierId == 0.0 {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid token cashier"))
+	}
+	membershipCreateRequest := web.MembershipCreateRequest{CashierID: uint(cashierId)}
 	err := ctx.Bind(&membershipCreateRequest)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid input"))
@@ -41,11 +49,13 @@ func (c *MembershipHandlerImpl) RegisterMembershipHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-
 		if strings.Contains(err.Error(), "phone_number already exist") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("phone_number already exist"))
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("phone number already exist"))
 		}
-
+		if strings.Contains(err.Error(), "number") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("phone number is not valid must contain only number value"))
+		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign up error"))
 	}
 
@@ -102,6 +112,20 @@ func (c MembershipHandlerImpl) GetMembershipByNameHandler(ctx echo.Context) erro
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("succesfully get membership data by name", response))
 }
 
+func (c MembershipHandlerImpl) GetMembershipByPhoneNumber(ctx echo.Context) error{
+	membershipPhoneNumber := ctx.Param("phoneNumber")
+
+	result, err := c.MembershipService.FindByPhoneNumber(ctx, membershipPhoneNumber)
+	if err != nil {
+		if strings.Contains(err.Error(), "membership not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
+		}
+		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("Get membership data by phone number error"))
+	}
+	response := res.MembershipDomainToMembershipResponse(result)
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("succesfully get membership data by phone number", response))
+}
+
 func (c MembershipHandlerImpl) UpdateMembershipHandler(ctx echo.Context) error {
 	membershipId := ctx.Param("id")
 	membershipIdInt, err := strconv.Atoi(membershipId)
@@ -116,12 +140,16 @@ func (c MembershipHandlerImpl) UpdateMembershipHandler(ctx echo.Context) error {
 	}
 
 	_, err = c.MembershipService.UpdateMembership(ctx, membershipUpdateRequest, membershipIdInt)
+	fmt.Print(err)
 	if err != nil {
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
+		}
+		if strings.Contains(err.Error(), "phone_number already exist") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("phone number already exist"))
 		}
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update membership error"))
 	}

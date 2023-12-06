@@ -42,6 +42,9 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 	req := req2.StockCreateRequestToStockDomain(request)
 
 	result, err := service.StockRepository.Create(req)
+	if err != nil {
+		return nil, err
+	}
 
 	product, err := service.ProductRepository.FindById(req.ProductID)
 
@@ -52,6 +55,9 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 	}
 
 	_, err = service.ProductRepository.Update(product, req.ProductID)
+	if err != nil {
+		return nil, err
+	}
 
 	return result, nil
 }
@@ -71,7 +77,7 @@ func (service *StockServiceImpl) FindByIdStockService(ctx echo.Context, id uint)
 
 	result, err := service.StockRepository.FindById(id)
 	if err != nil {
-		return nil, fmt.Errorf("Product not found")
+		return nil, fmt.Errorf("product not found")
 	}
 
 	return result, nil

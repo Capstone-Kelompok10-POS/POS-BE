@@ -14,21 +14,7 @@ type CashierRepository interface {
 	Create(cashier *domain.Cashier) (*domain.Cashier, error)
 	FindByUsername(username string) (*domain.Cashier, error)
 	FindById(id int) (*domain.Cashier, error)
-<<<<<<< Updated upstream
-	FindAll() ([]domain.Cashier, error)
-<<<<<<< Updated upstream
-=======
-	FindByName(name string) (*domain.Cashier, error)
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
-=======
 	FindAll() ([]domain.Cashier, int, error)
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	Update(cashier *domain.Cashier, id int) (*domain.Cashier, error)
 	Delete(id int) error
 }
@@ -62,36 +48,14 @@ func (repository *CashierRepositoryImpl) FindById(id int) (*domain.Cashier, erro
 	return &cashier, nil
 }
 
-<<<<<<< Updated upstream
-=======
-func (repository *CashierRepositoryImpl) FindByUsername(username string) (*domain.Cashier, error) {
-	cashier := domain.Cashier{}
 
-	result := repository.DB.Where("username = ?", username).First(&cashier)
-	if result.Error != nil {
-		return nil, result.Error
-	}
 
-	return &cashier, nil
-}
->>>>>>> Stashed changes
-
-<<<<<<< Updated upstream
-func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
-	cashier := []domain.Cashier{}
-<<<<<<< Updated upstream
-
-	result := repository.DB.Find(&cashier)
-=======
-	query := "SELECT * FROM cashiers WHERE deleted_at IS NULL"
-	result := repository.DB.Raw(query).Scan(&cashier)
-=======
 func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, int, error) {
 	cashiers := []domain.Cashier{}
 
 	result := repository.DB.Where("deleted_at IS NULL").Find(&cashiers)
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+	query := "SELECT * FROM cashiers WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&cashier)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
@@ -99,26 +63,12 @@ func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, int, error
 	return cashiers, totalCashier, nil
 }
 
-<<<<<<< Updated upstream
+
 func (repository *CashierRepositoryImpl) FindByUsername(name string) (*domain.Cashier, error) {
 	cashier := domain.Cashier{}
 	
-	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
-
-	result := repository.DB.Raw(query, name).Scan(&cashier)
-=======
-func (repository *CashierRepositoryImpl) FindByName(name string) (*domain.Cashier, error) {
-	cashier := domain.Cashier{}
-	
-<<<<<<< Updated upstream
-	result := repository.DB.Where("LOWER(fullname) LIKE LOWER(?)", "%"+name+"%").First(&cashier)
-
-=======
 	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(cashiers.username) LIKE LOWER(?) AND deleted_at IS NULL"
-
 	result := repository.DB.Raw(query, name).First(&cashier)
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	if result.Error != nil {
 		return nil, result.Error
 	}

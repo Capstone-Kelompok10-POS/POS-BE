@@ -10,6 +10,12 @@ type TSuccessResponse struct {
 	Results interface{}   `json:"results"`
 }
 
+type TSuccessResponseWithTotal struct {
+	Meta    TResponseMeta `json:"meta"`
+	Total   int           `json:"total"`
+	Results interface{}   `json:"results"`
+}
+
 type TSuccessResponseWithMeta struct {
 	Meta       TResponseMeta `json:"meta"`
 	Pagination any           `json:"pagination,omitempty"`
@@ -55,6 +61,26 @@ func SuccessResponseWithMeta(message string, data interface{}, pagination any) i
 			},
 			Pagination: pagination,
 			Results:    data,
+		}
+	}
+}
+
+func SuccessResponseWithTotal(message string, data interface{}, total int) interface{} {
+	if data == nil {
+		return TErrorResponse{
+			Meta: TResponseMeta{
+				Success: true,
+				Message: message,
+			},
+		}
+	} else {
+		return TSuccessResponseWithTotal{
+			Meta: TResponseMeta{
+				Success: true,
+				Message: message,
+			},
+			Total:   total,
+			Results: data,
 		}
 	}
 }

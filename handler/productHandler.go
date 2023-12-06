@@ -1,16 +1,20 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
+	"os"
 	"qbills/models/web"
 	"qbills/services"
 	"qbills/utils/helpers"
 	"qbills/utils/helpers/firebase"
+	"qbills/utils/helpers/middleware"
 	"qbills/utils/request"
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 type ProductHandler interface {
@@ -22,19 +26,27 @@ type ProductHandler interface {
 	GetProductByCategoryHandler(ctx echo.Context) error
 	DeleteProductHandler(ctx echo.Context) error
 	FindPaginationProduct(ctx echo.Context) error
+	ProductAIHandler(ctx echo.Context) error
+	GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error)
 }
 
 type ProductHandlerImpl struct {
 	ProductService services.ProductService
+	Middleware     middleware.ProductsAI
 }
 
 func NewProductHandler(ProductService services.ProductService) ProductHandler {
-	return &ProductHandlerImpl{ProductService: ProductService}
+	return &ProductHandlerImpl{
+		ProductService: ProductService,
+	}
 }
 
 func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
+	adminId := middleware.ExtractTokenAdminId(ctx)
+	if adminId == 0.0 {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid token admin"))
+	}
 	url, err := firebase.UploadImageProduct(ctx)
-
 	if err != nil {
 		if url == "" {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("File not found"))
@@ -55,18 +67,11 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	}
 	productTypeID := uint(productTypeInt)
 
-	strAdminId := ctx.FormValue("adminID")
-	adminIdInt, err := strconv.Atoi(strAdminId)
-	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input admin id"))
-	}
-	adminId := uint(adminIdInt)
-
 	name := ctx.FormValue("name")
 	ingredients := ctx.FormValue("ingredients")
 
 	productRequest.ProductTypeID = productTypeID
-	productRequest.AdminID = adminId
+	productRequest.AdminID = uint(adminId)
 	productRequest.Name = name
 	productRequest.Ingredients = ingredients
 	productRequest.Image = url
@@ -187,7 +192,9 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
 	result, err := c.ProductService.FindAllProductService(ctx)
-
+	if result == nil {
+		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+	}
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
@@ -221,7 +228,9 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 func (c *ProductHandlerImpl) GetProductByCategoryHandler(ctx echo.Context) error {
 	productTypeID := ctx.Param("productTypeID")
 	productTypeIDUint64, err := strconv.ParseUint(productTypeID, 10, 64)
-
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to parse product type"))
+	}
 	result, err := c.ProductService.FindByCategoryProductService(ctx, uint(productTypeIDUint64))
 
 	if err != nil {
@@ -274,4 +283,46 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 	productResponse := res.ConvertProductResponse(response)
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
+}
+
+func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error) {
+	productMap := make(map[uint]middleware.ProductDataAIRecommended)
+
+	products, err := c.ProductService.FindAllProductService(ctx)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "product not found") {
+			return productMap, ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
+		}
+
+		return productMap, ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product data error"))
+	}
+
+	for _, product := range products {
+		productData := middleware.ProductDataAIRecommended{
+			Name: product.Name,
+			Ingredients: product.Ingredients,
+		}
+		productMap[uint(product.ID)] = productData
+	}
+
+	return productMap, nil
+}
+
+func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
+	openAIKey := os.Getenv("openAIKey")
+	productMap, err := c.GetProductNames(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
+	}
+
+	result, err := middleware.ProductAI(productMap, openAIKey)
+	if err != nil {
+		log.Error("Error calling ProductAI:", err)
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
+	}
+
+	log.Info("ProductAI Result:", result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
 }

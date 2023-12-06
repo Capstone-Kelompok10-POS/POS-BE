@@ -89,9 +89,11 @@ func (service *CashierServiceImpl) UpdateCashier(ctx echo.Context, request web.C
 	}
 
 	cashier := req.CashierUpdateRequestToCashierDomain(request)
-	existingCashierUsername, _ := service.CashierRepository.FindByUsername(cashier.Username)
-	if existingCashierUsername != nil {
-		return nil, fmt.Errorf("username already exists")
+	if existingCashier.Username != cashier.Username {
+		existingCashierUsername, _ := service.CashierRepository.FindByUsername(cashier.Username)
+		if existingCashierUsername != nil {
+			return nil, fmt.Errorf("username already exists")
+		}
 	}
 
 	cashier.Password = helpers.HashPassword(cashier.Password)

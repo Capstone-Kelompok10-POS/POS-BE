@@ -3,10 +3,10 @@ package web
 import "qbills/models/domain"
 
 type ProductResponse struct {
-	ID            uint               `json:"ID"`
-	ProductTypeID uint               `json:"productTypeID"`
+	ID            uint               `json:"Id"`
+	ProductTypeID uint               `json:"productTypeId"`
 	ProductType   domain.ProductType `json:"productType"`
-	AdminID       uint               `json:"adminID"`
+	AdminID       uint               `json:"adminId"`
 	Admin         domain.Admin       `json:"admin"`
 	ProductDetail []domain.ProductDetail
 	Name          string `json:"name"`
@@ -15,11 +15,11 @@ type ProductResponse struct {
 }
 
 type ProductResponseCustom struct {
-	ID            uint               `json:"ID"`
-	ProductTypeID uint               `json:"productTypeID"`
+	ID            uint               `json:"Id"`
+	ProductTypeID uint               `json:"productTypeId"`
 	ProductType   domain.ProductType `json:"productType"`
 	ProductDetail []domain.ProductDetail
-	AdminID       uint                 `json:"adminID"`
+	AdminID       uint                 `json:"adminId"`
 	Admin         domain.AdminResponse `json:"admin"`
 	Name          string               `json:"name"`
 	Ingredients   string               `json:"ingredients" gorm:"not null"`
@@ -27,8 +27,8 @@ type ProductResponseCustom struct {
 }
 
 type ProductCreateResponse struct {
-	ID            uint   `json:"ID"`
-	ProductTypeID uint   `json:"productTypeID"`
+	ID            uint   `json:"Id"`
+	ProductTypeID uint   `json:"productTypeId"`
 	AdminID       uint   `json:"adminID"`
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients" gorm:"not null"`
@@ -36,8 +36,8 @@ type ProductCreateResponse struct {
 }
 
 type ProductUpdateResponse struct {
-	ID            uint   `json:"ID"`
-	ProductTypeID uint   `json:"productTypeID"`
+	ID            uint   `json:"Id"`
+	ProductTypeID uint   `json:"productTypeId"`
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients" gorm:"not null"`
 	Image         string `json:"image"`
