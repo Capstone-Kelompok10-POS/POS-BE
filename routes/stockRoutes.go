@@ -14,8 +14,8 @@ import (
 
 func StockRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	stockRepository := repository.NewStockRepository(db)
-	productRepository := repository.NewProductRepository(db)
-	stockService := services.NewStockService(stockRepository, productRepository, validate)
+	productDetailRepository := repository.NewProductDetailRepository(db)
+	stockService := services.NewStockService(stockRepository, productDetailRepository, validate)
 	stockHandler := handler.NewStockHandler(stockService)
 
 	StockGroup := e.Group("/api/v1/product/stocks")

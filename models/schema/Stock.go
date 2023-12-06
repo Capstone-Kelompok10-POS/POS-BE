@@ -5,10 +5,9 @@ import (
 )
 
 type Stock struct {
-	ID        uint      `gorm:"primaryKey"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-
-	ProductID uint    `gorm:"index" json:"productID"`
-	Product   Product `gorm:"foreignKey:ProductID" json:"product"`
-	Stock     int     `json:"stock"`
+	ID              uint          `gorm:"primaryKey"`
+	CreatedAt       time.Time     `gorm:"autoCreateTime"`
+	ProductDetailID uint          `gorm:"index" json:"productID"`
+	ProductDetail   ProductDetail `gorm:"foreignKey:ProductDetailID" json:"productDetail"`
+	Stock           int           `json:"stock"`
 }
