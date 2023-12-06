@@ -378,6 +378,7 @@ func (service *TransactionImpl) MatchingTotalPrice(priceMobile, price float64) e
 }
 
 func (service *TransactionImpl) MatchingDiscount(discountMobile, discount float64) error {
+	fmt.Println(discountMobile, discount)
 	if discountMobile != discount {
 		return fmt.Errorf("discount does not match")
 	}

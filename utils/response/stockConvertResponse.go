@@ -7,12 +7,12 @@ import (
 )
 
 func StockDomainToStockResponse(response *domain.Stock) web.StockResponse {
-	res := ProductDetailDomainToProductDetailPreloadDomain(response.ProductDetail)
+	// res := ProductDetailDomainToProductDetailPreloadDomain(response.ProductDetail)
 	return web.StockResponse{
 		ID:              response.ID,
 		CreatedAt:       response.CreatedAt,
 		ProductDetailID: response.ProductDetailID,
-		ProductDetail:   res,
+		// ProductDetail:   res,
 		Stock:           response.Stock,
 	}
 }
@@ -31,7 +31,6 @@ func StockResponseToStockResponseCustom(response web.StockResponse) web.StockRes
 	return web.StockResponseCustom{
 		ID:              response.ID,
 		CreatedAt:       response.CreatedAt,
-		ProductDetailID: response.ProductDetailID,
 		ProductDetail:   response.ProductDetail,
 		Stock:           response.Stock,
 	}
@@ -51,12 +50,11 @@ func ConvertStockResponse(Stock []domain.Stock) []web.StockResponseCustom {
 	var results []web.StockResponseCustom
 	for _, stock := range Stock {
 
-		res := ProductDetailDomainToProductDetailPreloadDomain(stock.ProductDetail)
+		// res := ProductDetailDomainToProductDetailPreloadDomain(stock.ProductDetail)
 		stockResponse := web.StockResponseCustom{
 			ID:              stock.ID,
 			CreatedAt:       stock.CreatedAt,
-			ProductDetailID: stock.ProductDetailID,
-			ProductDetail:   res,
+			// ProductDetail:   res,
 
 			Stock: stock.Stock,
 		}

@@ -8,7 +8,7 @@ type ProductCreateRequest struct {
 	Name          string               `json:"name"`
 	Ingredients   string               `json:"ingredients"`
 	Image         string               `json:"image"`
-	ProductDetail domain.ProductDetail `json:"product"`
+	ProductDetail domain.ProductDetail `json:"productDetail"`
 }
 
 type ProductUpdateRequest struct {
@@ -17,4 +17,5 @@ type ProductUpdateRequest struct {
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients"`
 	Image         string `json:"image"`
+	ProductDetail domain.ProductDetail `json:"productDetail"`
 }

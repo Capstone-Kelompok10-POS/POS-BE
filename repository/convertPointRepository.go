@@ -73,7 +73,7 @@ func (repository *ConvertPointRepositoryImpl) FindAll() ([]domain.ConvertPoint, 
 
 
 func (repository *ConvertPointRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.ConvertPoint{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.ConvertPoint{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

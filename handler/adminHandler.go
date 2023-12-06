@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -168,6 +169,9 @@ func (c AdminHandlerImpl) UpdateAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+		if strings.Contains(err.Error(), "username already exists") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("username already exists"))
+		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update admin error"))
 	}
@@ -188,10 +192,12 @@ func (c AdminHandlerImpl) DeleteAdminHandler(ctx echo.Context) error {
 	}
 
 	err = c.AdminService.DeleteAdmin(ctx, adminIdInt)
+	fmt.Println(err)
 	if err != nil {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data admin error"))
 	}

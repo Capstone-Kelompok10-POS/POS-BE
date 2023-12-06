@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -29,7 +28,9 @@ type PaymentMethodHandlerImpl struct {
 }
 
 func NewPaymentMethodHandler(service services.PaymentMethodService) PaymentMethodHandler {
-	return &PaymentMethodHandlerImpl{service: service}
+	return &PaymentMethodHandlerImpl{
+		service: service,
+	} 
 }
 
 func (c *PaymentMethodHandlerImpl) CreatePaymentMethodHandler(ctx echo.Context) error {
@@ -40,7 +41,6 @@ func (c *PaymentMethodHandlerImpl) CreatePaymentMethodHandler(ctx echo.Context) 
 	}
 
 	result, err := c.service.CreatePaymentMethod(ctx, paymentMethodCreateRequest)
-
 	if err != nil {
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
@@ -48,11 +48,18 @@ func (c *PaymentMethodHandlerImpl) CreatePaymentMethodHandler(ctx echo.Context) 
 		if strings.Contains(err.Error(), "number") {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("Payment Type ID is not valid must contain only number value"))
 		}
+		if strings.Contains(err.Error(), "payment method name already exist") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment method name already exist"))
+		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("create payment method error"))
 	}
+	results, err := c.service.FindById(ctx, int(result.ID))
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to retrieve create data"))
+	}
 
-	response := res.PaymentMethodDomainToPaymentMethodResponse(result)
+	response := res.PaymentMethodDomainToPaymentMethodResponse(results)
 
 	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("successfully created payment method", response))
 }
@@ -71,12 +78,14 @@ func (c *PaymentMethodHandlerImpl) UpdatePaymentMethodHandler(ctx echo.Context) 
 
 	// Update Payment Method
 	if _, err := c.service.UpdatePaymentMethod(ctx, paymentUpdateRequest, paymentMethodIdInt); err != nil {
-		fmt.Print(err)
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("validation failed"))
 		} else if strings.Contains(err.Error(), "payment method not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment method not found"))
+		} else if strings.Contains(err.Error(), "payment method already exists") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment method name already exist"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to update payment method"))
 	}
 
@@ -120,7 +129,7 @@ func (c *PaymentMethodHandlerImpl) GetPaymentMethodsHandler(ctx echo.Context) er
 
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get payment method data error"))
 	}
-
+	
 	response := res.ConvertPaymentMethodResponse(result)
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully get all data payment method", response))
@@ -136,7 +145,11 @@ func (c *PaymentMethodHandlerImpl) GetPaymentMethodByNameHandler(ctx echo.Contex
 		}
 		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("Get payment method data by name error"))
 	}
-	response := res.PaymentMethodDomainToPaymentMethodResponse(result)
+	results, err := c.service.FindById(ctx, int(result.ID))
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to retrieve updated data"))
+	}
+	response := res.PaymentMethodDomainToPaymentMethodResponse(results)
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("succesfully get payment method data by name", response))
 }

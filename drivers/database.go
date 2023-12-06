@@ -47,8 +47,4 @@ func Migrate(db *gorm.DB) {
 		&schema.TransactionDetail{},
     &schema.TransactionPayment{},
 	)
-	if err != nil {
-		log.Fatal("Failed to Migrate Database")
-	}
-	fmt.Println("Success Migrate Database")
 }

@@ -2,13 +2,14 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
 
 type PaymentTypeService interface {
@@ -40,6 +41,11 @@ func (service *PaymentTypeServiceImpl) CreatePaymentType(ctx echo.Context, reque
 
 	paymentType := req.PaymentTypeRequestToPaymentTypeDomain(request)
 
+	ExistingpaymentType, _ := service.PaymentTypeRepository.FindByName(request.TypeName)
+	if ExistingpaymentType != nil {
+		return nil, fmt.Errorf("payment type is already exists")
+	}
+
 	result, err := service.PaymentTypeRepository.Create(paymentType)
 
 	if err != nil {
@@ -61,7 +67,13 @@ func (service *PaymentTypeServiceImpl) UpdatePaymentType(ctx echo.Context, reque
 	}
 
 	paymentType := req.PaymentTypeRequestToPaymentTypeDomain(request)
-
+	if existingPaymentType.TypeName != paymentType.TypeName {
+		existingPaymentType, _ := service.PaymentTypeRepository.FindByName(paymentType.TypeName)
+		if existingPaymentType != nil {
+			return nil, fmt.Errorf("payment type name is already exists")
+		}
+	}
+	fmt.Println(paymentType)
 	result, err := service.PaymentTypeRepository.Update(paymentType, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data payment type: %s", err.Error())

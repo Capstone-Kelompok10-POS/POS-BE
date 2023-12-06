@@ -32,8 +32,8 @@ func NewTransactionHandler(stockService services.TransactionService) Transaction
 }
 
 func (c *TransactionHandlerImpl) CreateTransactionHandler(ctx echo.Context) error {
-	cashier := middleware.ExtractTokenCashierId(ctx)
-	transactionCreateRequest := web.TransactionCreateRequest{CashierID: uint(cashier)}
+	cashierId := middleware.ExtractTokenCashierId(ctx)
+	transactionCreateRequest := web.TransactionCreateRequest{CashierID: uint(cashierId)}
 	err :=ctx.Bind(&transactionCreateRequest)
 	if err != nil{
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))

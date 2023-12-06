@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type PaymentTypeRepository interface {
@@ -61,7 +62,7 @@ func (repository *PaymentTypeRepositoryImpl) FindById(id int) (*domain.PaymentTy
 func (repository *PaymentTypeRepositoryImpl) FindByName(name string) (*domain.PaymentType, error) {
 	paymentType := domain.PaymentType{}
 
-	result := repository.DB.Where("name = ?", name).First(&paymentType)
+	result := repository.DB.Where("type_name = ?", name).First(&paymentType)
 	if result.Error != nil {
 		return nil, result.Error
 	}

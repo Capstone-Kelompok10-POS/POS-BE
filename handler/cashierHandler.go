@@ -167,6 +167,9 @@ func (c CashierHandlerImpl) UpdateCashierHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "cashier not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashier not found"))
 		}
+		if strings.Contains(err.Error(), "username already exists") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("username already exists"))
+		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update cashier error"))
 	}

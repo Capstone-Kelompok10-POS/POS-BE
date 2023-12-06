@@ -292,7 +292,7 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error) {
 	productMap := make(map[uint]middleware.ProductDataAIRecommended)
 
-	products, err := c.ProductService.FindAllProductService(ctx)
+	products, _ , err := c.ProductService.FindAllProductService(ctx)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
@@ -314,7 +314,7 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 }
 
 func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
-	openAIKey := os.Getenv("openAIKey")
+	openAIKey := os.Getenv("OPEN_AI_KEY")
 	productMap, err := c.GetProductNames(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))

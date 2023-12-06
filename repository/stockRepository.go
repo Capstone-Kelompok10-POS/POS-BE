@@ -51,7 +51,7 @@ func (repository *StockRepositoryImpl) FindAll() ([]domain.Stock, error) {
 func (repository *StockRepositoryImpl) FindById(id uint) (*domain.Stock, error) {
 	stock := domain.Stock{}
 
-	result := repository.DB.Preload("ProductDetail").First(&stock, id)
+	result := repository.DB.Preload("ProductDetail").Where("deleted_at IS NULL").First(&stock, id)
 
 	if result.Error != nil {
 		return nil, result.Error
