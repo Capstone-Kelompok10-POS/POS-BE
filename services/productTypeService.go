@@ -40,43 +40,11 @@ func (service *ProductTypeImpl) CreateProductType(ctx echo.Context, request web.
 	}
 
 	productType := req.ProductTypeCreateToProductTypeDomain(request)
-
-<<<<<<< Updated upstream
 	existingProductType, _ := service.ProductTypeRepository.FindByName(request.TypeName)
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-	existingProductType, _ := service.ProductTypeRepository.FindByName(request.TypeName)
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-	existingProductType, _ := service.ProductTypeRepository.FindByName(request.TypeName)
-=======
-<<<<<<< Updated upstream
-=======
-	existingProductType, _ := service.ProductTypeRepository.FindByName(request.TypeName)
-	fmt.Println(existingProductType)
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	if existingProductType != nil {
 		return nil, fmt.Errorf("product type name already exist")
 	}
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	result, err := service.ProductTypeRepository.Create(productType)
 
 	if err != nil {
