@@ -62,9 +62,8 @@ func (repository *AdminRepositoryImpl) FindById(id int) (*domain.Admin, error) {
 
 func (repository *AdminRepositoryImpl) FindByUsername(username string) (*domain.Admin, error) {
 	admin := domain.Admin{}
-
-	query := "SELECT admins.* FROM admins WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
-	result := repository.DB.Raw(query, username).Scan(&admin)
+	query := "SELECT admins.* FROM admins WHERE LOWER(admins.username) LIKE LOWER(?) AND deleted_at IS NULL"
+	result := repository.DB.Raw(query, username).First(&admin)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -75,8 +74,8 @@ func (repository *AdminRepositoryImpl) FindByUsername(username string) (*domain.
 
 func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 	admin := []domain.Admin{}
-
-	result := repository.DB.Find(&admin)
+	query := "SELECT * FROM admins WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&admin)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -1,5 +1,5 @@
 package web
 
 type PaymentTypeRequest struct {
-	TypeName string `gorm:"not null" json:"typeName"`
+	TypeName string `json:"typeName" validate:"required"`
 }

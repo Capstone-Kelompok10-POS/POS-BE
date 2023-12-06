@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type ProductDetailRepository interface {
@@ -50,14 +51,7 @@ func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.Prod
 	return productDetail, nil
 }
 
-<<<<<<< Updated upstream
 
-=======
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error {
     result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
     if result.Error != nil {
@@ -69,16 +63,7 @@ func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, produc
 
 func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.ProductDetail, error) {
 	productDetail := domain.ProductDetail{}
-<<<<<<< Updated upstream
-
 	result := repository.DB.Where("deleted_at IS NULL").First(&productDetail, id)
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-
-	result := repository.DB.Where("deleted_at IS NULL").First(&productDetail, id)
->>>>>>> Stashed changes
 	if result.Error != nil {
 		return nil, result.Error
 	}

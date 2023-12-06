@@ -13,9 +13,10 @@ import (
 type MembershipRepository interface {
 	Create(membership *domain.Membership) (*domain.Membership, error)
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
+	UpdatePoint(tx *gorm.DB, membership *domain.Membership) error
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)
-	FindAll() ([]domain.Membership, error)
+	FindAll() ([]domain.Membership, int,  error)
 	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
 	Delete(id int) error
 }
@@ -50,6 +51,15 @@ func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership
 	return membership, nil
 }
 
+func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership *domain.Membership) error {
+
+	if err := tx.Model(&schema.Membership{}).Where("id = ?", membership.ID).Where("deleted_at IS NULL").Update("point", membership.Point).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership, error) {
 	membership := domain.Membership{}
 
@@ -73,7 +83,6 @@ func (repository *MembershipRepositoryImpl) FindByPhoneNumber(phoneNumber string
 
 func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Membership, error) {
 	membership := domain.Membership{}
-
 	result := repository.DB.Where("deleted_at IS NULL AND name LIKE ?", "%"+name+"%").Find(&membership)
 	if result.Error != nil {
 		return nil, result.Error
@@ -82,14 +91,17 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 	return &membership, nil
 }
 
-func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, error) {
-	membership := []domain.Membership{}
+func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int, error) {
+	memberships := []domain.Membership{}
 
-	result := repository.DB.Find(&membership)
+	result := repository.DB.Where("deleted_at IS NULL").Find(&memberships)
+	query := "SELECT * FROM memberships WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&membership)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, 0, result.Error
 	}
-	return membership, nil
+	totalMembership := len(memberships)
+	return memberships, totalMembership, nil
 }
 
 func (repository *MembershipRepositoryImpl) Delete(id int) error {
@@ -99,3 +111,4 @@ func (repository *MembershipRepositoryImpl) Delete(id int) error {
 	}
 	return nil
 }
+

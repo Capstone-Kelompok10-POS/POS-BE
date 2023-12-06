@@ -72,7 +72,8 @@ func (repository *PaymentTypeRepositoryImpl) FindByName(name string) (*domain.Pa
 func (repository *PaymentTypeRepositoryImpl) FindAll() ([]domain.PaymentType, error) {
 	paymentType := []domain.PaymentType{}
 
-	result := repository.DB.Find(&paymentType)
+	query := "SELECT * FROM payment_types"
+	result := repository.DB.Raw(query).Scan(&paymentType)
 	if result.Error != nil {
 		return nil, result.Error
 	}

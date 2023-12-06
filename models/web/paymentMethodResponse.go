@@ -1,7 +1,8 @@
 package web
 
 type PaymentMethodResponse struct {
-	ID            uint   `json:"id"`
-	PaymentTypeID uint   `gorm:"not null" json:"paymentTypeID"`
-	Name          string `gorm:"not null" json:"name"`
+	ID            uint                `json:"id"`
+	PaymentTypeID uint                `json:"paymentTypeId"`
+	PaymentType   PaymentTypeResponse `json:"paymentType"`
+	Name          string              `json:"name"`
 }
