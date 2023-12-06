@@ -16,7 +16,7 @@ type MembershipRepository interface {
 	UpdatePoint(tx *gorm.DB, membership *domain.Membership) error
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)
-	FindAll() ([]domain.Membership, error)
+	FindAll() ([]domain.Membership, int,  error)
 	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
 	Delete(id int) error
 }
@@ -63,7 +63,7 @@ func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership 
 func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership, error) {
 	membership := domain.Membership{}
 
-	result := repository.DB.First(&membership, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&membership, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -91,18 +91,20 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 	return &membership, nil
 }
 
-func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, error) {
-	membership := []domain.Membership{}
+func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int, error) {
+	memberships := []domain.Membership{}
+
 	query := "SELECT * FROM memberships WHERE deleted_at IS NULL"
-	result := repository.DB.Raw(query).Scan(&membership)
+	result := repository.DB.Raw(query).Scan(&memberships)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, 0, result.Error
 	}
-	return membership, nil
+	totalMembership := len(memberships)
+	return memberships, totalMembership, nil
 }
 
 func (repository *MembershipRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.Membership{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.Membership{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

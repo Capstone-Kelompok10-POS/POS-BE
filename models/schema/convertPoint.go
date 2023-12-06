@@ -12,6 +12,6 @@ type ConvertPoint struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Point int `json:"point"`
+	Point uint `json:"point"`
 	ValuePoint int `json:"valuePoint"`
 }

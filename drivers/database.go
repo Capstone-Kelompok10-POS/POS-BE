@@ -2,53 +2,49 @@ package drivers
 
 import (
 	"fmt"
-	"log"
-	"os"
+	"qbills/configs"
 	"qbills/models/schema"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
 
-func ConnectDB() {
+func NewMySQLConnection(config *configs.MySQLConfig) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"))
+		config.Username,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.Database)
 
-	var errDB error
-	DB, errDB = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if errDB != nil {
-		panic("failed connect to database")
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
 	}
 
-	Migrate()
+	Migrate(db)
 
-	fmt.Println("Connected to database")
+	return db, nil
 
 }
 
-func Migrate() {
-	err := DB.AutoMigrate(
+func Migrate(db *gorm.DB) {
+	db.AutoMigrate(
 		&schema.SuperAdmin{},
 		&schema.Admin{},
+		&schema.Cashier{},
+		&schema.Membership{},
 		&schema.ConvertPoint{},
 		&schema.ProductType{},
 		&schema.Product{},
 		&schema.Stock{},
-		&schema.Cashier{},
-		&schema.Membership{},
 		&schema.PaymentType{},
 		&schema.PaymentMethod{},
-		&schema.ProductDetail{})
-
-	if err != nil {
-		log.Fatal("Failed to Migrate Database")
-	}
-	fmt.Println("Success Migrate Database")
+		&schema.ProductDetail{},
+		&schema.Transaction{},
+		&schema.TransactionDetail{},
+    &schema.TransactionPayment{},
+	)
 }

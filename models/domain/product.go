@@ -1,7 +1,11 @@
 package domain
 
+import "time"
+
 type Product struct {
 	ID            uint
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 	ProductTypeID uint
 	ProductType   ProductType
 	AdminID       uint

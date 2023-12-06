@@ -42,7 +42,7 @@ func GenerateBarcodeAndUploadToFirebase(ctx echo.Context, CodeMember string) (st
 	defer client.Close()
 
 	// Specify the name of your Firebase Storage bucket
-	bucketName := "qbils-d46b3.appspot.com"
+	bucketName := "qbills-casier.appspot.com"
 
 	// Set the appropriate MIME type
 	contentType := "image/png"

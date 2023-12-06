@@ -53,7 +53,7 @@ func (repository *PaymentMethodRepositoryImpl) Update(paymentMethod *domain.Paym
 func (repository *PaymentMethodRepositoryImpl) FindById(id int) (*domain.PaymentMethod, error) {
 	paymentMethod := domain.PaymentMethod{}
 
-	result := repository.DB.First(&paymentMethod, id)
+	result := repository.DB.Preload("PaymentType").First(&paymentMethod, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -73,8 +73,7 @@ func (repository *PaymentMethodRepositoryImpl) FindByName(name string) (*domain.
 
 func (repository *PaymentMethodRepositoryImpl) FindAll() ([]domain.PaymentMethod, error) {
 	paymentMethod := []domain.PaymentMethod{}
-	query := "SELECT * FROM payment_methods WHERE deleted_at IS NULL"
-	result := repository.DB.Raw(query).Scan(&paymentMethod)
+	result := repository.DB.Preload("PaymentType").Where("deleted_at IS NULL").Find(&paymentMethod)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -82,7 +81,7 @@ func (repository *PaymentMethodRepositoryImpl) FindAll() ([]domain.PaymentMethod
 }
 
 func (repository *PaymentMethodRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.PaymentMethod{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.PaymentMethod{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

@@ -24,7 +24,7 @@ func NewSuperAdminRepository(DB *gorm.DB) SuperAdminRepository {
 func (repository *SuperAdminRepositoryImpl) FindById(id int) (*domain.SuperAdmin, error) {
 	superAdmin := domain.SuperAdmin{}
 
-	result := repository.DB.First(&superAdmin, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&superAdmin, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}

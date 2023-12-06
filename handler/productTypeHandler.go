@@ -46,7 +46,9 @@ func (c *ProductTypeHandlerImpl) CreateProductTypeHandler(ctx echo.Context) erro
 		case strings.Contains(err.Error(), "TypeName alpha"): 
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("type name is not valid must contain only alphabetical characters"))
 		case strings.Contains(err.Error(), "TypeDescription alpha"): 
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("type description is not valid must contain only alphabetical characters"))		
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("type description is not valid must contain only alphabetical characters"))
+		case strings.Contains(err.Error(), "product type name already exist"): 
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("product type name already exists"))		
 		default:
 			logrus.Error(err.Error())
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to create product type"))
@@ -83,6 +85,9 @@ func (c *ProductTypeHandlerImpl) UpdateProductTypeHandler(ctx echo.Context) erro
 		}
 		if strings.Contains(err.Error(), "product type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product type not found"))
+		}
+		if strings.Contains(err.Error(), "product type name already exists") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product type name already exists"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update product type error"))

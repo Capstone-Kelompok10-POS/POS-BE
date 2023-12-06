@@ -6,24 +6,23 @@ import (
 )
 
 type StockResponse struct {
-	ID        uint           `json:"id"`
-	CreatedAt time.Time      `json:"createdAt"`
-	ProductID uint           `json:"productID"`
-	Product   domain.Product `json:"product"`
-	Stock     int            `json:"stock"`
+	ID              uint                        `json:"id"`
+	CreatedAt       time.Time                   `json:"createdAt"`
+	ProductDetailID uint                        `json:"productDetailId"`
+	ProductDetail   domain.ProductDetail `json:"productDetail"`
+	Stock           int                         `json:"stock"`
 }
 
 type StockResponseCustom struct {
-	ID        uint                          `json:"id"`
-	CreatedAt time.Time                     `json:"createdAt"`
-	ProductID uint                          `json:"productID"`
-	Product   domain.ProductPreloadResponse `json:"product"`
-	Stock     int                           `json:"stock"`
+	ID              uint                        `json:"id"`
+	CreatedAt       time.Time                   `json:"createdAt"`
+	ProductDetail   domain.ProductDetail `json:"productDetail"`
+	Stock           int                         `json:"stock"`
 }
 
 type StockResponseCreate struct {
-	ID        uint      `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	ProductID uint      `json:"productID"`
-	Stock     int       `json:"stock"`
+	ID              uint      `json:"id"`
+	CreatedAt       time.Time `json:"createdAt"`
+	ProductDetailID uint      `json:"productDetailId"`
+	Stock           int       `json:"stock"`
 }

@@ -7,12 +7,17 @@ import (
 )
 
 func ProductCreateRequestToProductDomain(request web.ProductCreateRequest) *domain.Product {
+	newProductDetail := domain.ProductDetail{
+		Price: request.ProductDetail.Price,
+		Size: request.ProductDetail.Size,
+	}
 	return &domain.Product{
 		ProductTypeID: request.ProductTypeID,
 		AdminID:       request.AdminID,
 		Name:          request.Name,
 		Ingredients:   request.Ingredients,
 		Image:         request.Image,
+		ProductDetail: []domain.ProductDetail{newProductDetail},
 	}
 }
 
