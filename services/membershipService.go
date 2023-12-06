@@ -18,7 +18,15 @@ type MembershipService interface {
 	UpdateMembership(ctx echo.Context, request web.MembershipUpdateRequest, id int) (*domain.Membership, error)
 	FindById(ctx echo.Context, id int) (*domain.Membership, error)
 	FindByName(ctx echo.Context, name string) (*domain.Membership, error)
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+	FindByPhoneNumber(ctx echo.Context, phoneNumber string) (*domain.Membership, error)
+>>>>>>> Stashed changes
 	FindAll(ctx echo.Context) ([]domain.Membership, error)
+=======
+	FindAll(ctx echo.Context) ([]domain.Membership,int, error)
+>>>>>>> Stashed changes
 	DeleteMembership(ctx echo.Context, id int) error
 }
 
@@ -68,13 +76,13 @@ func (service *MembershipServiceImpl) FindById(ctx echo.Context, id int) (*domai
 	return existingMembership, nil
 }
 
-func (service *MembershipServiceImpl) FindAll(ctx echo.Context) ([]domain.Membership, error) {
-	memberships, err := service.MembershipRepository.FindAll()
+func (service *MembershipServiceImpl) FindAll(ctx echo.Context) ([]domain.Membership, int, error) {
+	memberships, totalMembership, err := service.MembershipRepository.FindAll()
 	if err != nil {
-		return nil, fmt.Errorf("membership not found")
+		return nil, 0, fmt.Errorf("error when get membership")
 	}
 
-	return memberships, nil
+	return memberships, totalMembership, nil
 }
 
 func (service *MembershipServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Membership, error) {
