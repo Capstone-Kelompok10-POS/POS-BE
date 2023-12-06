@@ -51,6 +51,7 @@ func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.Prod
 	return productDetail, nil
 }
 
+
 func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error {
     result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
     if result.Error != nil {
@@ -62,9 +63,7 @@ func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, produc
 
 func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.ProductDetail, error) {
 	productDetail := domain.ProductDetail{}
-
 	result := repository.DB.Where("deleted_at IS NULL").First(&productDetail, id)
-
 	if result.Error != nil {
 		return nil, result.Error
 	}
