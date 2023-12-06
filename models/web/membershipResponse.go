@@ -19,3 +19,11 @@ type MembershipTransactionResponse struct {
 	Point        int       `json:"point"`
 	PhoneNumber string     `json:"phoneNumber"`
 }
+
+type MembershipTransactionResponse struct {
+	ID          uint `json:"id" `
+	Name        string `json:"name"`
+	CodeMember  uuid.UUID `json:"codeMember"`
+	Point       uint   `json:"point"`
+	PhoneNumber string `json:"phoneNumber"`
+}
