@@ -2,14 +2,15 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
 	"strconv"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
 
 type ProductService interface {
@@ -17,7 +18,7 @@ type ProductService interface {
 	UpdateProductService(ctx echo.Context, request web.ProductUpdateRequest, id uint) (*domain.Product, error)
 	FindByIdProductService(ctx echo.Context, id uint) (*domain.Product, error)
 	FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error)
-	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
+	FindAllProductService(ctx echo.Context) ([]domain.Product, int, error)
 	FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
 	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
@@ -40,7 +41,7 @@ func (service *ProductServiceImpl) CreateProductService(ctx echo.Context, reques
 	if err != nil {
 		return nil, helpers.ValidationError(ctx, err)
 	}
-
+	request.ProductDetail.Size = "NORMAL"
 	product := req.ProductCreateRequestToProductDomain(request)
 
 	result, err := service.ProductRepository.Create(product)
@@ -85,14 +86,13 @@ func (service *ProductServiceImpl) FindByIdProductService(ctx echo.Context, id u
 	return result, nil
 }
 
-func (service *ProductServiceImpl) FindAllProductService(ctx echo.Context) ([]domain.Product, error) {
-	product, err := service.ProductRepository.FindAll()
-
+func (service *ProductServiceImpl) FindAllProductService(ctx echo.Context) ([]domain.Product, int, error) {
+	products, totalProducts, err := service.ProductRepository.FindAll()
 	if err != nil {
-		return nil, err
+		return nil, 0, fmt.Errorf("product not found")
 	}
 
-	return product, nil
+	return products, totalProducts, nil
 }
 
 func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error) {
@@ -146,7 +146,7 @@ func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]do
 
 	result, paginate, err := service.ProductRepository.FindPaginationProduct(orderBy, Paginate)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Product is empty")
+		return nil, nil, fmt.Errorf("product is empty")
 	}
 
 	return result, paginate, nil

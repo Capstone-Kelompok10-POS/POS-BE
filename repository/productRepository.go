@@ -2,21 +2,20 @@ package repository
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"os"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	"qbills/utils/helpers"
-	req "qbills/utils/request"
-	res "qbills/utils/response"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
 type ProductRepository interface {
 	Create(request *domain.Product) (*domain.Product, error)
 	Update(request *domain.Product, id uint) (*domain.Product, error)
 	FindById(id uint) (*domain.Product, error)
-	FindAll() ([]domain.Product, error)
+	FindAll() ([]domain.Product, int , error)
 	FindByName(name string) ([]domain.Product, error)
 	FindByCategory(ProductTypeID uint) ([]domain.Product, error)
 	Delete(id uint) error
@@ -32,17 +31,14 @@ func NewProductRepository(DB *gorm.DB) ProductRepository {
 }
 
 func (repository *ProductRepositoryImpl) Create(request *domain.Product) (*domain.Product, error) {
-	ProductDB := req.ProductDomainToProductSchema(*request)
-
-	result := repository.DB.Create(&ProductDB)
+	
+	result := repository.DB.Create(&request)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	response := res.ProductSchemaToProductDomain(ProductDB)
-
-	return response, nil
+	return request, nil
 }
 
 func (repository *ProductRepositoryImpl) Update(request *domain.Product, id uint) (*domain.Product, error) {
@@ -66,16 +62,16 @@ func (repository *ProductRepositoryImpl) FindById(id uint) (*domain.Product, err
 	return &product, nil
 }
 
-func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, error) {
-	product := []domain.Product{}
+func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, int, error) {
+	products := []domain.Product{}
 
-	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("deleted_at IS NULL").Find(&product)
+	result := repository.DB.Preload("ProductType").Preload("ProductDetail").Where("deleted_at IS NULL").Find(&products)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, 0 , result.Error
 	}
-
-	return product, nil
+	totalProducts := len(products)
+	return products, totalProducts , nil
 }
 
 func (repository *ProductRepositoryImpl) FindByCategory(ProductTypeID uint) ([]domain.Product, error) {

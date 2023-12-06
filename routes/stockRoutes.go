@@ -1,26 +1,31 @@
 package routes
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+	"os"
 	"qbills/handler"
 	"qbills/repository"
 	"qbills/services"
+
+	"github.com/go-playground/validator"
+	echoJwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func StockRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	stockRepository := repository.NewStockRepository(db)
-	productRepository := repository.NewProductRepository(db)
-	stockService := services.NewStockService(stockRepository, productRepository, validate)
+	productDetailRepository := repository.NewProductDetailRepository(db)
+	stockService := services.NewStockService(stockRepository, productDetailRepository, validate)
 	stockHandler := handler.NewStockHandler(stockService)
 
-	Group := e.Group("/api/v1/stocks")
+	StockGroup := e.Group("/api/v1/product/stocks")
 
-	Group.POST("", stockHandler.UpdateStockHandler)
-	Group.GET("", stockHandler.FindAllStockHandler)
-	Group.GET("/:id", stockHandler.FindByIdStockHandler)
-	Group.GET("/get/increase", stockHandler.FindIncreaseStockHandler)
-	Group.GET("/get/decrease", stockHandler.FindDecreaseStockHandler)
+	StockGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
+
+	StockGroup.POST("", stockHandler.UpdateStockHandler)
+	StockGroup.GET("", stockHandler.FindAllStockHandler)
+	StockGroup.GET("/:id", stockHandler.FindByIdStockHandler)
+	StockGroup.GET("/get/increase", stockHandler.FindIncreaseStockHandler)
+	StockGroup.GET("/get/decrease", stockHandler.FindDecreaseStockHandler)
 
 }

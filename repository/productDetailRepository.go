@@ -1,19 +1,22 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type ProductDetailRepository interface {
 	Create(productDetail *domain.ProductDetail) (*domain.ProductDetail, error)
 	Update(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error)
+	StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error
 	FindById(id uint) (*domain.ProductDetail, error)
 	FindAll() ([]domain.ProductDetail, error)
 	Delete(id uint) error
+	FindAllByIds(ids []uint) ([]domain.ProductDetail, error)
 }
 
 type ProductDetailRepositoryImpl struct {
@@ -48,15 +51,23 @@ func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.Prod
 	return productDetail, nil
 }
 
+
+func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error {
+    result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
+    if result.Error != nil {
+        return result.Error
+    }
+
+    return nil
+}
+
 func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.ProductDetail, error) {
-	product := domain.ProductDetail{}
-
-	result := repository.DB.Where("deleted_at IS NULL").First(&product, id)
-
+	productDetail := domain.ProductDetail{}
+	result := repository.DB.Where("deleted_at IS NULL").First(&productDetail, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &product, nil
+	return &productDetail, nil
 }
 
 func (repository *ProductDetailRepositoryImpl) FindAll() ([]domain.ProductDetail, error) {
@@ -78,4 +89,15 @@ func (repository *ProductDetailRepositoryImpl) Delete(id uint) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (repository *ProductDetailRepositoryImpl) FindAllByIds(ids []uint) ([]domain.ProductDetail, error) {
+	var products []domain.ProductDetail
+
+	result := repository.DB.Preload("Product").Where("deleted_at IS NULL").Find(&products, ids)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return products, nil
 }

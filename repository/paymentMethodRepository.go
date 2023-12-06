@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type PaymentMethodRepository interface {
@@ -37,7 +38,7 @@ func (repository *PaymentMethodRepositoryImpl) Create(paymentMethod *domain.Paym
 }
 
 func (repository *PaymentMethodRepositoryImpl) Update(paymentMethod *domain.PaymentMethod, id int) (*domain.PaymentMethod, error) {
-	result := repository.DB.Table("paymentMethod").Where("id = ?", id).Updates(domain.PaymentMethod{
+	result := repository.DB.Table("payment_methods").Where("id = ?", id).Updates(domain.PaymentMethod{
 		ID:            paymentMethod.ID,
 		PaymentTypeID: paymentMethod.PaymentTypeID,
 		Name:          paymentMethod.Name,
@@ -52,7 +53,7 @@ func (repository *PaymentMethodRepositoryImpl) Update(paymentMethod *domain.Paym
 func (repository *PaymentMethodRepositoryImpl) FindById(id int) (*domain.PaymentMethod, error) {
 	paymentMethod := domain.PaymentMethod{}
 
-	result := repository.DB.First(&paymentMethod, id)
+	result := repository.DB.Preload("PaymentType").First(&paymentMethod, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -62,7 +63,7 @@ func (repository *PaymentMethodRepositoryImpl) FindById(id int) (*domain.Payment
 func (repository *PaymentMethodRepositoryImpl) FindByName(name string) (*domain.PaymentMethod, error) {
 	PaymentMethod := domain.PaymentMethod{}
 
-	result := repository.DB.Where("name = ?", name).First(&PaymentMethod)
+	result := repository.DB.Where("name LIKE ?", "%"+name+"%").First(&PaymentMethod)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -72,8 +73,8 @@ func (repository *PaymentMethodRepositoryImpl) FindByName(name string) (*domain.
 
 func (repository *PaymentMethodRepositoryImpl) FindAll() ([]domain.PaymentMethod, error) {
 	paymentMethod := []domain.PaymentMethod{}
-
-	result := repository.DB.Find(&paymentMethod)
+	query := "SELECT * FROM payment_methods WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&paymentMethod)
 	if result.Error != nil {
 		return nil, result.Error
 	}

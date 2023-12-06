@@ -40,6 +40,8 @@ func (c *StockHandlerImpl) UpdateStockHandler(ctx echo.Context) error {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+		case strings.Contains(err.Error(), "stock decrease more than stock"):
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("stock decrease more than stock"))
 		default:
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to increase stock"))
 		}
@@ -49,7 +51,7 @@ func (c *StockHandlerImpl) UpdateStockHandler(ctx echo.Context) error {
 
 	responseCustom := res.StockResponseToStockResponseCreate(response)
 
-	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success increase stock", responseCustom))
+	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success update stock", responseCustom))
 }
 
 func (c *StockHandlerImpl) FindAllStockHandler(ctx echo.Context) error {

@@ -52,24 +52,37 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 	}
 }
 
-func ConvertProductResponse(products []domain.Product) []web.ProductResponseCustom {
-	var results []web.ProductResponseCustom
+func ProductsDomainToProductsResponse(product *domain.Product) *web.ProductsResponse {
+	response := &web.ProductsResponse{
+		ID:            product.ID,
+		ProductType:   web.ProductTypeResponse{
+			ID: product.ProductTypeID,
+			TypeName: product.ProductType.TypeName,
+			TypeDescription: product.ProductType.TypeDescription,
+		},
+		Name:          product.Name,
+		Ingredients:   product.Ingredients,
+		Image:         product.Image,
+		ProductDetail: make([]web.ProductDetailResponse, 0),
+	}
+
+	for _, detail := range product.ProductDetail {
+		response.ProductDetail = append(response.ProductDetail, web.ProductDetailResponse{
+			ID:         detail.ID,
+			ProductID:  detail.ProductID,
+			Price:      detail.Price,
+			TotalStock: detail.TotalStock,
+			Size:       detail.Size,
+		})
+	}
+	return response
+}
+
+func ConvertProductResponse(products []domain.Product) []web.ProductsResponse {
+	var results []web.ProductsResponse
 
 	for _, product := range products {
-
-		Admins := AdminDomainToAdminDomainResponse(product.Admin)
-		productResponse := web.ProductResponseCustom{
-			ID:            product.ID,
-			ProductTypeID: product.ProductTypeID,
-			ProductType:   product.ProductType,
-			AdminID:       product.AdminID,
-			Admin:         Admins,
-			Name:          product.Name,
-			Ingredients:   product.Ingredients,
-			Image:         product.Image,
-			ProductDetail: product.ProductDetail,
-		}
-		results = append(results, productResponse)
+		results = append(results, *ProductsDomainToProductsResponse(&product))
 	}
 	return results
 }
