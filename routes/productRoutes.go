@@ -28,8 +28,4 @@ func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	productGroup.GET("/category/:productTypeID", ProductHandler.GetProductByCategoryHandler)
 	productGroup.PUT("/:id", ProductHandler.UpdateProductHandler)
 	productGroup.DELETE("/:id", ProductHandler.DeleteProductHandler)
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes

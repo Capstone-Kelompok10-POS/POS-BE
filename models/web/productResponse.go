@@ -29,24 +29,15 @@ type ProductResponseCustom struct {
 type ProductCreateResponse struct {
 	ID            uint   `json:"Id"`
 	ProductTypeID uint   `json:"productTypeId"`
-<<<<<<< Updated upstream
-	AdminID       uint   `json:"adminID"`
-=======
 	AdminID       uint   `json:"adminId"`
->>>>>>> Stashed changes
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients"`
 	Image         string `json:"image"`
 }
 
 type ProductUpdateResponse struct {
-<<<<<<< Updated upstream
 	ID            uint   `json:"Id"`
 	ProductTypeID uint   `json:"productTypeId"`
-=======
-	ID            uint   `json:"id"`
-	ProductTypeID uint   `json:"productTypeid"`
->>>>>>> Stashed changes
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients"`
 	Image         string `json:"image"`

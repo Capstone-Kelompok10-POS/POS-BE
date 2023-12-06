@@ -190,15 +190,8 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 }
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
-<<<<<<< Updated upstream
-	result, err := c.ProductService.FindAllProductService(ctx)
-	if result == nil {
-		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
-	}
-=======
 	products, totalProducts, err := c.ProductService.FindAllProductService(ctx)
 
->>>>>>> Stashed changes
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
