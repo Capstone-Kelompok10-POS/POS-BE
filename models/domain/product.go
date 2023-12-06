@@ -6,11 +6,9 @@ type Product struct {
 	ProductType   ProductType
 	AdminID       uint
 	Admin         Admin
+	ProductDetail []ProductDetail
 	Name          string
 	Ingredients   string
-	Price         float64
-	TotalStock    int
-	Size          string
 	Image         string
 }
 
@@ -22,10 +20,8 @@ type ProductResponse struct {
 	Admin         AdminResponse
 	Name          string
 	Ingredients   string
-	Price         float64
-	TotalStock    int
-	Size          string
 	Image         string
+	ProductDetail []ProductDetail
 }
 
 type ProductPreloadResponse struct {
@@ -34,8 +30,6 @@ type ProductPreloadResponse struct {
 	AdminID       uint
 	Name          string
 	Ingredients   string
-	Price         float64
-	TotalStock    int
-	Size          string
 	Image         string
+	ProductDetail []ProductDetail
 }

@@ -1,14 +1,7 @@
 package handler
 
 import (
-<<<<<<< Updated upstream
-	"github.com/labstack/echo/v4"
-=======
-<<<<<<< Updated upstream
-	"github.com/labstack/echo/v4"
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -16,15 +9,10 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/sirupsen/logrus"
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 )
 
 type PaymentMethodHandler interface {
@@ -57,18 +45,10 @@ func (c *PaymentMethodHandlerImpl) CreatePaymentMethodHandler(ctx echo.Context) 
 		if strings.Contains(err.Error(), "validation error") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-<<<<<<< Updated upstream
-
-=======
-<<<<<<< Updated upstream
-
-=======
 		if strings.Contains(err.Error(), "number") {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("Payment Type ID is not valid must contain only number value"))
 		}
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("create payment method error"))
 	}
 
@@ -91,6 +71,7 @@ func (c *PaymentMethodHandlerImpl) UpdatePaymentMethodHandler(ctx echo.Context) 
 
 	// Update Payment Method
 	if _, err := c.service.UpdatePaymentMethod(ctx, paymentUpdateRequest, paymentMethodIdInt); err != nil {
+		fmt.Print(err)
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("validation failed"))
 		} else if strings.Contains(err.Error(), "payment method not found") {

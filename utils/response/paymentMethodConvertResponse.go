@@ -8,6 +8,7 @@ import (
 
 func PaymentMethodDomainToPaymentMethodResponse(response *domain.PaymentMethod) web.PaymentMethodResponse {
 	return web.PaymentMethodResponse{
+		ID: response.ID,
 		PaymentTypeID: response.PaymentTypeID,
 		Name:          response.Name,
 	}

@@ -18,7 +18,7 @@ type AdminService interface {
 	UpdateAdmin(ctx echo.Context, request web.AdminUpdateRequest, id int) (*domain.Admin, error)
 	FindById(ctx echo.Context, id int) (*domain.Admin, error)
 	FindAll(ctx echo.Context) ([]domain.Admin, error)
-	FindByName(ctx echo.Context, name string) (*domain.Admin, error)
+	FindByUsername(ctx echo.Context, name string) (*domain.Admin, error)
 	DeleteAdmin(ctx echo.Context, id int) error
 }
 
@@ -38,11 +38,6 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 	err := service.Validate.Struct(request)
 	if err != nil {
 		return nil, helpers.ValidationError(ctx, err)
-	}
-
-	existingAdmin, _ := service.AdminRepository.FindByUsername(request.Username)
-	if existingAdmin != nil {
-		return nil, fmt.Errorf("username already exists")
 	}
 
 	admin := req.AdminCreateRequestToAdminDomain(request)
@@ -91,6 +86,13 @@ func (service *AdminServiceImpl) UpdateAdmin(ctx echo.Context, request web.Admin
 	}
 
 	admin := req.AdminUpdateRequestToAdminDomain(request)
+	if existingAdmin.Username != admin.Username {
+		existingAdminUsername, _ := service.AdminRepository.FindByUsername(admin.Username)
+		if existingAdminUsername != nil {
+			return nil, fmt.Errorf("username already exists")
+		}
+	}
+	
 	admin.Password = helpers.HashPassword(admin.Password)
 	result, err := service.AdminRepository.Update(admin, id)
 	if err != nil {
@@ -118,8 +120,8 @@ func (service *AdminServiceImpl) FindAll(ctx echo.Context) ([]domain.Admin, erro
 	return admins, nil
 }
 
-func (service *AdminServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Admin, error) {
-	admin, _ := service.AdminRepository.FindByName(name)
+func (service *AdminServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Admin, error) {
+	admin, _ := service.AdminRepository.FindByUsername(name)
 	if admin == nil {
 		return nil, fmt.Errorf("admin not found")
 	}
