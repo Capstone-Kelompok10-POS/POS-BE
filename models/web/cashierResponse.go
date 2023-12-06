@@ -15,5 +15,6 @@ type CashierResponse struct {
 
 type CashierTransactionResponse struct {
 	ID       uint   `json:"id"`
+	Fullname string `json:"fullname"`
 	Username string `json:"username"`
 }

@@ -8,6 +8,7 @@ type MembershipCreateRequest struct {
 
 
 type MembershipUpdateRequest struct {
+	CashierID   uint   `json:"cashierId"`
 	Name        string `json:"name" validate:"required,min=1,max=255"`
 	Point       int    `json:"point" validate:"numeric"`
 	PhoneNumber string `json:"phoneNumber" validate:"required,number,min=1,max=15"`
