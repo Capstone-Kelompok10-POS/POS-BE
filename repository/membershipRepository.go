@@ -15,9 +15,33 @@ type MembershipRepository interface {
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
 	UpdatePoint(tx *gorm.DB, membership *domain.Membership) error
 	FindById(id int) (*domain.Membership, error)
+<<<<<<< Updated upstream
 	FindByName(name string) (*domain.Membership, error)
 	FindAll() ([]domain.Membership, error)
 	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
+=======
+<<<<<<< Updated upstream
+	FindByName(name string) (*domain.Membership, error)	
+	FindAll() ([]domain.Membership, error)
+	FindByTelephone(telephone string) (*domain.Membership, error)
+=======
+<<<<<<< Updated upstream
+	FindByName(name string) (*domain.Membership, error)
+	FindAll() ([]domain.Membership, error)
+	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
+=======
+<<<<<<< Updated upstream
+	FindByName(name string) (*domain.Membership, error)	
+	FindAll() ([]domain.Membership, error)
+	FindByTelephone(telephone string) (*domain.Membership, error)
+=======
+	FindByName(name string) (*domain.Membership, error)
+	FindAll() ([]domain.Membership, int,  error)
+	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 	Delete(id int) error
 }
 
@@ -92,14 +116,27 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 	return &membership, nil
 }
 
+<<<<<<< Updated upstream
 func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, error) {
 	membership := []domain.Membership{}
+<<<<<<< Updated upstream
 
 	result := repository.DB.Find(&membership)
+=======
+	query := "SELECT * FROM memberships WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&membership)
+=======
+func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int, error) {
+	memberships := []domain.Membership{}
+
+	result := repository.DB.Where("deleted_at IS NULL").Find(&memberships)
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, 0, result.Error
 	}
-	return membership, nil
+	totalMembership := len(memberships)
+	return memberships, totalMembership, nil
 }
 
 func (repository *MembershipRepositoryImpl) Delete(id int) error {
