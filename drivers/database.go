@@ -34,17 +34,21 @@ func Migrate(db *gorm.DB) {
 	db.AutoMigrate(
 		&schema.SuperAdmin{},
 		&schema.Admin{},
+		&schema.Cashier{},
+		&schema.Membership{},
 		&schema.ConvertPoint{},
 		&schema.ProductType{},
 		&schema.Product{},
 		&schema.Stock{},
-		&schema.Cashier{},
-		&schema.Membership{},
 		&schema.PaymentType{},
 		&schema.PaymentMethod{},
 		&schema.ProductDetail{},
 		&schema.Transaction{},
 		&schema.TransactionDetail{},
-		&schema.TransactionPayment{},
+    &schema.TransactionPayment{},
 	)
+	if err != nil {
+		log.Fatal("Failed to Migrate Database")
+	}
+	fmt.Println("Success Migrate Database")
 }
