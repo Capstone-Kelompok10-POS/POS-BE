@@ -19,10 +19,10 @@ type Transaction struct {
 	ConvertPointID uint 			  `gorm:"index"`
 	ConvertPoint   ConvertPoint 	  `gorm:"foreignKey:ConvertPointID"`
 
-	Status         string             `gorm:"type:ENUM('CANCEL', 'SUCCESS', 'PENDING');not null;default:'PENDING'"`
 	Discount       float64            `json:"discount" gorm:"type:decimal;(10,2);not null"`
 	TotalPrice     float64            `json:"totalPrice" gorm:"type:decimal;(10,2);not null"`
 	Tax            float64            `json:"tax" gorm:"type:decimal;(10,2);not null"`
 	TotalPayment   float64            `json:"totalPayment" gorm:"type:decimal;(10,2);not null"`
 	Details       []TransactionDetail `gorm:"foreignKey:TransactionID"`
+	TransactionPayment TransactionPayment `gorm:"foreignKey:TransactionID"`
 }
