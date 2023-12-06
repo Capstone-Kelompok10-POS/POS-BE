@@ -87,7 +87,6 @@ func (service *ConvertPointServiceImpl) FindAll() ([]domain.ConvertPoint, error)
 
 func (service *ConvertPointServiceImpl) DeleteConvertPoint(ctx echo.Context, id int) error {
 	convertPoint, _ := service.ConvertPointRepository.FindById(id)
-	fmt.Println(convertPoint)
 	if convertPoint == nil {
 		return fmt.Errorf("convert point not found")
 	}
