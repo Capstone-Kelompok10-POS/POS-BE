@@ -53,7 +53,7 @@ func (repository *PaymentMethodRepositoryImpl) Update(paymentMethod *domain.Paym
 func (repository *PaymentMethodRepositoryImpl) FindById(id int) (*domain.PaymentMethod, error) {
 	paymentMethod := domain.PaymentMethod{}
 
-	result := repository.DB.First(&paymentMethod, id)
+	result := repository.DB.Preload("PaymentType").First(&paymentMethod, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
