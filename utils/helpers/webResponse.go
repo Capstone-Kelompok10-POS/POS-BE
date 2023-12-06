@@ -10,45 +10,18 @@ type TSuccessResponse struct {
 	Results interface{}   `json:"results"`
 }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
 type TSuccessResponseWithTotal struct {
 	Meta    TResponseMeta `json:"meta"`
 	Total   int           `json:"total"`
 	Results interface{}   `json:"results"`
 }
 
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 type TSuccessResponseWithMeta struct {
 	Meta       TResponseMeta `json:"meta"`
 	Pagination any           `json:"pagination,omitempty"`
 	Results    interface{}   `json:"results"`
 }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 type TErrorResponse struct {
 	Meta TResponseMeta `json:"meta"`
 }
@@ -72,21 +45,6 @@ func SuccessResponse(message string, data interface{}) interface{} {
 	}
 }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 func SuccessResponseWithMeta(message string, data interface{}, pagination any) interface{} {
 	if data == nil {
 		return TErrorResponse{
@@ -107,12 +65,6 @@ func SuccessResponseWithMeta(message string, data interface{}, pagination any) i
 	}
 }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
 func SuccessResponseWithTotal(message string, data interface{}, total int) interface{} {
 	if data == nil {
 		return TErrorResponse{
@@ -133,12 +85,6 @@ func SuccessResponseWithTotal(message string, data interface{}, total int) inter
 	}
 }
 
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 func ErrorResponse(message string) interface{} {
 	return TErrorResponse{
 		Meta: TResponseMeta{
