@@ -14,7 +14,7 @@ type CashierRepository interface {
 	Create(cashier *domain.Cashier) (*domain.Cashier, error)
 	FindByUsername(username string) (*domain.Cashier, error)
 	FindById(id int) (*domain.Cashier, error)
-	FindAll() ([]domain.Cashier, error)
+	FindAll() ([]domain.Cashier, int, error)
 	Update(cashier *domain.Cashier, id int) (*domain.Cashier, error)
 	Delete(id int) error
 }
@@ -49,22 +49,26 @@ func (repository *CashierRepositoryImpl) FindById(id int) (*domain.Cashier, erro
 }
 
 
-func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, error) {
-	cashier := []domain.Cashier{}
 
-	result := repository.DB.Find(&cashier)
+func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, int, error) {
+	cashiers := []domain.Cashier{}
+
+	result := repository.DB.Where("deleted_at IS NULL").Find(&cashiers)
+	query := "SELECT * FROM cashiers WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&cashier)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, 0, result.Error
 	}
-	return cashier, nil
+	totalCashier := len(cashiers)
+	return cashiers, totalCashier, nil
 }
+
 
 func (repository *CashierRepositoryImpl) FindByUsername(name string) (*domain.Cashier, error) {
 	cashier := domain.Cashier{}
 	
-	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(username) = LOWER(?) AND deleted_at IS NULL"
-
-	result := repository.DB.Raw(query, name).Scan(&cashier)
+	query := "SELECT cashiers.* FROM cashiers WHERE LOWER(cashiers.username) LIKE LOWER(?) AND deleted_at IS NULL"
+	result := repository.DB.Raw(query, name).First(&cashier)
 	if result.Error != nil {
 		return nil, result.Error
 	}

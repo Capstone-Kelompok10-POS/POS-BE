@@ -47,7 +47,8 @@ func (repository *SuperAdminRepositoryImpl) FindByUsername(username string) (*do
 func (repository *SuperAdminRepositoryImpl) FindAll() ([]domain.SuperAdmin, error) {
 	superAdmin := []domain.SuperAdmin{}
 
-	result := repository.DB.Find(&superAdmin)
+	query := "SELECT * FROM super_admins WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&superAdmin)
 	if result.Error != nil {
 		return nil, result.Error
 	}

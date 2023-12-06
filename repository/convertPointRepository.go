@@ -63,8 +63,8 @@ func (repository *ConvertPointRepositoryImpl) FindById(id int) (*domain.ConvertP
 
 func (repository *ConvertPointRepositoryImpl) FindAll() ([]domain.ConvertPoint, error) {
 	convertPoint := []domain.ConvertPoint{}
-
-	result := repository.DB.Find(&convertPoint)
+	query := "SELECT * FROM convert_points WHERE deleted_at IS NULL"
+	result := repository.DB.Raw(query).Scan(&convertPoint)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type ProductDetailRepository interface {
@@ -72,7 +73,6 @@ func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, produc
 
 func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.ProductDetail, error) {
 	productDetail := domain.ProductDetail{}
-
 	result := repository.DB.Where("deleted_at IS NULL").First(&productDetail, id)
 	if result.Error != nil {
 		return nil, result.Error

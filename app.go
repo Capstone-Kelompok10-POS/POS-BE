@@ -16,7 +16,6 @@ import (
 func main() {
 	myApp := echo.New()
 	validate := validator.New()
-	helpers.ConnectAWS()
 
 	_, err := os.Stat(".env")
 	if err == nil {
@@ -41,6 +40,7 @@ func main() {
 	routes.ProductRoutes(myApp, drivers.DB, validate)
 	routes.StockRoutes(myApp, drivers.DB, validate)
 	routes.MembershipRoutes(myApp, drivers.DB, validate)
+	routes.MembershipCardRoutes(myApp, drivers.DB)
 	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
 	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
 	routes.ProductDetailRoutes(myApp, drivers.DB, validate)
@@ -53,5 +53,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":8005"))
+	myApp.Logger.Fatal(myApp.Start(":8080"))
 }

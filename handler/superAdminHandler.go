@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type SuperAdminHandler interface {
@@ -36,7 +37,7 @@ func (c *SuperAdminHandlerImpl) LoginSuperAdminHandler(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
 	}
-
+	
 	response, err := c.SuperAdminService.LoginSuperAdmin(ctx, superAdminLoginRequest)
 	if err != nil {
 		if strings.Contains(err.Error(), "validation failed") {
@@ -46,7 +47,7 @@ func (c *SuperAdminHandlerImpl) LoginSuperAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "invalid email or password") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid email or password"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("sign in error"))
 	}
 
@@ -74,6 +75,7 @@ func (c *SuperAdminHandlerImpl) GetSuperAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "Super Admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("Super Admin not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get Super Admin data error"))
 	}
 	response := res.SuperAdminDomainToSuperAdminResponse(result)
@@ -87,7 +89,7 @@ func (c SuperAdminHandlerImpl) GetSuperAdminsHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "Super Admins not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("Super Admins not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get Super Admins data error"))
 	}
 
