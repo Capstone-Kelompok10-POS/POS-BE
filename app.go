@@ -16,7 +16,6 @@ import (
 func main() {
 	myApp := echo.New()
 	validate := validator.New()
-	helpers.ConnectAWS()
 
 	_, err := os.Stat(".env")
 	if err == nil {
