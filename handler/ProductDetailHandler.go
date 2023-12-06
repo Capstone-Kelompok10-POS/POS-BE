@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -10,6 +8,9 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type ProductDetailHandler interface {
@@ -43,7 +44,7 @@ func (c *ProductDetailHandlerImpl) CreateProductDetailHandler(ctx echo.Context) 
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		case strings.Contains(err.Error(), "Cannot add or update a child row: a foreign key constraint fails"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-		case strings.Contains(err.Error(), "numeric"):
+		case strings.Contains(err.Error(), "numeric"): 
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("price is not valid must contain only numeric value"))
 		default:
 			logrus.Error(err.Error())
@@ -83,7 +84,6 @@ func (c *ProductDetailHandlerImpl) UpdateProductDetailHandler(ctx echo.Context) 
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
 		logrus.Error(err.Error())
-
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update product detail error"))
 	}
 
@@ -115,7 +115,6 @@ func (c *ProductDetailHandlerImpl) GetProductDetailHandler(ctx echo.Context) err
 			errorMessage = "Product detail not found"
 		}
 		logrus.Error(err.Error())
-
 		return ctx.JSON(statusCode, helpers.ErrorResponse(errorMessage))
 	}
 
@@ -131,7 +130,6 @@ func (c *ProductDetailHandlerImpl) GetProductDetailsHandler(ctx echo.Context) er
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
 		logrus.Error(err.Error())
-
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product detail data error"))
 	}
 
@@ -157,7 +155,6 @@ func (c *ProductDetailHandlerImpl) DeleteProductDetailHandler(ctx echo.Context) 
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
 		logrus.Error(err.Error())
-
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data product detail error"))
 	}
 

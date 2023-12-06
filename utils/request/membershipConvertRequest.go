@@ -16,7 +16,6 @@ func MembershipCreateRequestToMembershipDomain(request web.MembershipCreateReque
 
 func MembershipUpdateRequestToMembershipDomain(request web.MembershipUpdateRequest) *domain.Membership {
 	return &domain.Membership{
-		CashierID:   request.CashierID,
 		Name:        request.Name,
 		Point:       request.Point,
 		PhoneNumber: request.PhoneNumber,
@@ -25,9 +24,10 @@ func MembershipUpdateRequestToMembershipDomain(request web.MembershipUpdateReque
 
 func MembershipDomainintoMembershipSchema(request domain.Membership) *schema.Membership {
 	return &schema.Membership{
-		CashierID:   request.CashierID,
-		Name:        request.Name,
-		Point:       request.Point,
+		CashierID:    request.CashierID,
+		Name:         request.Name,
+		CodeMember:  request.CodeMember,
+		Point:        request.Point,
 		PhoneNumber: request.PhoneNumber,
 	}
 }

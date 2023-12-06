@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type PaymentMethod struct {
@@ -13,4 +14,5 @@ type PaymentMethod struct {
 	PaymentTypeID uint           `gorm:"not null"`
 	PaymentType   PaymentType    `gorm:"foreignKey:PaymentTypeID"`
 	Name          string         `gorm:"not null"`
+	// TransactionPayment []TransactionPayment `gorm:"foreignKey:PaymentMethodID"`
 }

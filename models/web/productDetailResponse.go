@@ -15,11 +15,13 @@ type ProductDetailCreateResponse struct {
 	TotalStock int     `json:"totalStock"`
 	Size       string  `json:"size"`
 }
+
 type ProductDetailTransactionResponse struct {
-	ID         uint `json:"id"`
-	ProductID  uint `json:"productId"`
+	ID         uint                       `json:"id"`
+	ProductID  uint                       `json:"productId"`
 	Product    ProductTransactionResponse `json:"product"`
-	Price      float64 `json:"price"`
-	TotalStock int     `json:"totalStock"`
-	Size       string  `json:"size"`
+	Price      float64                    `json:"price"`
+	TotalStock int                        `json:"totalStock"`
+	Size       string                     `json:"size"`
 }
+
