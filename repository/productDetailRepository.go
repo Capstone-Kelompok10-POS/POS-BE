@@ -11,6 +11,7 @@ import (
 type ProductDetailRepository interface {
 	Create(productDetail *domain.ProductDetail) (*domain.ProductDetail, error)
 	Update(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error)
+	Save(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error)
 	StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error
 	FindById(id uint) (*domain.ProductDetail, error)
 	FindAll() ([]domain.ProductDetail, error)
@@ -41,7 +42,7 @@ func (repository *ProductDetailRepositoryImpl) Create(request *domain.ProductDet
 }
 
 func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error) {
-	result := repository.DB.Table("products_detail").Where("id = ?", id).Updates(productDetail)
+	result := repository.DB.Table("product_details").Where("id = ?", id).Updates(productDetail)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -50,14 +51,23 @@ func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.Prod
 	return productDetail, nil
 }
 
+func (repository *ProductDetailRepositoryImpl) Save(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error) {
+	result := repository.DB.Table("product_details").Where("id = ?", id).Save(productDetail)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return productDetail, nil
+}
 
 func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error {
-    result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
-    if result.Error != nil {
-        return result.Error
-    }
+	result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
+	if result.Error != nil {
+		return result.Error
+	}
 
-    return nil
+	return nil
 }
 
 func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.ProductDetail, error) {
