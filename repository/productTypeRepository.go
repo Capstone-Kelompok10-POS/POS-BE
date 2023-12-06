@@ -77,7 +77,7 @@ func (repository *ProductTypeRepositoryImpl) FindAll() ([]domain.ProductType, er
 func (repository *ProductTypeRepositoryImpl) FindByName(name string) (*domain.ProductType, error) {
 	productType := domain.ProductType{}
 
-	result := repository.DB.Where("deleted_at IS NULL").Where("LOWER(typeName) LIKE LOWER(?)", "%"+name+"%").First(&productType)
+	result := repository.DB.Where("deleted_at IS NULL").Where("LOWER(type_name) LIKE LOWER(?)", "%"+name+"%").First(&productType)
 
 	if result.Error != nil {
 		return nil, result.Error
