@@ -77,7 +77,7 @@ func (c *MembershipHandlerImpl) GetMembershipHandler(ctx echo.Context) error {
 }
 
 func (c MembershipHandlerImpl) GetMembershipsHandler(ctx echo.Context) error {
-	result, err := c.MembershipService.FindAll(ctx)
+	memberships, totalMemberships, err := c.MembershipService.FindAll(ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "memberships not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("memberships not found"))
@@ -86,9 +86,9 @@ func (c MembershipHandlerImpl) GetMembershipsHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get memberships data error"))
 	}
 
-	response := res.ConvertMembershipResponse(result)
+	response := res.ConvertMembershipResponse(memberships)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully get all data memberships", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithTotal("successfully get all data memberships", response, totalMemberships))
 }
 
 func (c MembershipHandlerImpl) GetMembershipByNameHandler(ctx echo.Context) error{
