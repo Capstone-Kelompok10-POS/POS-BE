@@ -26,6 +26,9 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/qbills:latest
+      - name: Create Firebase Credentials File
+        run: |
+          echo ${{ secrets.FIREBASE_CREDENTIALS }} > credentials.json
       - name: connect ssh
         uses: appleboy/ssh-action@v0.1.9
         with:
@@ -46,4 +49,9 @@ jobs:
             -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
             -e SECRET_KEY=${{secrets.SECRET_KEY}} \
             -e SALT=${{secrets.SALT}} \
+            -e API_VERSION=${{secrets.API_VERSION}} \
+            -e MAIN_URL=${{secrets.MAIN_URL}} \
+            -e MIDTRANS_SERVER_KEY=${{secrets.MIDTRANS_SERVER_KEY}} \
+            -e OPEN_AI_KEY=${{secrets.OPEN_AI_KEY}} \
+            -v $(pwd)/credentials.json:/app/credentials.json \
             ${{ secrets.DOCKERHUB_USERNAME }}/qbills
