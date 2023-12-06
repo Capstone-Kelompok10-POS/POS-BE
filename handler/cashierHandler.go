@@ -33,7 +33,11 @@ func NewCashierHandler(cashierService services.CashierService) CashierHandler {
 }
 
 func (c *CashierHandlerImpl) RegisterCashierHandler(ctx echo.Context) error {
-	cashierCreateRequest := web.CashierCreateRequest{}
+	adminID := middleware.ExtractTokenAdminId(ctx)
+	if adminID == 0.0 {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid token admin"))
+	}
+	cashierCreateRequest := web.CashierCreateRequest{AdminID: uint(adminID)}
 	err := ctx.Bind(&cashierCreateRequest)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid input"))
@@ -113,7 +117,7 @@ func (c *CashierHandlerImpl) GetCashierHandler(ctx echo.Context) error {
 }
 
 func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error {
-	cashierName := ctx.Param("name")
+	cashierName := ctx.Param("username")
 
 	result, err := c.CashierService.FindByUsername(ctx, cashierName)
 	if err != nil {
@@ -128,7 +132,7 @@ func (c CashierHandlerImpl) GetCashierByUsernameHandler(ctx echo.Context) error 
 }
 
 func (c CashierHandlerImpl) GetCashiersHandler(ctx echo.Context) error {
-	result, err := c.CashierService.FindAll(ctx)
+	cashiers, totalCashier,  err := c.CashierService.FindAll(ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "cashiers not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("cashiers not found"))
@@ -137,9 +141,9 @@ func (c CashierHandlerImpl) GetCashiersHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get cashiers data error"))
 	}
 
-	response := res.ConvertCashierResponse(result)
+	response := res.ConvertCashierResponse(cashiers)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get All data cashiers", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithTotal("Successfully Get All data cashiers", response, totalCashier))
 }
 
 func (c CashierHandlerImpl) UpdateCashierHandler(ctx echo.Context) error {

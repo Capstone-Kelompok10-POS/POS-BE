@@ -17,7 +17,7 @@ type CashierService interface {
 	CreateCashier(ctx echo.Context, request web.CashierCreateRequest) (*domain.Cashier, error)
 	UpdateCashier(ctx echo.Context, request web.CashierUpdateRequest, id int) (*domain.Cashier, error)
 	FindById(ctx echo.Context, id int) (*domain.Cashier, error)
-	FindAll(ctx echo.Context) ([]domain.Cashier, error)
+	FindAll(ctx echo.Context) ([]domain.Cashier, int, error)
 	FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error)
 	DeleteCashier(ctx echo.Context, id int) error
 }
@@ -89,9 +89,11 @@ func (service *CashierServiceImpl) UpdateCashier(ctx echo.Context, request web.C
 	}
 
 	cashier := req.CashierUpdateRequestToCashierDomain(request)
-	existingCashierUsername, _ := service.CashierRepository.FindByUsername(cashier.Username)
-	if existingCashierUsername != nil {
-		return nil, fmt.Errorf("username already exists")
+	if existingCashier.Username != cashier.Username {
+		existingCashierUsername, _ := service.CashierRepository.FindByUsername(cashier.Username)
+		if existingCashierUsername != nil {
+			return nil, fmt.Errorf("username already exists")
+		}
 	}
 
 	cashier.Password = helpers.HashPassword(cashier.Password)
@@ -112,13 +114,13 @@ func (service *CashierServiceImpl) FindById(ctx echo.Context, id int) (*domain.C
 	return existingCashier, nil
 }
 
-func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, error) {
-	cashiers, err := service.CashierRepository.FindAll()
+func (service *CashierServiceImpl) FindAll(ctx echo.Context) ([]domain.Cashier, int, error) {
+	cashiers, totalCashier, err := service.CashierRepository.FindAll()
 	if err != nil {
-		return nil, fmt.Errorf("cashier not found")
+		return nil,0, fmt.Errorf("cashier not found")
 	}
 
-	return cashiers, nil
+	return cashiers, totalCashier, nil
 }
 
 func (service *CashierServiceImpl) FindByUsername(ctx echo.Context, name string) (*domain.Cashier, error) {
