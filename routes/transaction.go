@@ -6,6 +6,7 @@ import (
 	"qbills/repository"
 	"qbills/services"
 	"qbills/utils/helpers/middleware"
+	"qbills/utils/helpers/midtrans"
 
 	"github.com/go-playground/validator"
 	echoJwt "github.com/labstack/echo-jwt/v4"
@@ -13,17 +14,24 @@ import (
 	"gorm.io/gorm"
 )
 
-func TransactionRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
+func TransactionRoutes(e *echo.Echo, db *gorm.DB, midtransCoreApi midtrans.MidtransCoreApi,validate *validator.Validate) {
 	transactionRepository := repository.NewTransactionRepository(db)
 	productDetailRepository := repository.NewProductDetailRepository(db)
 	convertPointRepository := repository.NewConvertPointRepository(db)
 	membershipRepository := repository.NewMembershipRepository(db)
-	transactionService := services.NewTransactionService(transactionRepository, productDetailRepository, convertPointRepository,membershipRepository,validate)
+	PaymentMethodRepository := repository.NewPaymentMethodRepository(db)
+	transactionService := services.NewTransactionService(transactionRepository, productDetailRepository, convertPointRepository,membershipRepository,PaymentMethodRepository, midtransCoreApi,validate)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	transactionGroup := e.Group("/api/v1/transaction")
+	transactionGroup.POST("/notifications", transactionHandler.NotificationPayment)
+	
 	transactionGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	transactionGroup.POST("", transactionHandler.CreateTransactionHandler, middleware.AuthMiddleware("Cashier"))
 	transactionGroup.GET("/:id", transactionHandler.GetTransactionHandler)
+	// transactionGroup.GET("", transactionHandler.GetTransactionsHandler)
+	transactionGroup.GET("s/pagination", transactionHandler.FindPaginationTransaction)
+	transactionGroup.PUT("/:invoice", transactionHandler.UpdateStatusTransactionPaymentHandler, middleware.AuthMiddleware("Cashier"))
+	// transactionGroup.GET("", transactionHandler.GetTransactionsHandler)
 }
