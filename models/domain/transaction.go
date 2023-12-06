@@ -12,10 +12,10 @@ type Transaction struct {
 	ConvertPointID uint
 	ConvertPoint   ConvertPoint
 
-	Status       string
 	Discount     float64
 	TotalPrice   float64
 	Tax          float64
 	TotalPayment float64
 	Details      []TransactionDetail
+	TransactionPayment TransactionPayment
 }
