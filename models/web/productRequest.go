@@ -1,11 +1,14 @@
 package web
 
+import "qbills/models/domain"
+
 type ProductCreateRequest struct {
-	ProductTypeID uint   `json:"productTypeId"`
-	AdminID       uint   `json:"adminId"`
-	Name          string `json:"name"`
-	Ingredients   string `json:"ingredients"`
-	Image         string `json:"image"`
+	ProductTypeID uint                 `json:"productTypeId"`
+	AdminID       uint                 `json:"adminId"`
+	Name          string               `json:"name"`
+	Ingredients   string               `json:"ingredients"`
+	Image         string               `json:"image"`
+	ProductDetail domain.ProductDetail `json:"product"`
 }
 
 type ProductUpdateRequest struct {

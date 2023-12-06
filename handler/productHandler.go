@@ -60,7 +60,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input"))
 	}
 
-	productTypeIDStr := ctx.FormValue("productTypeID")
+	productTypeIDStr := ctx.FormValue("productTypeId")
 	productTypeInt, err := strconv.Atoi(productTypeIDStr)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input product type"))
@@ -69,12 +69,18 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 
 	name := ctx.FormValue("name")
 	ingredients := ctx.FormValue("ingredients")
+	price := ctx.FormValue("productDetail[price]")
+	priceFloat, err:= strconv.ParseFloat(price, 64)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input price"))
+    }
 
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = uint(adminId)
 	productRequest.Name = name
 	productRequest.Ingredients = ingredients
 	productRequest.Image = url
+	productRequest.ProductDetail.Price = priceFloat
 
 	result, err := c.ProductService.CreateProductService(ctx, *productRequest)
 
@@ -191,10 +197,8 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 }
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
-	result, err := c.ProductService.FindAllProductService(ctx)
-	if result == nil {
-		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
-	}
+	products, totalProducts, err := c.ProductService.FindAllProductService(ctx)
+
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
@@ -203,9 +207,9 @@ func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product data error"))
 	}
 
-	response := res.ConvertProductResponse(result)
+	response := res.ConvertProductResponse(products)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all data product", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithTotal("success get all data product", response, totalProducts))
 }
 
 func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
