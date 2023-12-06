@@ -1,12 +1,15 @@
 package routes
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
+	"os"
 	"qbills/handler"
 	"qbills/repository"
 	"qbills/services"
+
+	"github.com/go-playground/validator"
+	echoJwt "github.com/labstack/echo-jwt/v4"
+	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
@@ -14,14 +17,16 @@ func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	productService := services.NewProductService(productRepository, validate)
 	ProductHandler := handler.NewProductHandler(productService)
 
-	Group := e.Group("api/v1/product")
+	productGroup := e.Group("api/v1/product")
+	productGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
-	Group.POST("", ProductHandler.CreateProductHandler)
-	Group.GET("", ProductHandler.FindPaginationProduct)
-	Group.GET("/:id", ProductHandler.GetProductHandler)
-	Group.GET("/all", ProductHandler.GetProductsHandler)
-	Group.GET("/search/:name", ProductHandler.GetProductByNameHandler)
-	Group.GET("/category/:productTypeID", ProductHandler.GetProductByCategoryHandler)
-	Group.PUT("/:id", ProductHandler.UpdateProductHandler)
-	Group.DELETE("/:id", ProductHandler.DeleteProductHandler)
+	productGroup.POST("", ProductHandler.CreateProductHandler)
+	productGroup.GET("", ProductHandler.FindPaginationProduct)
+	productGroup.GET("/:id", ProductHandler.GetProductHandler)
+	productGroup.GET("/all", ProductHandler.GetProductsHandler)
+	productGroup.GET("/search/:name", ProductHandler.GetProductByNameHandler)
+	productGroup.GET("/category/:productTypeID", ProductHandler.GetProductByCategoryHandler)
+	productGroup.PUT("/:id", ProductHandler.UpdateProductHandler)
+	productGroup.DELETE("/:id", ProductHandler.DeleteProductHandler)
+	productGroup.GET("/recommendation", ProductHandler.ProductAIHandler)
 }

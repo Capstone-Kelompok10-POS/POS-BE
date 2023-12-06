@@ -12,36 +12,6 @@ type ConvertPoint struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-<<<<<<< Updated upstream
-	Point uint `json:"point"`
-<<<<<<< Updated upstream
-	ValuePoint int `json:"value_point"`
-=======
-<<<<<<< Updated upstream
-	PointValue int `json:"point_value"`
-=======
-<<<<<<< Updated upstream
-	PointValue int `json:"point_value"`
-=======
-<<<<<<< Updated upstream
-	ValuePoint int `json:"value_point"`
-=======
-	PointValue int `json:"point_value"`
-=======
-<<<<<<< Updated upstream
-	Point uint `json:"point"`
-<<<<<<< Updated upstream
-	ValuePoint int `json:"value_point"`
-=======
-	PointValue int `json:"point_value"`
-=======
 	Point int `json:"point"`
 	ValuePoint int `json:"valuePoint"`
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 }

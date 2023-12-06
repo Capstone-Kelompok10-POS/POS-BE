@@ -4,24 +4,14 @@ import (
 	"fmt"
 	"qbills/models/domain"
 	"qbills/repository"
-<<<<<<< Updated upstream
-	// "qbills/utils/helpers/firebase"
-
-	// "github.com/go-playground/validator"
-=======
 	"qbills/utils/helpers/firebase"
 
->>>>>>> Stashed changes
 	"github.com/labstack/echo/v4"
 )
 
 type MembershipCardService interface {
 	PrintMembershipCard(ctx echo.Context, id int) (*domain.Membership, error)
-<<<<<<< Updated upstream
-	FindById(ctx echo.Context, id int) (*domain.Membership, error)
-=======
 	UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error)
->>>>>>> Stashed changes
 }
 
 type MembershipCardServiceImpl struct {
@@ -36,24 +26,6 @@ func NewMembershipCardService(membershipCardRepository repository.MembershipCard
 	}
 }
 
-<<<<<<< Updated upstream
-func (service *MembershipCardServiceImpl) FindById(ctx echo.Context, id int) (*domain.Membership, error) {
-	existingMembership, _ := service.MembershipCardRepository.PrintMembershipCard(ctx, id)
-	if existingMembership == nil {
-		return nil, fmt.Errorf("membership not found")
-	}
-
-	return existingMembership, nil
-}
-
-func (service *MembershipCardServiceImpl) PrintMembershipCard(ctx echo.Context, id int) (*domain.Membership, error) {
-	existingMembership, _ := service.MembershipCardRepository.FindById(id)
-	if existingMembership == nil {
-		return nil, fmt.Errorf("membership not found")
-	}
-
-	result, err := service.MembershipCardRepository.PrintMembershipCard(ctx, id)
-=======
 func (service *MembershipCardServiceImpl) PrintMembershipCard(ctx echo.Context, id int) (*domain.Membership, error) {
 	membership, _ := service.MembershipCardRepository.FindById(id)
 	if membership == nil {
@@ -68,15 +40,16 @@ func (service *MembershipCardServiceImpl) PrintMembershipCard(ctx echo.Context, 
 	membership.Barcode = barcode
 
     // Update hanya kolom barcode di database
-	result, err := service.MembershipCardRepository.UpdateBarcode(int(membership.ID), membership.Barcode)
->>>>>>> Stashed changes
+	_ , err = service.MembershipCardRepository.UpdateBarcode(int(membership.ID), membership.Barcode)
 	if err != nil {
 		return nil, fmt.Errorf("error creating membership card: %s", err.Error())
 	}
+	result , _ := service.MembershipCardRepository.FindById(id)
+	if result == nil {
+		return nil, fmt.Errorf("membership not found")
+	}
 
 	return result, nil
-<<<<<<< Updated upstream
-=======
 }
 
 func (repository *MembershipCardServiceImpl) UploadBarcodeToFirebase(ctx echo.Context, membership domain.Membership) (string, error) {
@@ -85,5 +58,4 @@ func (repository *MembershipCardServiceImpl) UploadBarcodeToFirebase(ctx echo.Co
 		return "", fmt.Errorf("error upload %s", err.Error())
 	}
 	return barcode, nil
->>>>>>> Stashed changes
 }

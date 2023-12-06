@@ -2,14 +2,15 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
 	"strconv"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
 
 type ProductService interface {
@@ -146,7 +147,7 @@ func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]do
 
 	result, paginate, err := service.ProductRepository.FindPaginationProduct(orderBy, Paginate)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Product is empty")
+		return nil, nil, fmt.Errorf("product is empty")
 	}
 
 	return result, paginate, nil

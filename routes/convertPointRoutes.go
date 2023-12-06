@@ -18,7 +18,7 @@ func ConvertPointRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate)
 	convertPointService := services.NewConvertPointService(convertPointRepository, validate)
 	ConvertPointHandler := handler.NewConvertPointHandler(convertPointService)
 
-	convertPointGroup := e.Group("api/v1/convert-point")
+	convertPointGroup := e.Group("api/v1/convert/point")
 
 	convertPointGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 

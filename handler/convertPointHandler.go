@@ -10,13 +10,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
 	"github.com/sirupsen/logrus"
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 )
 
 type ConvertPointHandler interface {
@@ -46,16 +40,10 @@ func (c *ConvertPointHandlerImpl) CreateConvertPointHandler(ctx echo.Context) er
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid Validation"))
 		}
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
 		if strings.Contains(err.Error(), "numeric") {
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("Point is not valid must contain only numeric value"))
 		}
 		logrus.Error(err.Error())
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Create ConvertPoint Error"))
 	}
 

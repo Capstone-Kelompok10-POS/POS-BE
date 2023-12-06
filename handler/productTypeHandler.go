@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -9,6 +8,9 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type ProductTypeHandler interface {
@@ -41,7 +43,12 @@ func (c *ProductTypeHandlerImpl) CreateProductTypeHandler(ctx echo.Context) erro
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+		case strings.Contains(err.Error(), "TypeName alpha"): 
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("type name is not valid must contain only alphabetical characters"))
+		case strings.Contains(err.Error(), "TypeDescription alpha"): 
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("type description is not valid must contain only alphabetical characters"))		
 		default:
+			logrus.Error(err.Error())
 			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to create product type"))
 		}
 	}
@@ -77,6 +84,7 @@ func (c *ProductTypeHandlerImpl) UpdateProductTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "product type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product type not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update product type error"))
 	}
 
@@ -107,7 +115,7 @@ func (c *ProductTypeHandlerImpl) GetProductTypeHandler(ctx echo.Context) error {
 			statusCode = http.StatusNotFound
 			errorMessage = "Product type not found"
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(statusCode, helpers.ErrorResponse(errorMessage))
 	}
 
@@ -121,7 +129,7 @@ func (c *ProductTypeHandlerImpl) GetProductTypesHandler(ctx echo.Context) error 
 		if strings.Contains(err.Error(), "product types not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product types not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product types data error"))
 	}
 
@@ -140,6 +148,7 @@ func (c *ProductTypeHandlerImpl) GetProductTypeByName(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "product type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product type not found"))
 		}
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product type data by name error"))
 	}
 
@@ -163,7 +172,7 @@ func (c *ProductTypeHandlerImpl) DeleteProductTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "product type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product type not found"))
 		}
-
+		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data product type error"))
 	}
 

@@ -115,6 +115,9 @@ func (c *AdminHandlerImpl) GetAdminHandler(ctx echo.Context) error {
 
 func (c AdminHandlerImpl) GetAdminsHandler(ctx echo.Context) error {
 	result, err := c.AdminService.FindAll(ctx)
+	if result == nil {
+		return ctx.JSON(http.StatusNoContent, helpers.ErrorResponse("admins not found"))
+	}
 	if err != nil {
 		if strings.Contains(err.Error(), "admins not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admins not found"))
@@ -128,33 +131,17 @@ func (c AdminHandlerImpl) GetAdminsHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully Get All data Admins", response))
 }
 
-<<<<<<< Updated upstream
-func (c AdminHandlerImpl) GetAdminByNameHandler(ctx echo.Context) error {
-<<<<<<< Updated upstream
-	adminName := ctx.Param("username")
-=======
-	adminName := ctx.Param("name")
-=======
+
 func (c AdminHandlerImpl) GetAdminByUsernameHandler(ctx echo.Context) error {
 	adminName := ctx.Param("username")
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
 	result, err := c.AdminService.FindByUsername(ctx, adminName)
 	if err != nil {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
-<<<<<<< Updated upstream
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data by username error"))
-=======
-<<<<<<< Updated upstream
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data by name error"))
-=======
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get admin data by username error"))
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 	}
 	response := res.AdminDomainToAdminResponse(result)
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Succesfully get admin data by username", response))
