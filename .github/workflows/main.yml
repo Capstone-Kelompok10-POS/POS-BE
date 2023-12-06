@@ -27,8 +27,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/qbills:latest
       - name: Create Firebase Credentials File
-        run: |
-          echo ${{ secrets.FIREBASE_CREDENTIALS }} > credentials.json
+        run: echo "${{ secrets.FIREBASE_CREDENTIALS }}" > credentials.json
       - name: connect ssh
         uses: appleboy/ssh-action@v0.1.9
         with:
