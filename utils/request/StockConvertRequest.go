@@ -8,16 +8,16 @@ import (
 
 func StockCreateRequestToStockDomain(request web.StockCreateRequest) *domain.Stock {
 	return &domain.Stock{
-		ProductID: request.ProductID,
-		Stock:     request.Stock,
+		ProductDetailID: request.ProductDetailID,
+		Stock:           request.Stock,
 	}
 }
 
 func StockDomainToStockSchema(request domain.Stock) *schema.Stock {
 	return &schema.Stock{
-		ID:        request.ID,
-		CreatedAt: request.CreatedAt,
-		ProductID: request.ProductID,
-		Stock:     request.Stock,
+		ID:              request.ID,
+		CreatedAt:       request.CreatedAt,
+		ProductDetailID: request.ProductDetailID,
+		Stock:           request.Stock,
 	}
 }
