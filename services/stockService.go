@@ -53,7 +53,7 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 		return nil, err
 	}
 
-	_, err = service.ProductDetailRepository.Update(product, req.ProductDetailID)
+	_, err = service.ProductDetailRepository.Save(product, req.ProductDetailID)
 
 	result, err := service.StockRepository.Create(req)
 
