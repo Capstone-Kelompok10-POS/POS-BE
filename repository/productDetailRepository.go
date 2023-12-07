@@ -53,8 +53,6 @@ func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.Prod
 	return productDetail, nil
 }
 
-<<<<<<< HEAD
-=======
 func (repository *ProductDetailRepositoryImpl) Save(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error) {
 	result := repository.DB.Table("product_details").Where("id = ?", id).Save(productDetail)
 
@@ -65,7 +63,6 @@ func (repository *ProductDetailRepositoryImpl) Save(productDetail *domain.Produc
 	return productDetail, nil
 }
 
->>>>>>> 321d3cc53ed02833b325cf25df05032fc2bb39d0
 func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error {
 	result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
 	if result.Error != nil {

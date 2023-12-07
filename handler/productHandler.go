@@ -104,38 +104,37 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	productIDStr := ctx.Param("id")
 	productID, err := strconv.Atoi(productIDStr)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid product ID"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid product ID"))
 	}
 
 	// Dapatkan data produk yang sudah ada
 	existingProduct, err := c.ProductService.FindByIdProductService(ctx, uint(productID))
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get existing product"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to get existing product"))
 	}
 
+	// Cek apakah ada file yang diunggah oleh klien
+	_, err = ctx.FormFile("image")
 	var imageURL string
-
 	if err != nil {
-		// Jika tidak ada file gambar yang diunggah, gunakan gambar yang sudah ada (lama)
+		// Jika tidak ada file yang diunggah, gunakan gambar yang sudah ada (lama)
 		imageURL = existingProduct.Image
 	} else {
-		// Jika ada file gambar yang diunggah, proses unggah gambar baru
-		url, err := firebase.UploadImageProduct(ctx)
+		// Jika ada file yang diunggah, proses unggah gambar baru
+		// Lakukan proses upload gambar baru ke dalam sistem (misalnya menggunakan firebase)
+		uploadedURL, err := firebase.UploadImageProduct(ctx)
 		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
+			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to upload file"))
 		}
-
-		imageURL = url
-
+		imageURL = uploadedURL
 	}
 
 	// Mengonversi nilai-nilai dari request
-	productTypeIDStr := ctx.FormValue("productTypeID")
+	productTypeIDStr := ctx.FormValue("productTypeId")
 	productTypeInt, _ := strconv.Atoi(productTypeIDStr)
 	productTypeID := uint(productTypeInt)
 
 	name := ctx.FormValue("name")
-
 	ingredients := ctx.FormValue("ingredients")
 
 	// Mengupdate nilai-nilai produk yang sudah ada
@@ -146,17 +145,15 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 
 	// Lakukan pembaruan data produk ke dalam database
 	req := request.ProductDomainToProductUpdateRequest(existingProduct)
-
 	result, err := c.ProductService.UpdateProductService(ctx, req, uint(productID))
-
 	result.ID = existingProduct.ID
 
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid validation"))
 		default:
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to update product"))
+			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to update product"))
 		}
 	}
 
@@ -164,7 +161,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	response := res.ProductDomainToProductUpdateResponse(result)
 
 	// Mengirimkan respons JSON sebagai tanggapan dari fungsi
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success update product", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success update product", response))
 }
 
 func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
