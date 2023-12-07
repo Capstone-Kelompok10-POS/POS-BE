@@ -18,16 +18,17 @@ func ProductSchemaToProductDomain(product *schema.Product) *domain.Product {
 }
 
 func ProductDomainToProductResponse(product *domain.Product) web.ProductResponse {
+	productDetail := ProductDetailDomainToProductDetailPreload(product.ProductDetail)
+	admin := AdminDomainToAdminDomainResponse(product.Admin)
+
 	return web.ProductResponse{
 		ID:            product.ID,
-		ProductTypeID: product.ProductTypeID,
 		ProductType:   product.ProductType,
-		AdminID:       product.AdminID,
-		Admin:         product.Admin,
+		Admin:         admin,
 		Name:          product.Name,
 		Ingredients:   product.Ingredients,
 		Image:         product.Image,
-		ProductDetail: product.ProductDetail,
+		ProductDetail: productDetail,
 	}
 }
 
@@ -54,10 +55,10 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 
 func ProductsDomainToProductsResponse(product *domain.Product) *web.ProductsResponse {
 	response := &web.ProductsResponse{
-		ID:            product.ID,
-		ProductType:   web.ProductTypeResponse{
-			ID: product.ProductTypeID,
-			TypeName: product.ProductType.TypeName,
+		ID: product.ID,
+		ProductType: web.ProductTypeResponse{
+			ID:              product.ProductTypeID,
+			TypeName:        product.ProductType.TypeName,
 			TypeDescription: product.ProductType.TypeDescription,
 		},
 		Name:          product.Name,
@@ -88,35 +89,25 @@ func ConvertProductResponse(products []domain.Product) []web.ProductsResponse {
 }
 
 func ProductResponseToProductCostumResponse(product web.ProductResponse) web.ProductResponseCustom {
-
-	admin := AdminDomainToAdminDomainResponse(product.Admin)
-
 	return web.ProductResponseCustom{
-		ID:            product.ID,
-		ProductTypeID: product.ProductTypeID,
-		ProductType:   product.ProductType,
-		AdminID:       product.AdminID,
-		Admin:         admin,
-		Name:          product.Name,
-		Ingredients:   product.Ingredients,
-		Image:         product.Image,
-		ProductDetail: product.ProductDetail,
+		ID:          product.ID,
+		ProductType: product.ProductType,
+		Admin:       product.Admin,
+		Name:        product.Name,
+		Ingredients: product.Ingredients,
+		Image:       product.Image,
+		//ProductDetail: product.ProductDetail,
 	}
 }
 
 func ProductResponseToProductsCostumResponse(product web.ProductResponse) web.ProductResponseCustom {
-
-	admin := AdminDomainToAdminDomainResponse(product.Admin)
-
 	return web.ProductResponseCustom{
-		ID:            product.ID,
-		ProductTypeID: product.ProductTypeID,
-		ProductType:   product.ProductType,
-		AdminID:       product.AdminID,
-		Admin:         admin,
-		Name:          product.Name,
-		Ingredients:   product.Ingredients,
-		Image:         product.Image,
+		ID:          product.ID,
+		ProductType: product.ProductType,
+		Admin:       product.Admin,
+		Name:        product.Name,
+		Ingredients: product.Ingredients,
+		Image:       product.Image,
 	}
 }
 

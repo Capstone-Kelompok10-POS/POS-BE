@@ -56,7 +56,7 @@ func UploadImageProduct(ctx echo.Context) (string, error) {
 	defer client.Close()
 
 	// Specify the name of your Firebase Storage bucket
-	bucketName := "qbils-d46b3.appspot.com"
+	bucketName := "qbills-casier.appspot.com"
 
 	// Set the appropriate MIME type based on the file extension
 	fileExtension := strings.TrimLeft(filepath.Ext(file.Filename), ".")

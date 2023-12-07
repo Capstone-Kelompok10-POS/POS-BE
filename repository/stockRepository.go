@@ -41,7 +41,7 @@ func (repository *StockRepositoryImpl) Create(stock *domain.Stock) (*domain.Stoc
 func (repository *StockRepositoryImpl) FindAll() ([]domain.Stock, error) {
 	stock := []domain.Stock{}
 
-	if err := repository.DB.Preload("Product").Find(&stock).Error; err != nil {
+	if err := repository.DB.Preload("ProductDetail").Find(&stock).Error; err != nil {
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func (repository *StockRepositoryImpl) FindAll() ([]domain.Stock, error) {
 func (repository *StockRepositoryImpl) FindById(id uint) (*domain.Stock, error) {
 	stock := domain.Stock{}
 
-	result := repository.DB.Preload("Product").First(&stock, id)
+	result := repository.DB.Preload("ProductDetail").Where("deleted_at IS NULL").First(&stock, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -63,7 +63,7 @@ func (repository *StockRepositoryImpl) FindById(id uint) (*domain.Stock, error) 
 func (repository *StockRepositoryImpl) FindIncreaseStock() ([]domain.Stock, error) {
 	stock := []domain.Stock{}
 
-	if err := repository.DB.Where("stock > 0").Preload("Product").Find(&stock).Error; err != nil {
+	if err := repository.DB.Where("stock > 0").Preload("ProductDetail").Find(&stock).Error; err != nil {
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func (repository *StockRepositoryImpl) FindIncreaseStock() ([]domain.Stock, erro
 func (repository *StockRepositoryImpl) FindDecreaseStock() ([]domain.Stock, error) {
 	stock := []domain.Stock{}
 
-	if err := repository.DB.Where("stock < 0").Preload("Product").Find(&stock).Error; err != nil {
+	if err := repository.DB.Where("stock < 0").Preload("ProductDetail").Find(&stock).Error; err != nil {
 		return nil, err
 	}
 

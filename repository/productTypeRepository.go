@@ -1,11 +1,12 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/models/schema"
 	req "qbills/utils/request"
 	res "qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type ProductTypeRepository interface {
@@ -88,8 +89,7 @@ func (repository *ProductTypeRepositoryImpl) FindByName(name string) (*domain.Pr
 }
 
 func (repository *ProductTypeRepositoryImpl) Delete(id uint) error {
-	result := repository.DB.Delete(&schema.ProductType{}, id)
-
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.ProductType{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

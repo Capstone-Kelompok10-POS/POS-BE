@@ -1,6 +1,6 @@
 package web
 
 type StockCreateRequest struct {
-	ProductID uint `json:"productID"`
-	Stock     int  `json:"stock"`
+	ProductDetailID uint `json:"productDetailID"`
+	Stock           int  `json:"stock"`
 }

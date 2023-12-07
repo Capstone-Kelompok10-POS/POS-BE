@@ -21,9 +21,9 @@ func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	productGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	productGroup.POST("", ProductHandler.CreateProductHandler)
-	productGroup.GET("", ProductHandler.FindPaginationProduct)
+	productGroup.GET("/pagination", ProductHandler.FindPaginationProduct)
 	productGroup.GET("/:id", ProductHandler.GetProductHandler)
-	productGroup.GET("/all", ProductHandler.GetProductsHandler)
+	productGroup.GET("", ProductHandler.GetProductsHandler)
 	productGroup.GET("/search/:name", ProductHandler.GetProductByNameHandler)
 	productGroup.GET("/category/:productTypeID", ProductHandler.GetProductByCategoryHandler)
 	productGroup.PUT("/:id", ProductHandler.UpdateProductHandler)

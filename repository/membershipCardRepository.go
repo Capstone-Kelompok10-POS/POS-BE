@@ -22,7 +22,7 @@ func NewMembershipCardRepository(DB *gorm.DB) MembershipCardRepository {
 func (repository *MembershipCardRepositoryImpl) FindById(id int) (*domain.Membership, error) {
 	membership := domain.Membership{}
 
-	result := repository.DB.First(&membership, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&membership, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -70,10 +70,10 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 	name := ctx.FormValue("name")
 	ingredients := ctx.FormValue("ingredients")
 	price := ctx.FormValue("productDetail[price]")
-	priceFloat, err:= strconv.ParseFloat(price, 64)
+	priceFloat, err := strconv.ParseFloat(price, 64)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input price"))
-    }
+	}
 
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = uint(adminId)
@@ -191,9 +191,7 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 
 	response := res.ProductDomainToProductResponse(product)
 
-	responseCustom := res.ProductResponseToProductCostumResponse(response)
-
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", responseCustom))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", response))
 }
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
@@ -292,7 +290,7 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error) {
 	productMap := make(map[uint]middleware.ProductDataAIRecommended)
 
-	products, err := c.ProductService.FindAllProductService(ctx)
+	products, _, err := c.ProductService.FindAllProductService(ctx)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
@@ -304,7 +302,7 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 
 	for _, product := range products {
 		productData := middleware.ProductDataAIRecommended{
-			Name: product.Name,
+			Name:        product.Name,
 			Ingredients: product.Ingredients,
 		}
 		productMap[uint(product.ID)] = productData
@@ -314,7 +312,7 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 }
 
 func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
-	openAIKey := os.Getenv("openAIKey")
+	openAIKey := os.Getenv("OPEN_AI_KEY")
 	productMap, err := c.GetProductNames(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
