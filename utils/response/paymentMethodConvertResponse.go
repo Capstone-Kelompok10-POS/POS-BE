@@ -10,6 +10,10 @@ func PaymentMethodDomainToPaymentMethodResponse(response *domain.PaymentMethod) 
 	return web.PaymentMethodResponse{
 		ID: response.ID,
 		PaymentTypeID: response.PaymentTypeID,
+		PaymentType: web.PaymentTypeResponse{
+			ID: response.PaymentType.ID,
+			TypeName: response.PaymentType.TypeName,
+		},
 		Name:          response.Name,
 	}
 }
@@ -30,6 +34,10 @@ func ConvertPaymentMethodResponse(response []domain.PaymentMethod) []web.Payment
 		paymentMethodResponse := web.PaymentMethodResponse{
 			ID:            paymentMethod.ID,
 			PaymentTypeID: paymentMethod.PaymentTypeID,
+			PaymentType: web.PaymentTypeResponse{
+				ID: paymentMethod.PaymentType.ID,
+				TypeName: paymentMethod.PaymentType.TypeName,
+			},
 			Name:          paymentMethod.Name,
 		}
 		results = append(results, paymentMethodResponse)

@@ -93,7 +93,7 @@ func (repository *ProductDetailRepositoryImpl) FindAll() ([]domain.ProductDetail
 }
 
 func (repository *ProductDetailRepositoryImpl) Delete(id uint) error {
-	result := repository.DB.Delete(&schema.ProductDetail{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.ProductDetail{}, id)
 
 	if result.Error != nil {
 		return result.Error

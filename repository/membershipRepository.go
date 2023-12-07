@@ -63,7 +63,7 @@ func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership 
 func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership, error) {
 	membership := domain.Membership{}
 
-	result := repository.DB.First(&membership, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&membership, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -94,9 +94,8 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int, error) {
 	memberships := []domain.Membership{}
 
-	result := repository.DB.Where("deleted_at IS NULL").Find(&memberships)
 	query := "SELECT * FROM memberships WHERE deleted_at IS NULL"
-	result := repository.DB.Raw(query).Scan(&membership)
+	result := repository.DB.Raw(query).Scan(&memberships)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
@@ -105,7 +104,7 @@ func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int,
 }
 
 func (repository *MembershipRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.Membership{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.Membership{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

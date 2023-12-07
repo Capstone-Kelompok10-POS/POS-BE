@@ -41,7 +41,7 @@ func (repository *CashierRepositoryImpl) Create(cashier *domain.Cashier) (*domai
 func (repository *CashierRepositoryImpl) FindById(id int) (*domain.Cashier, error) {
 	cashier := domain.Cashier{}
 
-	result := repository.DB.First(&cashier, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&cashier, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -53,9 +53,8 @@ func (repository *CashierRepositoryImpl) FindById(id int) (*domain.Cashier, erro
 func (repository *CashierRepositoryImpl) FindAll() ([]domain.Cashier, int, error) {
 	cashiers := []domain.Cashier{}
 
-	result := repository.DB.Where("deleted_at IS NULL").Find(&cashiers)
 	query := "SELECT * FROM cashiers WHERE deleted_at IS NULL"
-	result := repository.DB.Raw(query).Scan(&cashier)
+	result := repository.DB.Raw(query).Scan(&cashiers)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
@@ -88,7 +87,7 @@ func (repository *CashierRepositoryImpl) Update(cashier *domain.Cashier, id int)
 }
 
 func (repository *CashierRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.Cashier{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.Cashier{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

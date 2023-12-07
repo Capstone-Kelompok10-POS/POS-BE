@@ -41,6 +41,10 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 	}
 
 	admin := req.AdminCreateRequestToAdminDomain(request)
+	existingAdminUsername, _ := service.AdminRepository.FindByUsername(admin.Username)
+	if existingAdminUsername != nil {
+		return nil, fmt.Errorf("username already exists")
+	}
 
 	admin.Password = helpers.HashPassword(admin.Password)
 	result, err := service.AdminRepository.Create(admin)
@@ -131,6 +135,7 @@ func (service *AdminServiceImpl) FindByUsername(ctx echo.Context, name string) (
 
 func (service *AdminServiceImpl) DeleteAdmin(ctx echo.Context, id int) error {
 	existingAdmin, _ := service.AdminRepository.FindById(id)
+	fmt.Println(existingAdmin)
 	if existingAdmin == nil {
 		return fmt.Errorf("admin not found")
 	}

@@ -42,7 +42,7 @@ func (service *ProductTypeImpl) CreateProductType(ctx echo.Context, request web.
 	productType := req.ProductTypeCreateToProductTypeDomain(request)
 	existingProductType, _ := service.ProductTypeRepository.FindByName(request.TypeName)
 	if existingProductType != nil {
-		return nil, fmt.Errorf("product type name already exist")
+		return nil, fmt.Errorf("product type name already exists")
 	}
 
 	result, err := service.ProductTypeRepository.Create(productType)
@@ -60,13 +60,18 @@ func (service *ProductTypeImpl) UpdateProductType(ctx echo.Context, request web.
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-	existingAdmin, _ := service.ProductTypeRepository.FindById(id)
-	if existingAdmin == nil {
+	existingProductType, _ := service.ProductTypeRepository.FindById(id)
+	if existingProductType == nil {
 		return nil, fmt.Errorf("product type not found")
 	}
-
 	productType := req.ProductTypeUpdateToProductTypeDomain(request)
 
+	if existingProductType.TypeName != productType.TypeName {
+		existingProductType, _ := service.ProductTypeRepository.FindByName(productType.TypeName)
+		if existingProductType != nil {
+			return nil, fmt.Errorf("product type already exists")
+		}
+	}
 	result, err := service.ProductTypeRepository.Update(productType, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data product type: %s", err.Error())

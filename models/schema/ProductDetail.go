@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type ProductDetail struct {
@@ -11,7 +12,7 @@ type ProductDetail struct {
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	ProductID  uint
+	ProductID  uint `gorm:"index"`
 	Product    Product `gorm:"foreignKey:ProductID"`
 	Price      float64 `json:"price" gorm:"type:decimal(10,2);not null"`
 	TotalStock int     `json:"totalStock" gorm:"not null"`
