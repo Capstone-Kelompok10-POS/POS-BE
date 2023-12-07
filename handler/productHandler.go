@@ -228,7 +228,7 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 }
 
 func (c *ProductHandlerImpl) GetProductByCategoryHandler(ctx echo.Context) error {
-	productTypeID := ctx.Param("productTypeID")
+	productTypeID := ctx.Param("productTypeId")
 	productTypeIDUint64, err := strconv.ParseUint(productTypeID, 10, 64)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to parse product type"))

@@ -25,7 +25,7 @@ func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	productGroup.GET("/:id", ProductHandler.GetProductHandler)
 	productGroup.GET("", ProductHandler.GetProductsHandler)
 	productGroup.GET("/search/:name", ProductHandler.GetProductByNameHandler)
-	productGroup.GET("/category/:productTypeID", ProductHandler.GetProductByCategoryHandler)
+	productGroup.GET("/category/:productTypeId", ProductHandler.GetProductByCategoryHandler)
 	productGroup.PUT("/:id", ProductHandler.UpdateProductHandler)
 	productGroup.DELETE("/:id", ProductHandler.DeleteProductHandler)
 	productGroup.GET("/recommendation", ProductHandler.ProductAIHandler)
