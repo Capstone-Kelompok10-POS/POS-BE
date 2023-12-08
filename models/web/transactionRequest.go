@@ -15,6 +15,8 @@ type TransactionCreateRequest struct {
 	TransactionPayment domain.TransactionPayment `json:"transactionPayment" validate:"required"` 
 }
 
+
+
 type TransactionCreate struct {
 	CashierID 	 uint 		`json:"cashierId"`
 	Discount 	 float64 	`json:"discount"`
