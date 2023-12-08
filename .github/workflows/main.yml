@@ -17,6 +17,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Create Firebase Credentials File
+        run: echo "${{ secrets.FIREBASE_CREDENTIALS }}" > credentials.json
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build and push
@@ -26,8 +28,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/qbills:latest
-      - name: Create Firebase Credentials File
-        run: echo "${{ secrets.FIREBASE_CREDENTIALS }}" > credentials.json
       - name: connect ssh
         uses: appleboy/ssh-action@v0.1.9
         with:
