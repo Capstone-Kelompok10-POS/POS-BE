@@ -20,6 +20,7 @@ type MembershipHandler interface {
 	UpdateMembershipHandler(ctx echo.Context) error 
 	GetMembershipHandler(ctx echo.Context) error
 	GetMembershipsHandler(ctx echo.Context) error
+	GetTopMembershipsHandler(ctx echo.Context) error
 	GetMembershipByNameHandler(ctx echo.Context) error
 	GetMembershipByPhoneNumber(ctx echo.Context) error
 	DeleteMembershipHandler(ctx echo.Context) error
@@ -71,7 +72,7 @@ func (c *MembershipHandlerImpl) GetMembershipHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("invalid param id"))
 	}
 
-	result, err := c.MembershipService.FindById(ctx, membershipIdInt)
+	result, err := c.MembershipService.FindById(membershipIdInt)
 	if err != nil {
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
@@ -84,7 +85,7 @@ func (c *MembershipHandlerImpl) GetMembershipHandler(ctx echo.Context) error {
 }
 
 func (c MembershipHandlerImpl) GetMembershipsHandler(ctx echo.Context) error {
-	memberships, totalMemberships, err := c.MembershipService.FindAll(ctx)
+	memberships, totalMemberships, err := c.MembershipService.FindAll()
 	if err != nil {
 		if strings.Contains(err.Error(), "memberships not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("memberships not found"))
@@ -98,10 +99,25 @@ func (c MembershipHandlerImpl) GetMembershipsHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithTotal("successfully get all data memberships", response, totalMemberships))
 }
 
+func (c MembershipHandlerImpl) GetTopMembershipsHandler(ctx echo.Context) error {
+	memberships, err := c.MembershipService.FindTopMember()
+	if err != nil {
+		if strings.Contains(err.Error(), "memberships not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("memberships not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get memberships data error"))
+	}
+
+	response := res.ConvertMembershipResponse(memberships)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("successfully get all data memberships", response))
+}
+
 func (c MembershipHandlerImpl) GetMembershipByNameHandler(ctx echo.Context) error{
 	membershipName := ctx.Param("name")
 
-	result, err := c.MembershipService.FindByName(ctx, membershipName)
+	result, err := c.MembershipService.FindByName(membershipName)
 	if err != nil {
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
@@ -115,7 +131,7 @@ func (c MembershipHandlerImpl) GetMembershipByNameHandler(ctx echo.Context) erro
 func (c MembershipHandlerImpl) GetMembershipByPhoneNumber(ctx echo.Context) error{
 	membershipPhoneNumber := ctx.Param("phoneNumber")
 
-	result, err := c.MembershipService.FindByPhoneNumber(ctx, membershipPhoneNumber)
+	result, err := c.MembershipService.FindByPhoneNumber(membershipPhoneNumber)
 	if err != nil {
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
@@ -153,7 +169,7 @@ func (c MembershipHandlerImpl) UpdateMembershipHandler(ctx echo.Context) error {
 		}
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update membership error"))
 	}
-	results, err := c.MembershipService.FindById(ctx, membershipIdInt)
+	results, err := c.MembershipService.FindById(membershipIdInt)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
 	}
@@ -169,7 +185,7 @@ func (c MembershipHandlerImpl) DeleteMembershipHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("invalid param id"))
 	}
 
-	err = c.MembershipService.DeleteMembership(ctx, membershipIdInt)
+	err = c.MembershipService.DeleteMembership(membershipIdInt)
 	if err != nil {
 		if strings.Contains(err.Error(), "membership not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("membership not found"))
