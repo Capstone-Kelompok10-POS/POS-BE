@@ -16,6 +16,7 @@ type TransactionRepository interface {
 	FindById(transactionID int) (*domain.Transaction, error)
 	UpdateStatusTransactionPayment(status string, transactionResult *domain.PaymentTransactionStatus) error
 	FindAllTransaction() ([]domain.Transaction, int, error)
+	FindRecentTransaction() ([]domain.Transaction, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
 	FindPaginationTransaction(orderBy string, paginate helpers.Pagination) ([]domain.Transaction, *helpers.Pagination, error)
 }
@@ -118,6 +119,18 @@ func (repository *TransactionRepositoryImpl) FindAllTransaction() ([]domain.Tran
 
 	return transactions, totalTransaction , nil
 }
+
+func (repository *TransactionRepositoryImpl) FindRecentTransaction() ([]domain.Transaction, error) {
+	transactions := []domain.Transaction{}
+
+	result := repository.DB.Preload("Cashier").Preload("Membership").Preload("ConvertPoint").Preload("Details.ProductDetail.Product").Preload("Details.ProductDetail").Preload("TransactionPayment.PaymentMethod").Preload("TransactionPayment.PaymentMethod.PaymentType").Where("transactions.deleted_at IS NULL ORDER BY created_at DESC LIMIT 6").Find(&transactions)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return transactions,  nil
+}
+
 
 func (repository *TransactionRepositoryImpl) FindPaginationTransaction(orderBy string, paginate helpers.Pagination) ([]domain.Transaction, *helpers.Pagination, error) {
 	var transactions []domain.Transaction

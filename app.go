@@ -27,7 +27,7 @@ func main() {
 	if err != nil {
 		logrus.Fatal("Error connecting to MySQL:", err.Error())
 	}
-	
+
 	midtransCoreApi := midtrans.NewMidtransCoreApi(&config.Midtrans)
 
 	myApp.GET("/home", func(c echo.Context) error {
@@ -46,7 +46,7 @@ func main() {
 	routes.PaymentTypeRoutes(myApp, db, validate)
 	routes.PaymentMethodRoutes(myApp, db, validate)
 	routes.ProductDetailRoutes(myApp, db, validate)
-	routes.TransactionRoutes(myApp, db, midtransCoreApi,validate)
+	routes.TransactionRoutes(myApp, db, midtransCoreApi, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
 	myApp.Use(middleware.CORS())

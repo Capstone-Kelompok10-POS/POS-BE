@@ -30,8 +30,9 @@ func TransactionRoutes(e *echo.Echo, db *gorm.DB, midtransCoreApi midtrans.Midtr
 
 	transactionGroup.POST("", transactionHandler.CreateTransactionHandler, middleware.AuthMiddleware("Cashier"))
 	transactionGroup.GET("/:id", transactionHandler.GetTransactionHandler)
-	// transactionGroup.GET("", transactionHandler.GetTransactionsHandler)
+	transactionGroup.GET("s", transactionHandler.GetTransactionsHandler)
+	transactionGroup.GET("s/recent", transactionHandler.GetRecentTransactionsHandler)
 	transactionGroup.GET("s/pagination", transactionHandler.FindPaginationTransaction)
-	transactionGroup.PUT("/:invoice", transactionHandler.UpdateStatusTransactionPaymentHandler, middleware.AuthMiddleware("Cashier"))
+	transactionGroup.PUT("/payment", transactionHandler.UpdateStatusTransactionPaymentHandler, middleware.AuthMiddleware("Cashier"))
 	// transactionGroup.GET("", transactionHandler.GetTransactionsHandler)
 }

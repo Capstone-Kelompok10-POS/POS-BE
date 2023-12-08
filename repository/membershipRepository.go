@@ -17,6 +17,7 @@ type MembershipRepository interface {
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)
 	FindAll() ([]domain.Membership, int,  error)
+	FindTopMember() ([]domain.Membership, error)
 	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
 	Delete(id int) error
 }
@@ -101,6 +102,18 @@ func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int,
 	}
 	totalMembership := len(memberships)
 	return memberships, totalMembership, nil
+}
+
+func (repository *MembershipRepositoryImpl) FindTopMember() ([]domain.Membership, error) {
+	memberships := []domain.Membership{}
+
+	query := "SELECT * FROM memberships WHERE deleted_at IS NULL ORDER BY point DESC LIMIT 3"
+	result := repository.DB.Raw(query).Scan(&memberships)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	
+	return memberships, nil
 }
 
 func (repository *MembershipRepositoryImpl) Delete(id int) error {

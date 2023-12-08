@@ -28,6 +28,7 @@ type ProductHandler interface {
 	FindPaginationProduct(ctx echo.Context) error
 	ProductAIHandler(ctx echo.Context) error
 	GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error)
+	GetBestProductsHandler(ctx echo.Context) error
 }
 
 type ProductHandlerImpl struct {
@@ -189,11 +190,9 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 		return ctx.JSON(statusCode, helpers.ErrorResponse(errorMessage))
 	}
 
-	response := res.ProductDomainToProductResponse(product)
+	response := res.ProductsDomainToProductsResponse(product)
 
-	responseCustom := res.ProductResponseToProductCostumResponse(response)
-
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", responseCustom))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", response))
 }
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
@@ -230,7 +229,7 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 }
 
 func (c *ProductHandlerImpl) GetProductByCategoryHandler(ctx echo.Context) error {
-	productTypeID := ctx.Param("productTypeID")
+	productTypeID := ctx.Param("productTypeId")
 	productTypeIDUint64, err := strconv.ParseUint(productTypeID, 10, 64)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to parse product type"))
@@ -329,4 +328,21 @@ func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
 	log.Info("ProductAI Result:", result)
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
+}
+
+
+func (c *ProductHandlerImpl) GetBestProductsHandler(ctx echo.Context) error {
+	bestProducts, err := c.ProductService.FindBestSellingProduct()
+
+	if err != nil {
+		if strings.Contains(err.Error(), "product not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("best product not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get best product data error"))
+	}
+
+	response := res.ConvertBestProductResponse(bestProducts)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all data best product", response))
 }

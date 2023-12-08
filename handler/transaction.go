@@ -20,6 +20,7 @@ type TransactionHandler interface {
 	UpdateStatusTransactionPaymentHandler(ctx echo.Context) error
 	GetTransactionHandler(ctx echo.Context) error
 	GetTransactionsHandler(ctx echo.Context) error
+	GetRecentTransactionsHandler(ctx echo.Context) error
 	FindPaginationTransaction(ctx echo.Context) error
 }
 
@@ -111,13 +112,28 @@ func (c *TransactionHandlerImpl) GetTransactionsHandler(ctx echo.Context) error 
 
 }
 
-func (c *TransactionHandlerImpl) UpdateStatusTransactionPaymentHandler(ctx echo.Context) error {
-	invoice := ctx.Param("invoice")
-	invoice = strings.ToUpper(invoice)
-	if invoice == "" {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid param invoice"))
+func (c *TransactionHandlerImpl) GetRecentTransactionsHandler(ctx echo.Context) error {
+	transactions, err := c.TransactionService.FindRecentTransaction()
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction error"))
 	}
+	response := res.ConvertTransactionResponse(transactions) 
 
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction", response))
+
+}
+
+func (c *TransactionHandlerImpl) UpdateStatusTransactionPaymentHandler(ctx echo.Context) error {
+	transactionPaymentUpdateRequest := web.TransactionPaymentUpdateRequest{}
+	err :=ctx.Bind(&transactionPaymentUpdateRequest)
+	if err != nil{
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+	}
+	invoice := transactionPaymentUpdateRequest.Invoice
 	result, err := c.TransactionService.ManualPayment(invoice)
 	if err != nil {
 		if strings.Contains(err.Error(), "transaction not found") {

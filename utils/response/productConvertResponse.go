@@ -52,6 +52,19 @@ func ProductDomainToProductUpdateResponse(product *domain.Product) web.ProductUp
 	}
 }
 
+func BestProductsDomainToProductsResponse(bestProduct *domain.BestSellingProduct) *web.BestProductsResponse {
+	response := &web.BestProductsResponse{
+		ProductID: bestProduct.ProductID,
+		ProductName:bestProduct.ProductName,
+		ProductImage:bestProduct.ProductImage,
+		ProductPrice:bestProduct.ProductPrice,
+		ProductTypeName:bestProduct.ProductTypeName,
+		TotalQuantity:bestProduct.TotalQuantity,
+		Amount:bestProduct.Amount,
+	}
+	return response
+}
+
 func ProductsDomainToProductsResponse(product *domain.Product) *web.ProductsResponse {
 	response := &web.ProductsResponse{
 		ID:            product.ID,
@@ -76,6 +89,14 @@ func ProductsDomainToProductsResponse(product *domain.Product) *web.ProductsResp
 		})
 	}
 	return response
+}
+func ConvertBestProductResponse(bestProducts []domain.BestSellingProduct) []web.BestProductsResponse {
+	var results []web.BestProductsResponse
+
+	for _, bestProduct := range bestProducts {
+		results = append(results, *BestProductsDomainToProductsResponse(&bestProduct))
+	}
+	return results
 }
 
 func ConvertProductResponse(products []domain.Product) []web.ProductsResponse {

@@ -25,6 +25,7 @@ func MembershipRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	membershipGroup.POST("/register", MembershipHandler.RegisterMembershipHandler, middleware.AuthMiddleware("Cashier"))
 	membershipGroup.GET("/:id", MembershipHandler.GetMembershipHandler)
 	membershipGroup.GET("s", MembershipHandler.GetMembershipsHandler)
+	membershipGroup.GET("s/top", MembershipHandler.GetTopMembershipsHandler)
 	membershipGroup.GET("/name/:name", MembershipHandler.GetMembershipByNameHandler)
 	membershipGroup.GET("/phone-number/:phoneNumber", MembershipHandler.GetMembershipByPhoneNumber)
 	membershipGroup.PUT("/:id", MembershipHandler.UpdateMembershipHandler, middleware.AuthMiddleware("Admin"))

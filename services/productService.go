@@ -22,6 +22,7 @@ type ProductService interface {
 	FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
 	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
+	FindBestSellingProduct() ([]domain.BestSellingProduct, error)
 }
 
 type ProductServiceImpl struct {
@@ -150,4 +151,13 @@ func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]do
 	}
 
 	return result, paginate, nil
+}
+
+func (service *ProductServiceImpl) FindBestSellingProduct() ([]domain.BestSellingProduct, error) {
+	bestProducts, err := service.ProductRepository.FindBestSellingProduct()
+	if err != nil {
+		return nil, fmt.Errorf("product not found")
+	}
+	
+	return bestProducts, nil
 }
