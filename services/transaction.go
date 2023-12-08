@@ -22,6 +22,7 @@ type TransactionService interface {
 	FindById(id int) (*domain.Transaction, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
 	FindAllTransaction() ([]domain.Transaction, int, error)
+	FindRecentTransaction() ([]domain.Transaction, error)
 	FindPaginationTransaction(orderBy, QueryLimit, QueryPage string) ([]domain.Transaction, *helpers.Pagination, error)
 	GetPricesAndSubTotal(details []domain.TransactionDetail) (map[uint]float64, map[uint]float64, error)
 	ProductStockDecrese(tx *gorm.DB, details []domain.TransactionDetail) error
@@ -460,6 +461,15 @@ func (service *TransactionImpl) FindAllTransaction() ([]domain.Transaction, int,
 	}
 
 	return transactions, totalTransaction, nil
+}
+
+func (service *TransactionImpl) FindRecentTransaction() ([]domain.Transaction, error) {
+	transactions, err := service.TransactionRepository.FindRecentTransaction()
+	if err != nil{
+		return nil,fmt.Errorf("transaction not found")
+	}
+
+	return transactions,  nil
 }
 
 func (service *TransactionImpl)	FindPaginationTransaction(orderBy, QueryLimit, QueryPage string) ([]domain.Transaction, *helpers.Pagination, error) {
