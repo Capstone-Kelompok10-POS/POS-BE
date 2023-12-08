@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - staging
+      - main
 
 jobs:
   build:
@@ -33,8 +34,6 @@ jobs:
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            echo "${{ secrets.FIREBASE_CREDENTIALS }}" > credentials.json
-            cat credentials.json
             docker stop ${{ secrets.CNAME }}
             docker rm ${{ secrets.CNAME }}
             docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/qbills
@@ -48,9 +47,8 @@ jobs:
             -e SECRET_KEY=${{secrets.SECRET_KEY}} \
             -e SALT=${{secrets.SALT}} \
             -e API_VERSION=${{secrets.API_VERSION}} \
-            -v "$(pwd)/credentials.json:/app/credentials.json:ro" \
             -e MAIN_URL=${{secrets.MAIN_URL}} \
             -e MIDTRANS_SERVER_KEY=${{secrets.MIDTRANS_SERVER_KEY}} \
             -e OPEN_AI_KEY=${{secrets.OPEN_AI_KEY}} \
-            -v credentials.json:/app/credentials.json:ro \
+            -v $(pwd)/credentials.json:/app/credentials.json:ro \
             ${{ secrets.DOCKERHUB_USERNAME }}/qbills
