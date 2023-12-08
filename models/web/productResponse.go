@@ -58,3 +58,13 @@ type ProductsResponse struct {
 	Image         string               `json:"image"`
 	ProductDetail []ProductDetailResponse `json:"productDetail"`
 }
+
+type BestProductsResponse struct {
+	ProductID       uint    		`json:"productId"`
+	ProductName   	string 			`json:"productName"`
+	ProductImage    string    		`json:"productImage"`
+	ProductPrice    float64      	`json:"price"`
+	ProductTypeName string      	`json:"ProductTypeName"`
+	TotalQuantity 	int				`json:"totalQuantity"`
+	Amount 			float64 		`json:"amount"`
+}

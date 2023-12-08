@@ -20,6 +20,7 @@ type ProductRepository interface {
 	FindByCategory(ProductTypeID uint) ([]domain.Product, error)
 	Delete(id uint) error
 	FindPaginationProduct(orderBy string, paginate helpers.Pagination) ([]domain.Product, *helpers.Pagination, error)
+	FindBestSellingProduct() ([]domain.BestSellingProduct, error)
 }
 
 type ProductRepositoryImpl struct {
@@ -115,9 +116,9 @@ func (repository *ProductRepositoryImpl) FindPaginationProduct(orderBy string, p
 	result := repository.DB.Scopes(helpers.Paginate(products, &paginate, repository.DB)).Preload("Admin").Preload("ProductType").Preload("ProductDetail")
 
 	if orderBy != "" {
-		result.Order("name " + orderBy).Find(&products)
+		result.Order("name " + orderBy).Where("products.deleted_at IS NULL").Find(&products)
 	} else {
-		result.Find(&products)
+		result.Where("products.deleted_at IS NULL").Find(&products)
 	}
 
 	if result.Error != nil {
@@ -141,4 +142,42 @@ func (repository *ProductRepositoryImpl) FindPaginationProduct(orderBy string, p
 	}
 
 	return products, &paginate, nil
+}
+
+func (repository *ProductRepositoryImpl) FindBestSellingProduct() ([]domain.BestSellingProduct, error) {
+	bestProduct := []domain.BestSellingProduct{}
+
+	query := `SELECT
+    p.id as product_id,
+    p.name as product_name,
+    p.image AS product_image,
+    pd.price AS product_price,
+    pt.type_name as product_type_name,
+    SUM(td.quantity) as total_quantity,
+    SUM(td.sub_total) as amount
+	FROM
+    	transaction_details td
+	JOIN
+    	product_details pd ON td.product_detail_id = pd.id
+	JOIN
+    	transactions t ON td.transaction_id = t.id
+	JOIN
+		transaction_payments tp ON t.id = tp.transaction_id
+	JOIN
+		products p ON pd.product_id = p.id
+	LEFT JOIN
+		product_types pt ON p.product_type_id = pt.id
+	WHERE
+		tp.payment_status = 'success'
+	GROUP BY
+		p.id, p.name, pt.type_name, pd.price
+	ORDER BY
+		total_quantity DESC;
+	`
+	result := repository.DB.Raw(query).Scan(&bestProduct)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	
+	return bestProduct,  nil
 }

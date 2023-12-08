@@ -37,3 +37,13 @@ type ProductPreloadResponse struct {
 	Image         string
 	ProductDetail []ProductDetail
 }
+
+type BestSellingProduct struct {
+	ProductID 		uint
+	ProductName 	string
+	ProductImage 	string
+	ProductPrice 	float64
+	ProductTypeName string
+	TotalQuantity 	int
+	Amount 			float64
+}
