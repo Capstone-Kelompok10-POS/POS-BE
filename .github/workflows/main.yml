@@ -40,6 +40,7 @@ jobs:
             docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/qbills
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/qbills
             docker run --name ${{ secrets.CNAME }} -p 80:80 -d \
+            --mount type=bind,source=$(pwd)/credentials.json,target=/app/credentials.json,readonly \
             -e DB_HOST=${{secrets.DB_HOST}} \
             -e DB_PORT=${{secrets.DB_PORT}} \
             -e DB_USER=${{secrets.DB_USER}} \
@@ -51,5 +52,5 @@ jobs:
             -e MAIN_URL=${{secrets.MAIN_URL}} \
             -e MIDTRANS_SERVER_KEY=${{secrets.MIDTRANS_SERVER_KEY}} \
             -e OPEN_AI_KEY=${{secrets.OPEN_AI_KEY}} \
-            -v $(pwd)/credentials.json:/app/credentials.json:ro \
             ${{ secrets.DOCKERHUB_USERNAME }}/qbills
+            cat credentials.json
