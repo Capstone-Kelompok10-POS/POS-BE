@@ -16,6 +16,15 @@ func MembershipDomainToMembershipPointResponse(response *domain.MembershipPoint)
 	}
 }
 
+func MembershipDomainToMembershipCreateResponse(response *domain.MembershipPoint) web.MembershipPointCreateResponse {
+	return web.MembershipPointCreateResponse{
+		ID:           response.ID,
+		CreatedAt:    response.CreatedAt,
+		MembershipID: response.MembershipID,
+		Point:        response.Point,
+	}
+}
+
 func MembershipPointSchemaToMembershipPointDomain(response schema.MembershipPoint) *domain.MembershipPoint {
 	return &domain.MembershipPoint{
 		ID:           response.ID,
@@ -30,7 +39,7 @@ func ConvertMembershipPointResponse(point []domain.MembershipPoint) []web.Member
 	for _, point := range point {
 
 		pointResponse := web.MembershipPointResponse{
-			//ID:           p   oint.ID,
+			ID:           point.ID,
 			CreatedAt:    point.CreatedAt,
 			MembershipID: point.MembershipID,
 			Membership:   point.Membership,

@@ -7,5 +7,5 @@ type MembershipPoint struct {
 	CreatedAt    time.Time  `gorm:"autoCreateTime"`
 	MembershipID uint       `gorm:"index" json:"membershipID"`
 	Membership   Membership `gorm:"foreignKey:MembershipID" json:"membership"`
-	Point        uint       `json:"point"`
+	Point        int        `json:"point"`
 }

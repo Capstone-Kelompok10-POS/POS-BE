@@ -14,7 +14,7 @@ type MembershipRepository interface {
 	Create(membership *domain.Membership) (*domain.Membership, error)
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
 	UpdatePoint(tx *gorm.DB, membership *domain.Membership) error
-	Save(membership *domain.Membership, id int) (*domain.Membership, error)
+	UpdatePointNoTx(membership *domain.Membership, id int) (*domain.Membership, error)
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)
 	FindAll() ([]domain.Membership, int, error)
@@ -46,6 +46,7 @@ func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership
 	result := repository.DB.Table("memberships").Where("id = ?", id).Updates(domain.Membership{
 		Name:        membership.Name,
 		PhoneNumber: membership.PhoneNumber,
+		TotalPoint:  membership.TotalPoint,
 	})
 	if result.Error != nil {
 		return nil, result.Error
@@ -54,12 +55,8 @@ func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership
 	return membership, nil
 }
 
-func (repository *MembershipRepositoryImpl) Save(membership *domain.Membership, id int) (*domain.Membership, error) {
-	result := repository.DB.Table("memberships").Where("id = ?", id).Save(domain.Membership{
-		Name:        membership.Name,
-		PhoneNumber: membership.PhoneNumber,
-		TotalPoint:  membership.TotalPoint,
-	})
+func (repository *MembershipRepositoryImpl) UpdatePointNoTx(membership *domain.Membership, id int) (*domain.Membership, error) {
+	result := repository.DB.Table("memberships").Where("id = ?", id).Update("total_point", membership.TotalPoint)
 	if result.Error != nil {
 		return nil, result.Error
 	}

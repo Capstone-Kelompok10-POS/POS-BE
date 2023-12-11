@@ -47,7 +47,7 @@ func (c *MembershipPointImpl) UpdateMembershipPointHandler(ctx echo.Context) err
 		}
 	}
 
-	response := res.MembershipDomainToMembershipPointResponse(result)
+	response := res.MembershipDomainToMembershipCreateResponse(result)
 
 	return ctx.JSON(http.StatusCreated, helpers.SuccessResponse("success update membership point", response))
 }

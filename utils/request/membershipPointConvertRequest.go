@@ -8,7 +8,6 @@ import (
 
 func MembershipPointCreateToMembershipPointDomain(request web.MembershipPointCreate) *domain.MembershipPoint {
 	return &domain.MembershipPoint{
-		ID:           request.MembershipID,
 		MembershipID: request.MembershipID,
 		Point:        request.Point,
 	}

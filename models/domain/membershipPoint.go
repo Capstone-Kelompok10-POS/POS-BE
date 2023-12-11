@@ -7,5 +7,5 @@ type MembershipPoint struct {
 	CreatedAt    time.Time
 	MembershipID uint
 	Membership   Membership
-	Point        uint
+	Point        int
 }

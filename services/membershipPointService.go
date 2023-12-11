@@ -45,7 +45,7 @@ func (service *MembershipPointServiceImpl) UpdateMembershipPointService(ctx echo
 
 	membership, err := service.MembershipRepository.FindById(membershipIdInt)
 
-	membership.TotalPoint += req.Point
+	membership.TotalPoint += uint(req.Point)
 
 	if membership.TotalPoint < 0 {
 		return nil, fmt.Errorf("points decrease more than already point")
@@ -55,7 +55,7 @@ func (service *MembershipPointServiceImpl) UpdateMembershipPointService(ctx echo
 		return nil, err
 	}
 
-	_, err = service.MembershipRepository.Update(membership, membershipIdInt)
+	_, err = service.MembershipRepository.UpdatePointNoTx(membership, membershipIdInt)
 
 	if err != nil {
 		return nil, err

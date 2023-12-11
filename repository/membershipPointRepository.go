@@ -57,7 +57,7 @@ func (repository *MembershipPointRepositoryImpl) Update(cashier *domain.Membersh
 func (repository *MembershipPointRepositoryImpl) FindAll() ([]domain.MembershipPoint, error) {
 	point := []domain.MembershipPoint{}
 
-	if err := repository.DB.Find(&point).Error; err != nil {
+	if err := repository.DB.Preload("Membership").Find(&point).Error; err != nil {
 		return nil, err
 	}
 
@@ -67,7 +67,7 @@ func (repository *MembershipPointRepositoryImpl) FindAll() ([]domain.MembershipP
 func (repository *MembershipPointRepositoryImpl) FindById(id uint) (*domain.MembershipPoint, error) {
 	point := domain.MembershipPoint{}
 
-	result := repository.DB.First(&point, id)
+	result := repository.DB.Preload("Membership").First(&point, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -79,7 +79,7 @@ func (repository *MembershipPointRepositoryImpl) FindById(id uint) (*domain.Memb
 func (repository *MembershipPointRepositoryImpl) FindIncreasePoint() ([]domain.MembershipPoint, error) {
 	point := []domain.MembershipPoint{}
 
-	if err := repository.DB.Where("point > 0").Find(&point).Error; err != nil {
+	if err := repository.DB.Preload("Membership").Where("point > 0").Find(&point).Error; err != nil {
 		return nil, err
 	}
 
@@ -89,7 +89,7 @@ func (repository *MembershipPointRepositoryImpl) FindIncreasePoint() ([]domain.M
 func (repository *MembershipPointRepositoryImpl) FindDecreasePoint() ([]domain.MembershipPoint, error) {
 	point := []domain.MembershipPoint{}
 
-	if err := repository.DB.Where("point < 0").Find(&point).Error; err != nil {
+	if err := repository.DB.Preload("Membership").Where("point < 0").Find(&point).Error; err != nil {
 		return nil, err
 	}
 
