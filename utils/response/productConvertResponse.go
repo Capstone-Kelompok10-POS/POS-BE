@@ -57,6 +57,7 @@ func BestProductsDomainToProductsResponse(bestProduct *domain.BestSellingProduct
 		ProductID: bestProduct.ProductID,
 		ProductName:bestProduct.ProductName,
 		ProductImage:bestProduct.ProductImage,
+		ProductSize: bestProduct.ProductSize,
 		ProductPrice:bestProduct.ProductPrice,
 		ProductTypeName:bestProduct.ProductTypeName,
 		TotalQuantity:bestProduct.TotalQuantity,
