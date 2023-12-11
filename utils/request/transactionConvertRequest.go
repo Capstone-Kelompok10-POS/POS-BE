@@ -74,7 +74,7 @@ func CreateTransactionPaymentRequestToMidtransChargeRequest(transaction *domain.
 	for _, detailRequest:= range transaction.Details {
 		item := midtrans.ItemDetails{
 			ID: fmt.Sprintf("PRODUCT-%d", detailRequest.ProductDetailID),
-			Name: "PRODUCT",
+			Name: detailRequest.ProductDetail.Product.Name,
 			Price: int64(detailRequest.Price),
 			Qty: int32(detailRequest.Quantity),
 			Brand: "QBILLS",
