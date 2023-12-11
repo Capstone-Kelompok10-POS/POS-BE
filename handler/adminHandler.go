@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -192,7 +191,6 @@ func (c AdminHandlerImpl) DeleteAdminHandler(ctx echo.Context) error {
 	}
 
 	err = c.AdminService.DeleteAdmin(ctx, adminIdInt)
-	fmt.Println(err)
 	if err != nil {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
