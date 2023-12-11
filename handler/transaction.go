@@ -21,6 +21,8 @@ type TransactionHandler interface {
 	GetTransactionHandler(ctx echo.Context) error
 	GetTransactionsHandler(ctx echo.Context) error
 	GetRecentTransactionsHandler(ctx echo.Context) error
+	GetTransactionMonthlyHandler(ctx echo.Context) error
+	GetTransactionYearlyHandler(ctx echo.Context) error
 	FindPaginationTransaction(ctx echo.Context) error
 }
 
@@ -101,7 +103,7 @@ func (c *TransactionHandlerImpl) GetTransactionsHandler(ctx echo.Context) error 
 	transactions, totalTransactions, err := c.TransactionService.FindAllTransaction()
 	if err != nil {
 		if strings.Contains(err.Error(), "transaction not found") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction found"))
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction error"))
@@ -112,11 +114,41 @@ func (c *TransactionHandlerImpl) GetTransactionsHandler(ctx echo.Context) error 
 
 }
 
+func (c *TransactionHandlerImpl) GetTransactionMonthlyHandler(ctx echo.Context) error {
+	transactionsMonthly, err := c.TransactionService.FindByMonthly()
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue monthly not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction monthly revenue error"))
+	}
+	response := res.ConvertTransactionMonthlyRevenueResponse(transactionsMonthly) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Monthly", response))
+
+}
+
+func (c *TransactionHandlerImpl) GetTransactionYearlyHandler(ctx echo.Context) error {
+	transactionsYearly, err := c.TransactionService.FindByYearly()
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue yearly not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction revenue yearly error"))
+	}
+	response := res.TransactionYearlyRevenueDomainToTransactionYearlyRevenueResponse(transactionsYearly) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Yearly", response))
+
+}
+
 func (c *TransactionHandlerImpl) GetRecentTransactionsHandler(ctx echo.Context) error {
 	transactions, err := c.TransactionService.FindRecentTransaction()
 	if err != nil {
 		if strings.Contains(err.Error(), "transaction not found") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction found"))
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction error"))
