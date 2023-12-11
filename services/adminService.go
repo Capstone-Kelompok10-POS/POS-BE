@@ -135,7 +135,6 @@ func (service *AdminServiceImpl) FindByUsername(ctx echo.Context, name string) (
 
 func (service *AdminServiceImpl) DeleteAdmin(ctx echo.Context, id int) error {
 	existingAdmin, _ := service.AdminRepository.FindById(id)
-	fmt.Println(existingAdmin)
 	if existingAdmin == nil {
 		return fmt.Errorf("admin not found")
 	}
