@@ -17,6 +17,8 @@ type TransactionRepository interface {
 	UpdateStatusTransactionPayment(status string, transactionResult *domain.PaymentTransactionStatus) error
 	FindAllTransaction() ([]domain.Transaction, int, error)
 	FindRecentTransaction() ([]domain.Transaction, error)
+	GetMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error)
+	GetYearlyRevenue(currentYear int) (*domain.TransactionYearlyRevenue, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
 	FindPaginationTransaction(orderBy string, paginate helpers.Pagination) ([]domain.Transaction, *helpers.Pagination, error)
 }
@@ -120,6 +122,23 @@ func (repository *TransactionRepositoryImpl) FindAllTransaction() ([]domain.Tran
 	return transactions, totalTransaction , nil
 }
 
+func (repository *TransactionRepositoryImpl) GetTotalPayment() (float64, error) {
+	var totalPayment float64
+
+	result := repository.DB.Table("transactions").
+		Joins("JOIN transaction_payments ON transactions.id = transaction_payments.transaction_id").
+		Where("transactions.deleted_at IS NULL").
+		Where("transaction_payments.payment_status = 'success'").
+		Select("SUM(transaction_payments.total_payment)").
+		Scan(&totalPayment)
+
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return totalPayment, nil
+}
+
 func (repository *TransactionRepositoryImpl) FindRecentTransaction() ([]domain.Transaction, error) {
 	transactions := []domain.Transaction{}
 
@@ -131,6 +150,47 @@ func (repository *TransactionRepositoryImpl) FindRecentTransaction() ([]domain.T
 	return transactions,  nil
 }
 
+func (repository *TransactionRepositoryImpl) GetMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error) {
+	monthlyTotalPayments := []domain.TransactionMonthlyRevenue{}
+
+	query := `
+	SELECT YEAR(t.created_at) as year, MONTH(t.created_at) as month, SUM(t.total_payment) as revenue
+	FROM transactions t
+	JOIN transaction_payments tp ON t.id = tp.transaction_id
+	WHERE t.deleted_at IS NULL AND tp.payment_status = 'success' AND YEAR(t.created_at) = ?
+	GROUP BY YEAR(t.created_at), MONTH(t.created_at)
+	ORDER BY year, month
+	`
+
+	result := repository.DB.Raw(query, currentYear).Scan(&monthlyTotalPayments)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return monthlyTotalPayments, nil
+}
+
+func (repository *TransactionRepositoryImpl) GetYearlyRevenue(currentYear int) (*domain.TransactionYearlyRevenue, error) {
+	yearlyRevenue := domain.TransactionYearlyRevenue{}
+
+	query := `
+	SELECT YEAR(t.created_at) as year, SUM(t.total_payment) as revenue
+		FROM transactions t
+		JOIN transaction_payments tp ON t.id = tp.transaction_id
+		WHERE t.deleted_at IS NULL AND tp.payment_status = 'success' AND YEAR(t.created_at) = ?
+		GROUP BY YEAR(t.created_at)
+		ORDER BY year
+	`
+
+	result := repository.DB.Raw(query, currentYear).Scan(&yearlyRevenue)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &yearlyRevenue, nil
+}
 
 func (repository *TransactionRepositoryImpl) FindPaginationTransaction(orderBy string, paginate helpers.Pagination) ([]domain.Transaction, *helpers.Pagination, error) {
 	var transactions []domain.Transaction
