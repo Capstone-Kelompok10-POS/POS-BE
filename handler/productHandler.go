@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"qbills/models/web"
@@ -258,7 +259,7 @@ func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {
 	}
 
 	err = c.ProductService.DeleteProductService(ctx, productIdUint)
-
+	fmt.Println(err)
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))

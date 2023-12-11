@@ -102,7 +102,7 @@ func (repository *ProductRepositoryImpl) FindByName(name string) ([]domain.Produ
 }
 
 func (repository *ProductRepositoryImpl) Delete(id uint) error {
-	result := repository.DB.Where("deleted_at IS NULL id = ?", id).Delete(&schema.Product{}, id)
+	result := repository.DB.Where("deleted_at IS NULL AND id = ?", id).Delete(&schema.Product{}, id)
 
 	if result.Error != nil {
 		return result.Error
