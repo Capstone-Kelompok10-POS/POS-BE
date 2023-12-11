@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -23,6 +24,7 @@ type TransactionHandler interface {
 	GetRecentTransactionsHandler(ctx echo.Context) error
 	GetTransactionMonthlyHandler(ctx echo.Context) error
 	GetTransactionYearlyHandler(ctx echo.Context) error
+	GetTransactionDailyHandler(ctx echo.Context) error
 	FindPaginationTransaction(ctx echo.Context) error
 }
 
@@ -141,6 +143,26 @@ func (c *TransactionHandlerImpl) GetTransactionYearlyHandler(ctx echo.Context) e
 	response := res.TransactionYearlyRevenueDomainToTransactionYearlyRevenueResponse(transactionsYearly) 
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Yearly", response))
+
+}
+
+
+func (c *TransactionHandlerImpl) GetTransactionDailyHandler(ctx echo.Context) error {
+	transactionsDaily, err := c.TransactionService.FindByDaily()
+	fmt.Println(err)
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction daily not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue daily not found"))
+		}
+		if strings.Contains(err.Error(), "error when get transaction daily") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue daily not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get transaction revenue Daily error"))
+	}
+	response := res.TransactionDailyDomainToTransactionDailyResponse(transactionsDaily) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Daily", response))
 
 }
 

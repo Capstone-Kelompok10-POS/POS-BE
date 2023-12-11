@@ -89,6 +89,16 @@ func TransactionYearlyRevenueDomainToTransactionYearlyRevenueResponse(transactio
 	}
 }
 
+func TransactionDailyDomainToTransactionDailyResponse(transactionDaily *domain.TransactionDailyRevenue) *web.TransactionDailyRevenueResponse{
+	return &web.TransactionDailyRevenueResponse{
+		Day: transactionDaily.Day.Format("2006-01-02"),
+		Success: transactionDaily.Success,
+		Pending: transactionDaily.Pending,
+		Cancelled: transactionDaily.Cancelled,
+		Revenue: transactionDaily.Revenue,
+	}
+}
+
 func TransactionDomainToTransactionResponseNoMembership(transaction *domain.Transaction) *web.TransactionResponse {
 	createdAt := transaction.CreatedAt
 	response := &web.TransactionResponse{

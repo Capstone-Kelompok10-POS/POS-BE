@@ -17,8 +17,9 @@ type TransactionRepository interface {
 	UpdateStatusTransactionPayment(status string, transactionResult *domain.PaymentTransactionStatus) error
 	FindAllTransaction() ([]domain.Transaction, int, error)
 	FindRecentTransaction() ([]domain.Transaction, error)
-	GetMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error)
-	GetYearlyRevenue(currentYear int) (*domain.TransactionYearlyRevenue, error)
+	FindMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error)
+	FindYearlyRevenue(currentYear int) (*domain.TransactionYearlyRevenue, error)
+	FindDailyTransaction(currentDate string) (*domain.TransactionDailyRevenue, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
 	FindPaginationTransaction(orderBy string, paginate helpers.Pagination) ([]domain.Transaction, *helpers.Pagination, error)
 }
@@ -150,7 +151,7 @@ func (repository *TransactionRepositoryImpl) FindRecentTransaction() ([]domain.T
 	return transactions,  nil
 }
 
-func (repository *TransactionRepositoryImpl) GetMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error) {
+func (repository *TransactionRepositoryImpl) FindMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error) {
 	monthlyTotalPayments := []domain.TransactionMonthlyRevenue{}
 
 	query := `
@@ -171,7 +172,7 @@ func (repository *TransactionRepositoryImpl) GetMonthlyRevenue(currentYear int) 
 	return monthlyTotalPayments, nil
 }
 
-func (repository *TransactionRepositoryImpl) GetYearlyRevenue(currentYear int) (*domain.TransactionYearlyRevenue, error) {
+func (repository *TransactionRepositoryImpl) FindYearlyRevenue(currentYear int) (*domain.TransactionYearlyRevenue, error) {
 	yearlyRevenue := domain.TransactionYearlyRevenue{}
 
 	query := `
@@ -190,6 +191,35 @@ func (repository *TransactionRepositoryImpl) GetYearlyRevenue(currentYear int) (
 	}
 
 	return &yearlyRevenue, nil
+}
+
+func (repository *TransactionRepositoryImpl) FindDailyTransaction(currentDate string) (*domain.TransactionDailyRevenue, error) {
+	dailyRevenue := domain.TransactionDailyRevenue{}
+
+	query := `
+	SELECT
+		DATE(t.created_at) as day,
+		COUNT(CASE WHEN tp.payment_status = 'success' THEN 1 END) as success,
+		COUNT(CASE WHEN tp.payment_status = 'pending' THEN 1 END) as pending,
+		COUNT(CASE WHEN tp.payment_status = 'failure' THEN 1 END) as cancelled,
+		SUM(CASE WHEN tp.payment_status = 'success' THEN t.total_payment ELSE 0 END) as revenue
+	FROM transactions t
+	LEFT JOIN transaction_payments tp ON t.id = tp.transaction_id
+	WHERE t.deleted_at IS NULL AND DATE(t.created_at) = ?
+	GROUP BY day
+	`
+
+	result := repository.DB.Raw(query, currentDate).Scan(&dailyRevenue)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	
+	if dailyRevenue.Success == 0 && dailyRevenue.Pending == 0 && dailyRevenue.Cancelled == 0 && dailyRevenue.Revenue == 0 {
+		return nil, fmt.Errorf("transaction daily not found")
+	}
+
+	return &dailyRevenue, nil
 }
 
 func (repository *TransactionRepositoryImpl) FindPaginationTransaction(orderBy string, paginate helpers.Pagination) ([]domain.Transaction, *helpers.Pagination, error) {

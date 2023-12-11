@@ -23,3 +23,11 @@ type TransactionYearlyRevenueResponse struct {
 	Year    int     `json:"year"`
 	Revenue float64 `json:"revenue"`
 }
+
+type TransactionDailyRevenueResponse struct {
+	Day       string  `json:"day"`
+	Success   int     `json:"success"`
+	Pending   int     `json:"pending"`
+	Cancelled int     `json:"cancelled"`
+	Revenue   float64 `json:"revenue"`
+}

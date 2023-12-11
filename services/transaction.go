@@ -23,6 +23,7 @@ type TransactionService interface {
 	FindByInvoice(invoice string) (*domain.Transaction, error)
 	FindByYearly() (*domain.TransactionYearlyRevenue, error)
 	FindByMonthly() ([]domain.TransactionMonthlyRevenue, error)
+	FindByDaily() (*domain.TransactionDailyRevenue, error)
 	FindAllTransaction() ([]domain.Transaction, int, error)
 	FindRecentTransaction() ([]domain.Transaction, error)
 	FindPaginationTransaction(orderBy, QueryLimit, QueryPage string) ([]domain.Transaction, *helpers.Pagination, error)
@@ -458,7 +459,7 @@ func (service *TransactionImpl) FindByInvoice(invoice string) (*domain.Transacti
 
 func (service *TransactionImpl) FindByYearly() (*domain.TransactionYearlyRevenue, error) {
 	currentYear := time.Now().Year()
-	existingTransaction, _ := service.TransactionRepository.GetYearlyRevenue(currentYear)
+	existingTransaction, _ := service.TransactionRepository.FindYearlyRevenue(currentYear)
 	if existingTransaction == nil {
 		return nil, fmt.Errorf("transaction not found")
 	}
@@ -466,9 +467,23 @@ func (service *TransactionImpl) FindByYearly() (*domain.TransactionYearlyRevenue
 	return existingTransaction, nil
 }
 
+func (service *TransactionImpl) FindByDaily() (*domain.TransactionDailyRevenue, error) {
+	currentDate := time.Now().Format("2006-01-02")
+	existingTransaction, err := service.TransactionRepository.FindDailyTransaction(currentDate)
+	if err != nil {
+		return nil, fmt.Errorf("error when get transaction daily")
+	}
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction daily not found")
+	}
+
+	return existingTransaction, nil
+}
+
+
 func (service *TransactionImpl) FindByMonthly() ([]domain.TransactionMonthlyRevenue, error) {
 	currentYear := time.Now().Year()
-	existingTransaction, _ := service.TransactionRepository.GetMonthlyRevenue(currentYear)
+	existingTransaction, _ := service.TransactionRepository.FindMonthlyRevenue(currentYear)
 	if existingTransaction == nil {
 		return nil, fmt.Errorf("transaction not found")
 	}
