@@ -42,6 +42,7 @@ type BestSellingProduct struct {
 	ProductID 		uint
 	ProductName 	string
 	ProductImage 	string
+	ProductSize 	string
 	ProductPrice 	float64
 	ProductTypeName string
 	TotalQuantity 	int

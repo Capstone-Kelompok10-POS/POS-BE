@@ -63,7 +63,8 @@ type BestProductsResponse struct {
 	ProductID       uint    		`json:"productId"`
 	ProductName   	string 			`json:"productName"`
 	ProductImage    string    		`json:"productImage"`
-	ProductPrice    float64      	`json:"price"`
+	ProductSize    string      		`json:"productSize"`
+	ProductPrice    float64      	`json:"productPrice"`
 	ProductTypeName string      	`json:"ProductTypeName"`
 	TotalQuantity 	int				`json:"totalQuantity"`
 	Amount 			float64 		`json:"amount"`

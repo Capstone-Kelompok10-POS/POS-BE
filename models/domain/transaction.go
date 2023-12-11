@@ -19,3 +19,21 @@ type Transaction struct {
 	Details      []TransactionDetail
 	TransactionPayment TransactionPayment
 }
+
+type TransactionMonthlyRevenue struct{
+	Year         int     
+	Month        int     
+	Revenue 	 float64 
+}
+type TransactionYearlyRevenue struct{
+	Year    int    
+	Revenue float64 
+}
+
+type TransactionDailyRevenue struct{
+	Day time.Time
+	Success int
+	Pending int
+	Cancelled int 
+	Revenue float64 
+}

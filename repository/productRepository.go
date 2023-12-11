@@ -150,17 +150,18 @@ func (repository *ProductRepositoryImpl) FindBestSellingProduct() ([]domain.Best
 	query := `SELECT
     p.id as product_id,
     p.name as product_name,
+    pd.size AS product_size,
     p.image AS product_image,
-    pd.price AS product_price,
     pt.type_name as product_type_name,
+    pd.price AS product_price,
     SUM(td.quantity) as total_quantity,
     SUM(td.sub_total) as amount
 	FROM
-    	transaction_details td
+		transaction_details td
 	JOIN
-    	product_details pd ON td.product_detail_id = pd.id
+		product_details pd ON td.product_detail_id = pd.id
 	JOIN
-    	transactions t ON td.transaction_id = t.id
+		transactions t ON td.transaction_id = t.id
 	JOIN
 		transaction_payments tp ON t.id = tp.transaction_id
 	JOIN
@@ -170,7 +171,7 @@ func (repository *ProductRepositoryImpl) FindBestSellingProduct() ([]domain.Best
 	WHERE
 		tp.payment_status = 'success'
 	GROUP BY
-		p.id, p.name, pt.type_name, pd.price
+		p.id, p.name, p.image, pd.price, pt.type_name, pd.size
 	ORDER BY
 		total_quantity DESC;
 	`
