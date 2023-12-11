@@ -15,6 +15,8 @@ type TransactionRepository interface {
 	Save(transaction *domain.Transaction) (*domain.Transaction, error)
 	FindById(transactionID int) (*domain.Transaction, error)
 	UpdateStatusTransactionPayment(status string, transactionResult *domain.PaymentTransactionStatus) error
+	FindByCashierId(cashierId int) ([]domain.Transaction, error)
+	FindByMembershipId(membershipId int) ([]domain.Transaction, error)
 	FindAllTransaction() ([]domain.Transaction, int, error)
 	FindRecentTransaction() ([]domain.Transaction, error)
 	FindMonthlyRevenue(currentYear int) ([]domain.TransactionMonthlyRevenue, error)
@@ -60,6 +62,17 @@ func (repository *TransactionRepositoryImpl) Save(transaction *domain.Transactio
     return transaction, nil
 }
 
+func (repository *TransactionRepositoryImpl) UpdateStatusTransactionPayment(status string, transactionResult *domain.PaymentTransactionStatus) error {
+	result := repository.DB.Table("transaction_payments").Where("invoice = ?", transactionResult.OrderID).Updates(&domain.TransactionPayment{
+		PaymentStatus: status,
+		UpdatedAt: transactionResult.SettlementTime,
+	})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (repository *TransactionRepositoryImpl) FindById(transactionID int) (*domain.Transaction, error) {
 	transaction := domain.Transaction{}
 
@@ -78,16 +91,48 @@ func (repository *TransactionRepositoryImpl) FindById(transactionID int) (*domai
 	return &transaction, nil
 }
 
-func (repository *TransactionRepositoryImpl) UpdateStatusTransactionPayment(status string, transactionResult *domain.PaymentTransactionStatus) error {
-	result := repository.DB.Table("transaction_payments").Where("invoice = ?", transactionResult.OrderID).Updates(&domain.TransactionPayment{
-		PaymentStatus: status,
-		UpdatedAt: transactionResult.SettlementTime,
-	})
+func (repository *TransactionRepositoryImpl) FindByCashierId(cashierId int) ([]domain.Transaction, error) {
+	transaction := []domain.Transaction{}
+
+	result := repository.DB.
+		Preload("Cashier").
+		Preload("Membership").
+		Preload("ConvertPoint").
+		Preload("Details.ProductDetail.Product").
+		Preload("Details.ProductDetail").
+		Preload("TransactionPayment.PaymentMethod").
+		Preload("TransactionPayment.PaymentMethod.PaymentType").
+		Where("transactions.deleted_at IS NULL AND cashier_id = ?", cashierId).
+		Order("transactions.created_at DESC").
+		Find(&transaction)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
-	return nil
+
+	return transaction, nil
 }
+
+func (repository *TransactionRepositoryImpl) FindByMembershipId(membershipId int) ([]domain.Transaction, error) {
+	transaction := []domain.Transaction{}
+
+	result := repository.DB.
+		Preload("Cashier").
+		Preload("Membership").
+		Preload("ConvertPoint").
+		Preload("Details.ProductDetail.Product").
+		Preload("Details.ProductDetail").
+		Preload("TransactionPayment.PaymentMethod").
+		Preload("TransactionPayment.PaymentMethod.PaymentType").
+		Where("transactions.deleted_at IS NULL AND membership_id = ?", membershipId).
+		Order("transactions.created_at DESC").
+		Find(&transaction)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return transaction, nil
+}
+
 
 func (repository *TransactionRepositoryImpl) FindByInvoice(invoice string) (*domain.Transaction, error) {
 	transaction := domain.Transaction{}
@@ -113,7 +158,16 @@ func (repository *TransactionRepositoryImpl) FindByInvoice(invoice string) (*dom
 func (repository *TransactionRepositoryImpl) FindAllTransaction() ([]domain.Transaction, int, error) {
 	transactions := []domain.Transaction{}
 
-	result := repository.DB.Preload("Cashier").Preload("Membership").Preload("ConvertPoint").Preload("Details.ProductDetail.Product").Preload("Details.ProductDetail").Preload("TransactionPayment.PaymentMethod").Preload("TransactionPayment.PaymentMethod.PaymentType").Where("deleted_at IS NULL").Find(&transactions)
+	result := repository.DB.
+		Preload("Cashier").
+		Preload("Membership").
+		Preload("ConvertPoint").
+		Preload("Details.ProductDetail.Product").
+		Preload("Details.ProductDetail").
+		Preload("TransactionPayment.PaymentMethod").
+		Preload("TransactionPayment.PaymentMethod.PaymentType").
+		Where("deleted_at IS NULL").
+		Find(&transactions)
 	if result.Error != nil {
 		return nil, 0,  result.Error
 	}
@@ -214,7 +268,7 @@ func (repository *TransactionRepositoryImpl) FindDailyTransaction(currentDate st
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	
+
 	if dailyRevenue.Success == 0 && dailyRevenue.Pending == 0 && dailyRevenue.Cancelled == 0 && dailyRevenue.Revenue == 0 {
 		return nil, fmt.Errorf("transaction daily not found")
 	}

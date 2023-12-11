@@ -29,6 +29,8 @@ func TransactionRoutes(e *echo.Echo, db *gorm.DB, midtransCoreApi midtrans.Midtr
 	transactionGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	transactionGroup.POST("", transactionHandler.CreateTransactionHandler, middleware.AuthMiddleware("Cashier"))
+	transactionGroup.GET("s/cashier", transactionHandler.GetCashierTransactionsHandler, middleware.AuthMiddleware("Cashier"))
+	transactionGroup.GET("s/membership/:id", transactionHandler.GetMembershipTransactionsHandler, middleware.AuthMiddleware("Cashier"))
 	transactionGroup.GET("/:id", transactionHandler.GetTransactionHandler)
 	transactionGroup.GET("s", transactionHandler.GetTransactionsHandler)
 	transactionGroup.GET("s/recent", transactionHandler.GetRecentTransactionsHandler)
