@@ -15,7 +15,7 @@ type ProductRepository interface {
 	Create(request *domain.Product) (*domain.Product, error)
 	Update(request *domain.Product, id uint) (*domain.Product, error)
 	FindById(id uint) (*domain.Product, error)
-	FindAll() ([]domain.Product, int , error)
+	FindAll() ([]domain.Product, int, error)
 	FindByName(name string) ([]domain.Product, error)
 	FindByCategory(ProductTypeID uint) ([]domain.Product, error)
 	Delete(id uint) error
@@ -32,7 +32,7 @@ func NewProductRepository(DB *gorm.DB) ProductRepository {
 }
 
 func (repository *ProductRepositoryImpl) Create(request *domain.Product) (*domain.Product, error) {
-	
+
 	result := repository.DB.Create(&request)
 
 	if result.Error != nil {
@@ -69,16 +69,16 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, int, error
 	result := repository.DB.Preload("ProductType").Preload("ProductDetail").Where("deleted_at IS NULL").Find(&products)
 
 	if result.Error != nil {
-		return nil, 0 , result.Error
+		return nil, 0, result.Error
 	}
 	totalProducts := len(products)
-	return products, totalProducts , nil
+	return products, totalProducts, nil
 }
 
 func (repository *ProductRepositoryImpl) FindByCategory(ProductTypeID uint) ([]domain.Product, error) {
 	products := []domain.Product{}
 
-	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("product_type_id = ?", ProductTypeID).Find(&products)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("products.deleted_at IS NULL AND product_type_id = ?", ProductTypeID).Find(&products)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -102,7 +102,7 @@ func (repository *ProductRepositoryImpl) FindByName(name string) ([]domain.Produ
 }
 
 func (repository *ProductRepositoryImpl) Delete(id uint) error {
-	result := repository.DB.Where("deleted_at IS NULL id = ?", id).Delete(&schema.Product{}, id)
+	result := repository.DB.Where("deleted_at IS NULL AND id = ?", id).Delete(&schema.Product{}, id)
 
 	if result.Error != nil {
 		return result.Error
@@ -150,17 +150,18 @@ func (repository *ProductRepositoryImpl) FindBestSellingProduct() ([]domain.Best
 	query := `SELECT
     p.id as product_id,
     p.name as product_name,
+    pd.size AS product_size,
     p.image AS product_image,
-    pd.price AS product_price,
     pt.type_name as product_type_name,
+    pd.price AS product_price,
     SUM(td.quantity) as total_quantity,
     SUM(td.sub_total) as amount
 	FROM
-    	transaction_details td
+		transaction_details td
 	JOIN
-    	product_details pd ON td.product_detail_id = pd.id
+		product_details pd ON td.product_detail_id = pd.id
 	JOIN
-    	transactions t ON td.transaction_id = t.id
+		transactions t ON td.transaction_id = t.id
 	JOIN
 		transaction_payments tp ON t.id = tp.transaction_id
 	JOIN
@@ -170,7 +171,7 @@ func (repository *ProductRepositoryImpl) FindBestSellingProduct() ([]domain.Best
 	WHERE
 		tp.payment_status = 'success'
 	GROUP BY
-		p.id, p.name, pt.type_name, pd.price
+		p.id, p.name, p.image, pd.price, pt.type_name, pd.size
 	ORDER BY
 		total_quantity DESC;
 	`

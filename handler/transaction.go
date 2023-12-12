@@ -21,6 +21,11 @@ type TransactionHandler interface {
 	GetTransactionHandler(ctx echo.Context) error
 	GetTransactionsHandler(ctx echo.Context) error
 	GetRecentTransactionsHandler(ctx echo.Context) error
+	GetTransactionMonthlyHandler(ctx echo.Context) error
+	GetTransactionYearlyHandler(ctx echo.Context) error
+	GetTransactionDailyHandler(ctx echo.Context) error
+	GetCashierTransactionsHandler(ctx echo.Context) error
+	GetMembershipTransactionsHandler(ctx echo.Context) error
 	FindPaginationTransaction(ctx echo.Context) error
 }
 
@@ -90,7 +95,7 @@ func (c *TransactionHandlerImpl) GetTransactionHandler(ctx echo.Context) error {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
 		logrus.Error(err.Error())
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get tranaction data error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get transaction data error"))
 	}
 	response := res.TransactionDomainToTransactionResponse(result)
 
@@ -101,7 +106,7 @@ func (c *TransactionHandlerImpl) GetTransactionsHandler(ctx echo.Context) error 
 	transactions, totalTransactions, err := c.TransactionService.FindAllTransaction()
 	if err != nil {
 		if strings.Contains(err.Error(), "transaction not found") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction found"))
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction error"))
@@ -112,11 +117,60 @@ func (c *TransactionHandlerImpl) GetTransactionsHandler(ctx echo.Context) error 
 
 }
 
+func (c *TransactionHandlerImpl) GetTransactionMonthlyHandler(ctx echo.Context) error {
+	transactionsMonthly, err := c.TransactionService.FindByMonthly()
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue monthly not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction monthly revenue error"))
+	}
+	response := res.ConvertTransactionMonthlyRevenueResponse(transactionsMonthly) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Monthly", response))
+
+}
+
+func (c *TransactionHandlerImpl) GetTransactionYearlyHandler(ctx echo.Context) error {
+	transactionsYearly, err := c.TransactionService.FindByYearly()
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue yearly not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction revenue yearly error"))
+	}
+	response := res.TransactionYearlyRevenueDomainToTransactionYearlyRevenueResponse(transactionsYearly) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Yearly", response))
+
+}
+
+
+func (c *TransactionHandlerImpl) GetTransactionDailyHandler(ctx echo.Context) error {
+	transactionsDaily, err := c.TransactionService.FindByDaily()
+	if err != nil {
+		if strings.Contains(err.Error(), "error when get transaction daily") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue daily not found"))
+		}
+		if strings.Contains(err.Error(), "transaction daily not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction revenue daily not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get transaction revenue Daily error"))
+	}
+	response := res.TransactionDailyDomainToTransactionDailyResponse(transactionsDaily) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction Revenue Daily", response))
+
+}
+
 func (c *TransactionHandlerImpl) GetRecentTransactionsHandler(ctx echo.Context) error {
 	transactions, err := c.TransactionService.FindRecentTransaction()
 	if err != nil {
 		if strings.Contains(err.Error(), "transaction not found") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction found"))
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction error"))
@@ -124,6 +178,48 @@ func (c *TransactionHandlerImpl) GetRecentTransactionsHandler(ctx echo.Context) 
 	response := res.ConvertTransactionResponse(transactions) 
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction", response))
+
+}
+
+func (c *TransactionHandlerImpl) GetCashierTransactionsHandler(ctx echo.Context) error {
+	cashierId := middleware.ExtractTokenCashierId(ctx)
+	transactions, err := c.TransactionService.FindByCashierIdTransaction(int(cashierId))
+	if err != nil {
+		if strings.Contains(err.Error(), "error when get transaction by cashier") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction by cashierId not found"))
+		}
+		if strings.Contains(err.Error(), "transaction by cashier not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction by cashierId not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction by cashier error"))
+	}
+	response := res.ConvertTransactionResponse(transactions) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction By CashierID", response))
+
+}
+
+func (c *TransactionHandlerImpl) GetMembershipTransactionsHandler(ctx echo.Context) error {
+	membershipID := ctx.Param("id")
+	membershipIDInt, err := strconv.Atoi(membershipID)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid param membershipId"))
+	}
+	transactions, err := c.TransactionService.FindByMembershipIdTransaction(membershipIDInt)
+	if err != nil {
+		if strings.Contains(err.Error(), "error when get transaction by membership") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction by membership Id not found"))
+		}
+		if strings.Contains(err.Error(), "transaction by membership not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction by membershipId not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction by membershipId error"))
+	}
+	response := res.ConvertTransactionResponse(transactions) 
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction By MembershipID", response))
 
 }
 

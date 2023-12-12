@@ -24,6 +24,7 @@ func ProductDetailRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate
 	detailGroup.POST("", productDetailHandler.CreateProductDetailHandler)
 	detailGroup.GET("", productDetailHandler.GetProductDetailsHandler)
 	detailGroup.GET("/:id", productDetailHandler.GetProductDetailHandler)
+	detailGroup.GET("/products/:productId", productDetailHandler.GetProductDetailsByProductIdHandler)
 	detailGroup.PUT("/:id", productDetailHandler.UpdateProductDetailHandler)
 	detailGroup.DELETE("/:id", productDetailHandler.DeleteProductDetailHandler)
 }

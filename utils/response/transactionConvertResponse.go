@@ -74,6 +74,30 @@ func TransactionDomainToTransactionResponse(transaction *domain.Transaction) *we
 	return response
 
 }
+func TransactionMonthlyRevenueDomainToTransactionMonthlyRevenueResponse(transactionMonthly *domain.TransactionMonthlyRevenue) *web.TransactionMonthlyRevenueResponse{
+	return &web.TransactionMonthlyRevenueResponse{
+		Year: transactionMonthly.Year,
+		Month: transactionMonthly.Month,
+		Revenue: transactionMonthly.Revenue,
+	}
+}
+
+func TransactionYearlyRevenueDomainToTransactionYearlyRevenueResponse(transactionMonthly *domain.TransactionYearlyRevenue) *web.TransactionYearlyRevenueResponse{
+	return &web.TransactionYearlyRevenueResponse{
+		Year: transactionMonthly.Year,
+		Revenue: transactionMonthly.Revenue,
+	}
+}
+
+func TransactionDailyDomainToTransactionDailyResponse(transactionDaily *domain.TransactionDailyRevenue) *web.TransactionDailyRevenueResponse{
+	return &web.TransactionDailyRevenueResponse{
+		Day: transactionDaily.Day.Format("2006-01-02"),
+		Success: transactionDaily.Success,
+		Pending: transactionDaily.Pending,
+		Cancelled: transactionDaily.Cancelled,
+		Revenue: transactionDaily.Revenue,
+	}
+}
 
 func TransactionDomainToTransactionResponseNoMembership(transaction *domain.Transaction) *web.TransactionResponse {
 	createdAt := transaction.CreatedAt
@@ -86,7 +110,7 @@ func TransactionDomainToTransactionResponseNoMembership(transaction *domain.Tran
 			Username: transaction.Cashier.Username,
 		},
 		Membership: web.MembershipTransactionResponse{
-			Name: "Seseorang",
+			Name: "Anonymous",
 		},
 		ConvertPointID: transaction.ConvertPointID,
 		Discount:       transaction.Discount,
@@ -159,3 +183,12 @@ func ConvertTransactionResponse(transactions []domain.Transaction) []web.Transac
 	}
 	return results
 }
+
+func ConvertTransactionMonthlyRevenueResponse(transactions []domain.TransactionMonthlyRevenue) []web.TransactionMonthlyRevenueResponse {
+	var results []web.TransactionMonthlyRevenueResponse
+	for _, transaction  := range transactions {
+		results = append(results, *TransactionMonthlyRevenueDomainToTransactionMonthlyRevenueResponse(&transaction))
+	}
+	return results
+}
+

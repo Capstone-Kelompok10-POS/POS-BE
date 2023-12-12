@@ -36,6 +36,21 @@ func ProductDetailDomainToProductDetailCreateResponses(response *domain.ProductD
 	}
 }
 
+func ProductDetailDomainToProductDetailPreload(response []domain.ProductDetail) []domain.ProductDetailPreload {
+	var results []domain.ProductDetailPreload
+	for _, productDetail := range response {
+		productDetailPreload := domain.ProductDetailPreload{
+			ID:         productDetail.ID,
+			ProductID:  productDetail.ProductID,
+			Price:      productDetail.Price,
+			TotalStock: productDetail.TotalStock,
+			Size:       productDetail.Size,
+		}
+		results = append(results, productDetailPreload)
+	}
+	return results
+}
+
 func ConvertProductDetailResponse(response []domain.ProductDetail) []web.ProductDetailResponse {
 	var results []web.ProductDetailResponse
 	for _, productDetail := range response {

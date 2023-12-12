@@ -21,6 +21,11 @@ type TransactionService interface {
 	CreateTransaction(request web.TransactionCreateRequest) (*web.TransactionResponse, error)
 	FindById(id int) (*domain.Transaction, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
+	FindByYearly() (*domain.TransactionYearlyRevenue, error)
+	FindByMonthly() ([]domain.TransactionMonthlyRevenue, error)
+	FindByDaily() (*domain.TransactionDailyRevenue, error)
+	FindByMembershipIdTransaction(membershipId int) ([]domain.Transaction, error)
+	FindByCashierIdTransaction(cashierId int) ([]domain.Transaction, error)
 	FindAllTransaction() ([]domain.Transaction, int, error)
 	FindRecentTransaction() ([]domain.Transaction, error)
 	FindPaginationTransaction(orderBy, QueryLimit, QueryPage string) ([]domain.Transaction, *helpers.Pagination, error)
@@ -377,7 +382,7 @@ func (service *TransactionImpl) MatchingTotalPrice(priceMobile, price float64) e
 }
 
 func (service *TransactionImpl) MatchingDiscount(discountMobile, discount float64) error {
-	fmt.Println(discountMobile, discount)
+
 	if discountMobile != discount {
 		return fmt.Errorf("discount does not match")
 	}
@@ -452,6 +457,40 @@ func (service *TransactionImpl) FindByInvoice(invoice string) (*domain.Transacti
 	return existingTransaction, nil
 }
 
+func (service *TransactionImpl) FindByYearly() (*domain.TransactionYearlyRevenue, error) {
+	currentYear := time.Now().Year()
+	existingTransaction, _ := service.TransactionRepository.FindYearlyRevenue(currentYear)
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction not found")
+	}
+
+	return existingTransaction, nil
+}
+
+func (service *TransactionImpl) FindByDaily() (*domain.TransactionDailyRevenue, error) {
+	currentDate := time.Now().Format("2006-01-02")
+	existingTransaction, err := service.TransactionRepository.FindDailyTransaction(currentDate)
+	if err != nil {
+		return nil, fmt.Errorf("error when get transaction daily")
+	}
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction daily not found")
+	}
+
+	return existingTransaction, nil
+}
+
+
+func (service *TransactionImpl) FindByMonthly() ([]domain.TransactionMonthlyRevenue, error) {
+	currentYear := time.Now().Year()
+	existingTransaction, _ := service.TransactionRepository.FindMonthlyRevenue(currentYear)
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction not found")
+	}
+
+	return existingTransaction, nil
+}
+
 func (service *TransactionImpl) FindAllTransaction() ([]domain.Transaction, int, error) {
 	transactions, totalTransaction, err := service.TransactionRepository.FindAllTransaction()
 	if err != nil {
@@ -459,6 +498,27 @@ func (service *TransactionImpl) FindAllTransaction() ([]domain.Transaction, int,
 	}
 
 	return transactions, totalTransaction, nil
+}
+
+func (service *TransactionImpl) FindByCashierIdTransaction(cashierId int) ([]domain.Transaction, error) {
+	transactions, err := service.TransactionRepository.FindByCashierId(cashierId)
+	if err != nil{
+		return nil, fmt.Errorf("error when get transaction by cashier")
+	}
+	if transactions == nil{
+		return nil, fmt.Errorf("transaction by cashier not found")
+	}
+
+	return transactions, nil
+}
+
+func (service *TransactionImpl) FindByMembershipIdTransaction(membershipId int) ([]domain.Transaction, error) {
+	transactions, err := service.TransactionRepository.FindByMembershipId(membershipId)
+	if err != nil{
+		return nil, fmt.Errorf("transaction by membership not found")
+	}
+
+	return transactions, nil
 }
 
 func (service *TransactionImpl) FindRecentTransaction() ([]domain.Transaction, error) {
