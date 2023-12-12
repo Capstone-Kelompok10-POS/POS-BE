@@ -19,8 +19,9 @@ func TransactionRoutes(e *echo.Echo, db *gorm.DB, midtransCoreApi midtrans.Midtr
 	productDetailRepository := repository.NewProductDetailRepository(db)
 	convertPointRepository := repository.NewConvertPointRepository(db)
 	membershipRepository := repository.NewMembershipRepository(db)
+	membershipPointRepository := repository.NewMembershipPointRepository(db)
 	PaymentMethodRepository := repository.NewPaymentMethodRepository(db)
-	transactionService := services.NewTransactionService(transactionRepository, productDetailRepository, convertPointRepository,membershipRepository,PaymentMethodRepository, midtransCoreApi,validate)
+	transactionService := services.NewTransactionService(transactionRepository, productDetailRepository, convertPointRepository, membershipRepository, membershipPointRepository,PaymentMethodRepository, midtransCoreApi,validate)
 	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	transactionGroup := e.Group("/api/v1/transaction")

@@ -43,19 +43,21 @@ type TransactionService interface {
 type TransactionImpl struct {
 	TransactionRepository repository.TransactionRepository
 	ProductDetailRepository repository.ProductDetailRepository
-	ConvertPointRepository repository.ConvertPointRepository
-	MembershipRepository repository.MembershipRepository
+	ConvertPointRepository  repository.ConvertPointRepository
+	MembershipRepository    repository.MembershipRepository
+	MembershipPointRepository repository.MembershipPointRepository
 	PaymentMethodRepository repository.PaymentMethodRepository
 	MidtransCoreApi midtrans.MidtransCoreApi
 	validate              *validator.Validate
 }
 
-func NewTransactionService(transactionRepository repository.TransactionRepository, productRepository repository.ProductDetailRepository, convertPointRepository repository.ConvertPointRepository, membershipRepository repository.MembershipRepository, paymentMethodRepository repository.PaymentMethodRepository, midtransCoreApi midtrans.MidtransCoreApi, validate *validator.Validate) *TransactionImpl {
+func NewTransactionService(transactionRepository repository.TransactionRepository, productRepository repository.ProductDetailRepository, convertPointRepository repository.ConvertPointRepository, membershipRepository repository.MembershipRepository, membershipPointRepository repository.MembershipPointRepository, paymentMethodRepository repository.PaymentMethodRepository, midtransCoreApi midtrans.MidtransCoreApi, validate *validator.Validate) *TransactionImpl {
 	return &TransactionImpl{
 		TransactionRepository: transactionRepository,
 		ProductDetailRepository: productRepository,
-		ConvertPointRepository: convertPointRepository,
-		MembershipRepository: membershipRepository,
+		ConvertPointRepository:  convertPointRepository,
+		MembershipRepository:    membershipRepository,
+		MembershipPointRepository: membershipPointRepository,
 		PaymentMethodRepository: paymentMethodRepository,
 		MidtransCoreApi: midtransCoreApi,
 		validate:              validate,
@@ -320,32 +322,48 @@ func (service *TransactionImpl) SubtractionPoint(tx *gorm.DB , pointId , members
 	membership.Point  = membership.Point - point.Point
 
 	err = service.MembershipRepository.UpdatePoint(tx, membership)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to update point membership: %w", err)
 	}
+
+	updatePoint := domain.MembershipPoint{
+		MembershipID: membership.ID,
+		Point: -	int(point.Point),
+	}
+	_, err = service.MembershipPointRepository.Create(tx, &updatePoint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update point membership: %w", err)
+	}
+	
 	
 	return membership, nil
 
 }
 
-func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID uint) (error) {
-    // Hitung jumlah poin berdasarkan total pembayaran
-    pointsEarned := uint(totalPayment / 50000) * 5
+func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID uint) error {
+	// Hitung jumlah poin berdasarkan total pembayaran
+	pointsEarned := uint(totalPayment/50000) * 5
+	if pointsEarned > 0 {
+		membership, err := service.MembershipRepository.FindById(int(membershipID))
+		if err != nil {
+			return fmt.Errorf("failed to find membership: %w", err)
+		}
+		membership.TotalPoint += pointsEarned
 
-    if pointsEarned > 0 {
-        membership, err := service.MembershipRepository.FindById(int(membershipID))
-        if err != nil {
-            return fmt.Errorf("failed to find membership: %w", err)
-        }
-        membership.Point += pointsEarned
-
-        // Simpan perubahan keanggotaan ke database
-        err = service.MembershipRepository.UpdatePoint(tx, membership)
-        if err != nil {
-            return fmt.Errorf("failed to update point membership: %w", err)
-        }
-    }
+		// Simpan perubahan keanggotaan ke database
+		err = service.MembershipRepository.UpdatePoint(tx, membership)
+		if err != nil {
+			return fmt.Errorf("failed to update point membership: %w", err)
+		}
+		updatePoint := domain.MembershipPoint{
+			MembershipID: membership.ID,
+			Point: int(pointsEarned),
+		}
+		_ , err = service.MembershipPointRepository.Create(tx, &updatePoint)
+		if err != nil {
+			return fmt.Errorf("failed to update point membership: %w", err)
+		}
+	}
 
     // Ambil data keanggotaan setelah perubahan
     _ , err := service.MembershipRepository.FindById(int(membershipID))

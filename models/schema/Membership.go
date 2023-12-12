@@ -19,7 +19,8 @@ type Membership struct {
 	CodeMember   uuid.UUID `gorm:"type:char(36);notnull"`
 	Point        uint      `json:"point"`
 	PhoneNumber string    `json:"phoneNumber"`
-	Barcode      string    `json:"barcode"`
+	Barcode     string    `json:"barcode"`
+	MembershipPoint []MembershipPoint `gorm:"foreignKey:MembershipID"`
 }
 
 func (membership *Membership) BeforeCreate(tx *gorm.DB) error {
