@@ -65,7 +65,7 @@ func (c *MembershipPointImpl) UpdateMembershipPointHandler(ctx echo.Context) err
 func (c *MembershipPointImpl) FindAllMembershipPointHandler(ctx echo.Context) error {
 	membershipID := ctx.Param("id")
 	membershipIDInt, err := strconv.Atoi(membershipID)
-		if err != nil{
+	if err != nil{
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
 	}
 	result, err := c.membershipPoint.FindAllMembershipPointByIdService(uint(membershipIDInt))

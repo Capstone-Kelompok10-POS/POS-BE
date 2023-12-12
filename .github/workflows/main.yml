@@ -3,8 +3,8 @@ name: Docker Image CI
 on:
   push:
     branches:
-      - main
       - staging
+      - main
 
 jobs:
   build:
@@ -46,4 +46,9 @@ jobs:
             -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
             -e SECRET_KEY=${{secrets.SECRET_KEY}} \
             -e SALT=${{secrets.SALT}} \
+            -e API_VERSION=${{secrets.API_VERSION}} \
+            -e MAIN_URL=${{secrets.MAIN_URL}} \
+            -e MIDTRANS_SERVER_KEY=${{secrets.MIDTRANS_SERVER_KEY}} \
+            -e OPEN_AI_KEY=${{secrets.OPEN_AI_KEY}} \
+            -v $(pwd)/credentials.json:/app/credentials.json:ro \
             ${{ secrets.DOCKERHUB_USERNAME }}/qbills
