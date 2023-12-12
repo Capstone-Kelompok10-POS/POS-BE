@@ -45,17 +45,19 @@ type TransactionImpl struct {
 	ProductDetailRepository repository.ProductDetailRepository
 	ConvertPointRepository  repository.ConvertPointRepository
 	MembershipRepository    repository.MembershipRepository
+	MembershipPointRepository repository.MembershipPointRepository
 	PaymentMethodRepository repository.PaymentMethodRepository
 	MidtransCoreApi         midtrans.MidtransCoreApi
 	validate                *validator.Validate
 }
 
-func NewTransactionService(transactionRepository repository.TransactionRepository, productRepository repository.ProductDetailRepository, convertPointRepository repository.ConvertPointRepository, membershipRepository repository.MembershipRepository, paymentMethodRepository repository.PaymentMethodRepository, midtransCoreApi midtrans.MidtransCoreApi, validate *validator.Validate) *TransactionImpl {
+func NewTransactionService(transactionRepository repository.TransactionRepository, productRepository repository.ProductDetailRepository, convertPointRepository repository.ConvertPointRepository, membershipRepository repository.MembershipRepository, membershipPointRepository repository.MembershipPointRepository, paymentMethodRepository repository.PaymentMethodRepository, midtransCoreApi midtrans.MidtransCoreApi, validate *validator.Validate) *TransactionImpl {
 	return &TransactionImpl{
 		TransactionRepository:   transactionRepository,
 		ProductDetailRepository: productRepository,
 		ConvertPointRepository:  convertPointRepository,
 		MembershipRepository:    membershipRepository,
+		MembershipPointRepository: membershipPointRepository,
 		PaymentMethodRepository: paymentMethodRepository,
 		MidtransCoreApi:         midtransCoreApi,
 		validate:                validate,
@@ -318,7 +320,15 @@ func (service *TransactionImpl) SubtractionPoint(tx *gorm.DB, pointId, membershi
 	membership.TotalPoint = membership.TotalPoint - point.Point
 
 	err = service.MembershipRepository.UpdatePoint(tx, membership)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update point membership: %w", err)
+	}
 
+	updatePoint := domain.MembershipPoint{
+		MembershipID: membership.ID,
+		Point: -	int(point.Point),
+	}
+	_, err = service.MembershipPointRepository.Create(tx, &updatePoint)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update point membership: %w", err)
 	}
@@ -343,15 +353,23 @@ func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment floa
 		if err != nil {
 			return fmt.Errorf("failed to update point membership: %w", err)
 		}
+		updatePoint := domain.MembershipPoint{
+			MembershipID: membership.ID,
+			Point: int(pointsEarned),
+		}
+		_ , err = service.MembershipPointRepository.Create(tx, &updatePoint)
+		if err != nil {
+			return fmt.Errorf("failed to update point membership: %w", err)
+		}
 	}
 
-	// Ambil data keanggotaan setelah perubahan
-	_, err := service.MembershipRepository.FindById(int(membershipID))
-	if err != nil {
-		return fmt.Errorf("failed to find updated membership: %w", err)
-	}
+    // Ambil data keanggotaan setelah perubahan
+    _ , err := service.MembershipRepository.FindById(int(membershipID))
+    if err != nil {
+        return fmt.Errorf("failed to find updated membership: %w", err)
+    }
 
-	return nil
+    return nil
 }
 
 func (service *TransactionImpl) CreateInvoice(paymentMethod, paymentType uint) (string, error) {

@@ -65,8 +65,8 @@ func (repository *MembershipRepositoryImpl) UpdatePointNoTx(membership *domain.M
 }
 
 func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership *domain.Membership) error {
-
-	if err := tx.Model(&schema.Membership{}).Where("id = ?", membership.ID).Where("deleted_at IS NULL").Update("point", membership.TotalPoint).Error; err != nil {
+  
+	if err := tx.Model(&schema.Membership{}).Where("id = ?", membership.ID).Where("deleted_at IS NULL").Update("total_point", membership.TotalPoint).Error; err != nil {
 		return err
 	}
 
