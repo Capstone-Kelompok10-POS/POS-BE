@@ -2,13 +2,14 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
 
 type StockService interface {
@@ -55,7 +56,13 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 
 	_, err = service.ProductDetailRepository.Save(product, req.ProductDetailID)
 
+	if err != nil {
+		return nil, err
+	}
 	result, err := service.StockRepository.Create(req)
+	if err != nil {
+		return nil, err
+	}
 
 	return result, nil
 }
@@ -75,7 +82,7 @@ func (service *StockServiceImpl) FindByIdStockService(ctx echo.Context, id uint)
 
 	result, err := service.StockRepository.FindById(id)
 	if err != nil {
-		return nil, fmt.Errorf("Product not found")
+		return nil, fmt.Errorf("product not found")
 	}
 
 	return result, nil
