@@ -1,16 +1,17 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"qbills/models/domain"
 	"qbills/utils/request"
 	"qbills/utils/response"
+
+	"gorm.io/gorm"
 )
 
 type MembershipPointRepository interface {
-	Create(stock *domain.MembershipPoint) (*domain.MembershipPoint, error)
-	Update(cashier *domain.MembershipPoint, id int) (*domain.MembershipPoint, error)
-	FindAll() ([]domain.MembershipPoint, error)
+	Create(tx *gorm.DB, point *domain.MembershipPoint) (*domain.MembershipPoint, error)
+	Update(point *domain.MembershipPoint, id int) (*domain.MembershipPoint, error)
+	FindAllByMembershipId(membershipId uint) ([]domain.MembershipPoint, error)
 	FindById(id uint) (*domain.MembershipPoint, error)
 	FindIncreasePoint() ([]domain.MembershipPoint, error)
 	FindDecreasePoint() ([]domain.MembershipPoint, error)
@@ -24,11 +25,11 @@ func NewMembershipPointRepository(DB *gorm.DB) MembershipPointRepository {
 	return &MembershipPointRepositoryImpl{DB: DB}
 }
 
-func (repository *MembershipPointRepositoryImpl) Create(Point *domain.MembershipPoint) (*domain.MembershipPoint, error) {
+func (repository *MembershipPointRepositoryImpl) Create(tx *gorm.DB, point *domain.MembershipPoint) (*domain.MembershipPoint, error) {
 
-	req := request.MembershipPointDomainToMembershipPointSchema(Point)
+	req := request.MembershipPointDomainToMembershipPointSchema(point)
 
-	result := repository.DB.Create(&req)
+	result := tx.Create(&req)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -54,10 +55,10 @@ func (repository *MembershipPointRepositoryImpl) Update(cashier *domain.Membersh
 	return cashier, nil
 }
 
-func (repository *MembershipPointRepositoryImpl) FindAll() ([]domain.MembershipPoint, error) {
+func (repository *MembershipPointRepositoryImpl) FindAllByMembershipId(membershipId uint) ([]domain.MembershipPoint, error) {
 	point := []domain.MembershipPoint{}
 
-	if err := repository.DB.Preload("Membership").Find(&point).Error; err != nil {
+	if err := repository.DB.Preload("Membership").Where("membership_id = ? ", membershipId).Find(&point).Error; err != nil {
 		return nil, err
 	}
 

@@ -20,6 +20,8 @@ type Membership struct {
 	TotalPoint  uint      `json:"totalPoint"`
 	PhoneNumber string    `json:"phoneNumber"`
 	Barcode     string    `json:"barcode"`
+	MembershipPoint []MembershipPoint `gorm:"foreignKey:MembershipID"`
+
 }
 
 func (membership *Membership) BeforeCreate(tx *gorm.DB) error {
