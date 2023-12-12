@@ -16,6 +16,7 @@ type ProductDetailService interface {
 	UpdateProductDetail(ctx echo.Context, request web.ProductDetailCreate, id uint) (*domain.ProductDetail, error)
 	FindById(ctx echo.Context, id uint) (*domain.ProductDetail, error)
 	FindAll(ctx echo.Context) ([]domain.ProductDetail, error)
+	FindByProductId(ctx echo.Context, productId uint) ([]domain.ProductDetail, error)
 	DeleteProductDetail(ctx echo.Context, id uint) error
 }
 
@@ -82,6 +83,15 @@ func (service *ProductDetailServiceImpl) FindById(ctx echo.Context, id uint) (*d
 
 func (service *ProductDetailServiceImpl) FindAll(ctx echo.Context) ([]domain.ProductDetail, error) {
 	productDetail, err := service.ProductDetailRepository.FindAll()
+	if err != nil {
+		return nil, fmt.Errorf("product detail not found")
+	}
+
+	return productDetail, nil
+}
+
+func (service *ProductDetailServiceImpl) FindByProductId(ctx echo.Context, productId uint) ([]domain.ProductDetail, error) {
+	productDetail, err := service.ProductDetailRepository.FindByProductId(productId)
 	if err != nil {
 		return nil, fmt.Errorf("product detail not found")
 	}
