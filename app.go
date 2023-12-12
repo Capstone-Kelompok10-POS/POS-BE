@@ -46,6 +46,7 @@ func main() {
 	routes.PaymentTypeRoutes(myApp, db, validate)
 	routes.PaymentMethodRoutes(myApp, db, validate)
 	routes.ProductDetailRoutes(myApp, db, validate)
+	routes.MemberShipPointRoutes(myApp, db, validate)
 	routes.TransactionRoutes(myApp, db, midtransCoreApi, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
@@ -56,5 +57,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":80"))
+	myApp.Logger.Fatal(myApp.Start(":8080"))
 }
