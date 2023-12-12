@@ -15,6 +15,7 @@ type ProductDetailRepository interface {
 	Save(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error)
 	StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error
 	FindById(id uint) (*domain.ProductDetail, error)
+	FindByProductId(ProductID uint) ([]domain.ProductDetail, error)
 	FindAll() ([]domain.ProductDetail, error)
 	Delete(id uint) error
 	FindAllByIds(ids []uint) ([]domain.ProductDetail, error)
@@ -78,6 +79,18 @@ func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.Produc
 		return nil, result.Error
 	}
 	return &productDetail, nil
+}
+
+func (repository *ProductDetailRepositoryImpl) FindByProductId(ProductID uint) ([]domain.ProductDetail, error) {
+	productsDetail := []domain.ProductDetail{}
+
+	result := repository.DB.Where("product_id = ?", ProductID).Find(&productsDetail)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return productsDetail, nil
 }
 
 func (repository *ProductDetailRepositoryImpl) FindAll() ([]domain.ProductDetail, error) {

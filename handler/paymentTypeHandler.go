@@ -76,7 +76,7 @@ func (c *PaymentTypeHandlerImpl) UpdatePaymentTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-		if strings.Contains(err.Error(), "membership not found") {
+		if strings.Contains(err.Error(), "payment type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
 		}
 		if strings.Contains(err.Error(), "payment type name is already exists") {
