@@ -3,12 +3,10 @@ package web
 import "qbills/models/domain"
 
 type ProductResponse struct {
-	ID            uint               `json:"Id"`
-	ProductTypeID uint               `json:"productTypeId"`
-	ProductType   domain.ProductType `json:"productType"`
-	AdminID       uint               `json:"adminId"`
-	Admin         domain.Admin       `json:"admin"`
-	ProductDetail []domain.ProductDetail
+	ID            uint                 `json:"Id"`
+	ProductType   domain.ProductType   `json:"productType"`
+	Admin         domain.AdminResponse `json:"admin"`
+	ProductDetail []domain.ProductDetailPreload
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients"`
 	Image         string `json:"image"`
@@ -44,18 +42,18 @@ type ProductUpdateResponse struct {
 }
 
 type ProductTransactionResponse struct {
-	ID            uint   `json:"id"`
-	Name          string `json:"name"`
-	Ingredients   string `json:"ingredients"`
-	Image         string `json:"image"`
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Ingredients string `json:"ingredients"`
+	Image       string `json:"image"`
 }
 
 type ProductsResponse struct {
-	ID            uint               `json:"Id"`
-	ProductType   ProductTypeResponse `json:"productType"`
-	Name          string               `json:"name"`
-	Ingredients   string               `json:"ingredients"`
-	Image         string               `json:"image"`
+	ID            uint                    `json:"Id"`
+	ProductType   ProductTypeResponse     `json:"productType"`
+	Name          string                  `json:"name"`
+	Ingredients   string                  `json:"ingredients"`
+	Image         string                  `json:"image"`
 	ProductDetail []ProductDetailResponse `json:"productDetail"`
 }
 
