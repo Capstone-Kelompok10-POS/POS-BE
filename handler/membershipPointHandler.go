@@ -80,7 +80,7 @@ func (c *MembershipPointImpl) FindAllMembershipPointHandler(ctx echo.Context) er
 
 	response := res.ConvertMembershipPointResponse(result)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all update memebrship point", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all update membership point", response))
 
 }
 
