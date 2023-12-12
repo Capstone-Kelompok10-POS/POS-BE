@@ -34,7 +34,7 @@ type TransactionService interface {
 	CalculateTotalPrice(details []domain.TransactionDetail) (float64, error)
 	CalculateDiscount(id int, totalPrice float64) (float64, error)
 	SubtractionPoint(tx *gorm.DB, pointId, membershipId uint) (*domain.Membership, error)
-	UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID uint) error
+	UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID, pointId uint) error
 	CreateInvoice(paymentMethod, paymentType uint) (string, error)
 	NotificationPayment(notificationPayload map[string]interface{}) error
 	ManualPayment(invoice string) (*domain.Transaction, error)
@@ -180,7 +180,7 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 			return nil, fmt.Errorf("error when decreasing point membership %w", err)
 		}
 
-		err = service.UpdateMemberPoint(tx, result.TotalPayment, result.MembershipID)
+		err = service.UpdateMemberPoint(tx, result.TotalPayment, result.MembershipID, result.ConvertPointID)
 		if err != nil {
 			return nil, fmt.Errorf("error when increasing point membership %w", err)
 		}
@@ -337,16 +337,20 @@ func (service *TransactionImpl) SubtractionPoint(tx *gorm.DB, pointId, membershi
 
 }
 
-func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID uint) error {
+func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID, pointId uint) error {
 	// Hitung jumlah poin berdasarkan total pembayaran
 	pointsEarned := uint(totalPayment/50000) * 5
 
 	if pointsEarned > 0 {
+		point, err := service.ConvertPointRepository.FindById(int(pointId))
+		if err != nil {
+			return fmt.Errorf("failed to find convert point: %w", err)
+		}
 		membership, err := service.MembershipRepository.FindById(int(membershipID))
 		if err != nil {
 			return fmt.Errorf("failed to find membership: %w", err)
 		}
-		membership.TotalPoint += pointsEarned
+		membership.TotalPoint = (membership.TotalPoint - point.Point) + pointsEarned
 
 		// Simpan perubahan keanggotaan ke database
 		err = service.MembershipRepository.UpdatePoint(tx, membership)
