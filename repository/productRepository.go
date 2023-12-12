@@ -78,7 +78,7 @@ func (repository *ProductRepositoryImpl) FindAll() ([]domain.Product, int, error
 func (repository *ProductRepositoryImpl) FindByCategory(ProductTypeID uint) ([]domain.Product, error) {
 	products := []domain.Product{}
 
-	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("product_type_id = ?", ProductTypeID).Find(&products)
+	result := repository.DB.Preload("ProductType").Preload("Admin").Preload("ProductDetail").Where("products.deleted_at IS NULL AND product_type_id = ?", ProductTypeID).Find(&products)
 
 	if result.Error != nil {
 		return nil, result.Error
