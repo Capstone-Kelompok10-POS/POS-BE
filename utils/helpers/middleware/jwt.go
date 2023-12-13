@@ -52,7 +52,7 @@ func GenerateTokenCashier(CashierID uint) (string, error) {
 
     claims := jwt.MapClaims{
         "id":   CashierID,
-        "exp":   time.Now().Add(time.Hour * 1).Unix(),
+        "exp":   time.Now().Add(time.Hour * 12).Unix(),
         "iat":   time.Now().Unix(),
 		"role": "Cashier",
     }
