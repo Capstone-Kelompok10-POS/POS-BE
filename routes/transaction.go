@@ -33,6 +33,8 @@ func TransactionRoutes(e *echo.Echo, db *gorm.DB, midtransCoreApi midtrans.Midtr
 	transactionGroup.GET("s/cashier", transactionHandler.GetCashierTransactionsHandler, middleware.AuthMiddleware("Cashier"))
 	transactionGroup.GET("s/membership/:id", transactionHandler.GetMembershipTransactionsHandler, middleware.AuthMiddleware("Cashier"))
 	transactionGroup.GET("/:id", transactionHandler.GetTransactionHandler)
+	transactionGroup.GET("/realtime", transactionHandler.GetTransactionStatusRealtime)
+	transactionGroup.GET("s/recent/realtime", transactionHandler.GetRecentTransactionsRealtimeHandler)
 	transactionGroup.GET("s", transactionHandler.GetTransactionsHandler)
 	transactionGroup.GET("s/recent", transactionHandler.GetRecentTransactionsHandler)
 	transactionGroup.GET("/revenue/daily", transactionHandler.GetTransactionDailyHandler, middleware.AuthMiddleware("Admin"))

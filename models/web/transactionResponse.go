@@ -3,6 +3,7 @@ package web
 type TransactionResponse struct {
 	ID                 uint                          `json:"id"`
 	CreatedAt          string                        `json:"createdAt"`
+	UpdatedAt          string                        `json:"updatedAt"`
 	Cashier            CashierTransactionResponse    `json:"cashier"`
 	Membership         MembershipTransactionResponse `json:"membership"`
 	ConvertPointID     uint                          `json:"convertPointId"`

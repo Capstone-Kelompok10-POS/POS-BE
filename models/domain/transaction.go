@@ -5,6 +5,7 @@ import "time"
 type Transaction struct {
 	ID             uint
 	CreatedAt      time.Time
+	UpdatedAt time.Time
 	CashierID      uint
 	Cashier        Cashier
 	MembershipID   uint

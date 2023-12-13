@@ -8,9 +8,11 @@ import (
 
 func TransactionDomainToTransactionResponse(transaction *domain.Transaction) *web.TransactionResponse {
 	createdAt := transaction.CreatedAt
+	updatedAt := transaction.UpdatedAt
 	response := &web.TransactionResponse{
 		ID:        transaction.ID,
 		CreatedAt: createdAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: updatedAt.Format("2006-01-02 15:04:05"),
 		Cashier: web.CashierTransactionResponse{
 			ID:       transaction.Cashier.ID,
 			Fullname: transaction.Cashier.Fullname,
