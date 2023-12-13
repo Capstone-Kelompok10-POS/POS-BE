@@ -21,6 +21,7 @@ type TransactionService interface {
 	CreateTransaction(request web.TransactionCreateRequest) (*web.TransactionResponse, error)
 	FindById(id int) (*domain.Transaction, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
+	FindByStatus(invoice, status string) (*domain.Transaction, error)
 	FindByYearly() (*domain.TransactionYearlyRevenue, error)
 	FindByMonthly() ([]domain.TransactionMonthlyRevenue, error)
 	FindByDaily() (*domain.TransactionDailyRevenue, error)
@@ -166,7 +167,7 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 		if err != nil {
 			return nil, fmt.Errorf("error when creating transaction %w", err)
 		}
-
+		
 	} else {
 		result, err = service.TransactionRepository.Save(transaction)
 		if err != nil {
@@ -382,7 +383,7 @@ func (service *TransactionImpl) CreateInvoice(paymentMethod, paymentType uint) (
 	currentTimeString := strconv.FormatInt(currentTime, 10)
 	invoiceNumber := rand.Intn(999) + 1000
 	invoiceNumberString := strconv.Itoa(invoiceNumber)
-	switch paymentMethod {
+	switch paymentType {
 	case 1:
 		method = "CASH"
 	case 2:
@@ -455,6 +456,14 @@ func (service *TransactionImpl) ManualPayment(invoice string) (*domain.Transacti
 	}
 
 	result, _ := service.TransactionRepository.FindByInvoice(invoice)
+	if result == nil {
+		return nil, fmt.Errorf("transaction not found")
+	}
+	return result, nil
+}
+
+func (service *TransactionImpl) FindByStatus(invoice, status string) (*domain.Transaction, error) {
+	result, _ := service.TransactionRepository.FindByStatus(invoice, status)
 	if result == nil {
 		return nil, fmt.Errorf("transaction not found")
 	}

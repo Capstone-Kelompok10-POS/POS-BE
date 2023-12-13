@@ -130,6 +130,7 @@ func ChargeResponseToTransactionPayment(response *coreapi.ChargeResponse, transa
 	}
 
 	return &domain.Transaction{
+		UpdatedAt: parseTransactionTime,
 		CashierID: transaction.CashierID,
 		MembershipID:       transaction.MembershipID,
 		ConvertPointID :    transaction.ConvertPointID,
