@@ -129,7 +129,7 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 	}
 
 	//Create Invoice transaction Payment
-	invoice, err := service.CreateInvoice(request.TransactionPayment.PaymentMethodID, request.TransactionPayment.PaymentMethod.PaymentTypeID)
+	invoice, err := service.CreateInvoice(request.TransactionPayment.PaymentMethodID, paymentMethod.PaymentTypeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create invoice: %w", err)
 	}
@@ -383,6 +383,7 @@ func (service *TransactionImpl) CreateInvoice(paymentMethod, paymentType uint) (
 	currentTimeString := strconv.FormatInt(currentTime, 10)
 	invoiceNumber := rand.Intn(999) + 1000
 	invoiceNumberString := strconv.Itoa(invoiceNumber)
+	fmt.Println(paymentType)
 	switch paymentType {
 	case 1:
 		method = "CASH"

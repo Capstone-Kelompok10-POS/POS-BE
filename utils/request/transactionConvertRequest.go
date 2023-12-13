@@ -123,7 +123,7 @@ func CreateTransactionPaymentRequestToMidtransChargeRequest(transaction *domain.
 func ChargeResponseToTransactionPayment(response *coreapi.ChargeResponse, transaction *domain.Transaction) *domain.Transaction {
 	parseTransactionTime, _ := time.Parse("2006-01-02 15:04:05", response.TransactionTime)
 	var vaNumber string
-	if transaction.TransactionPayment.PaymentMethodID == 1 {
+	if transaction.TransactionPayment.PaymentMethodID == 3 {
 		vaNumber = response.PermataVaNumber
 	} else {
 		vaNumber = response.VaNumbers[0].VANumber
