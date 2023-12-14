@@ -28,6 +28,6 @@ func ProductRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	productGroup.GET("/category/:productTypeId", ProductHandler.GetProductByCategoryHandler)
 	productGroup.PUT("/:id", ProductHandler.UpdateProductHandler)
 	productGroup.DELETE("/:id", ProductHandler.DeleteProductHandler)
-	productGroup.GET("/recommendation", ProductHandler.ProductAIHandler)
+	productGroup.POST("/recommendation", ProductHandler.ProductAIHandler)
 	productGroup.GET("s/best", ProductHandler.GetBestProductsHandler)
 }
