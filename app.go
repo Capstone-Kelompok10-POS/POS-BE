@@ -16,6 +16,11 @@ import (
 
 func main() {
 	myApp := echo.New()
+	myApp.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+        AllowOrigins: []string{"*"},
+        AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+    }))
+	
 	validate := validator.New()
 
 	config, err := configs.LoadConfig()
@@ -50,7 +55,7 @@ func main() {
 	routes.TransactionRoutes(myApp, db, midtransCoreApi, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
-	myApp.Use(middleware.CORS())
+
 	myApp.Use(middleware.LoggerWithConfig(
 		middleware.LoggerConfig{
 			Format: "method=${method}, uri=${uri}, status=${status}, time=${time_rfc3339}\n",
