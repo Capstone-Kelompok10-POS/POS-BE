@@ -1,4 +1,4 @@
-package middleware
+package helpers
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey string) (
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Anda adalah orang yang bekerja di kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan salah satu rekomendasi terbaik Anda dari semua menu di cafe. Berikan satu rekomendasi terbaik anda.",
+			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman",
 		},
 
 		{
