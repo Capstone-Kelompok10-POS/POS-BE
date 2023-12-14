@@ -13,7 +13,7 @@ type AdminLoginRequest struct {
 }
 
 type AdminUpdateRequest struct {
-	FullName     string `json:"fullname" validate:"required,alpha,min=1,max=255"`
-	Username     string `json:"username" validate:"required,alphanum,min=1"`
-	Password     string `json:"password" validate:"required,min=8"`
+	FullName string `json:"fullname" validate:"required,min=1,max=255"`
+	Username string `json:"username" validate:"required,alphanum,min=1"`
+	Password string `json:"password" validate:"required,min=8"`
 }
