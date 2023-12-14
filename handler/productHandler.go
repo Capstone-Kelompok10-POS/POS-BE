@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"qbills/models/web"
@@ -308,19 +309,23 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]helpers
 }
 
 func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
+	input := ctx.FormValue("input")
+	if input == "" {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("input cannot be empty"))
+	}
 	openAIKey := os.Getenv("OPEN_AI_KEY")
 	productMap, err := c.GetProductNames(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
 	}
 
-	result, err := helpers.ProductAI(productMap, openAIKey)
+
+	result, err := helpers.ProductAI(productMap, openAIKey, input)
 	if err != nil {
 		log.Error("Error calling ProductAI:", err)
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
 	}
 
-	log.Info("ProductAI Result:", result)
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type ProductsAI interface {
-	ProductAI(productMap, openAIKey string) (string, error)
+	ProductAI(productMap, openAIKey, userInput string) (string, error)
 }
 
 type ProductAIImpl struct {
@@ -22,22 +22,25 @@ type ProductDataAIRecommended struct {
 	Ingredients string `json:"ingredients"`
 }
 
-func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey string) (string, error) {
+
+func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInput string) (string, error) {
 	ctx := context.Background()
 	client := openai.NewClient(openAIKey)
 	model := openai.GPT3Dot5Turbo
 
 	productMapStr := convertMapToString(productMap)
-
+	if productMapStr == "" {
+		return "Product is Empty", nil
+	}
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman",
+			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman berikut ini adalah product dari cafenya" +productMapStr+ "Jika sebelum prompt ini tidak terdapat product yang diberikan maka berikan response product tidak ditemukan",
 		},
 
 		{
 			Role:    openai.ChatMessageRoleUser,
-			Content: productMapStr,
+			Content: userInput,
 		},
 	}
 
