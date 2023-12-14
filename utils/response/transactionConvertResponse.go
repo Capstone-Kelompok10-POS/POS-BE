@@ -8,70 +8,72 @@ import (
 
 func TransactionDomainToTransactionResponse(transaction *domain.Transaction) *web.TransactionResponse {
 	createdAt := transaction.CreatedAt
+	updatedAt := transaction.UpdatedAt
 	response := &web.TransactionResponse{
-		ID:              transaction.ID,
+		ID:        transaction.ID,
 		CreatedAt: createdAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt: updatedAt.Format("2006-01-02 15:04:05"),
 		Cashier: web.CashierTransactionResponse{
-			ID: transaction.Cashier.ID,
+			ID:       transaction.Cashier.ID,
 			Fullname: transaction.Cashier.Fullname,
 			Username: transaction.Cashier.Username,
 		},
 		Membership: web.MembershipTransactionResponse{
-			ID: transaction.Membership.ID,
-			Name: transaction.Membership.Name,
-			CodeMember: transaction.Membership.CodeMember,
-			Point: transaction.Membership.Point,
+			ID:          transaction.Membership.ID,
+			Name:        transaction.Membership.Name,
+			CodeMember:  transaction.Membership.CodeMember,
+			TotalPoint:  transaction.Membership.TotalPoint,
 			PhoneNumber: transaction.Membership.PhoneNumber,
 		},
 		ConvertPointID: transaction.ConvertPointID,
-		Discount: transaction.Discount,
-		TotalPrice: transaction.TotalPrice,
-		Tax: transaction.Tax,
-		TotalPayment: transaction.TotalPayment,
+		Discount:       transaction.Discount,
+		TotalPrice:     transaction.TotalPrice,
+		Tax:            transaction.Tax,
+		TotalPayment:   transaction.TotalPayment,
 		TransactionPayment: web.TransactionPaymentResponse{
-			ID: transaction.TransactionPayment.ID,
+			ID:            transaction.TransactionPayment.ID,
 			TransactionID: transaction.ID,
-			CreatedAt: transaction.TransactionPayment.CreatedAt,
-			UpdateAt: transaction.TransactionPayment.UpdatedAt,
+			CreatedAt:     transaction.TransactionPayment.CreatedAt,
+			UpdateAt:      transaction.TransactionPayment.UpdatedAt,
 			PaymentMethod: web.PaymentMethodResponse{
-				ID: transaction.TransactionPayment.PaymentMethod.ID,
+				ID:            transaction.TransactionPayment.PaymentMethod.ID,
 				PaymentTypeID: transaction.TransactionPayment.PaymentMethod.PaymentTypeID,
 				PaymentType: web.PaymentTypeResponse{
-					ID: transaction.TransactionPayment.PaymentMethod.PaymentType.ID,
+					ID:       transaction.TransactionPayment.PaymentMethod.PaymentType.ID,
 					TypeName: transaction.TransactionPayment.PaymentMethod.PaymentType.TypeName,
 				},
 				Name: transaction.TransactionPayment.PaymentMethod.Name,
 			},
-			Invoice: transaction.TransactionPayment.Invoice,
-			VANumber: transaction.TransactionPayment.VANumber,
+			Invoice:       transaction.TransactionPayment.Invoice,
+			VANumber:      transaction.TransactionPayment.VANumber,
 			PaymentStatus: transaction.TransactionPayment.PaymentStatus,
 		},
 	}
 
-	for _ , detail := range transaction.Details { 
+	for _, detail := range transaction.Details {
 		response.Details = append(response.Details, web.TransactionDetailResponse{
-			ID: detail.ID,
+			ID:            detail.ID,
 			TransactionID: detail.TransactionID,
-			Price: detail.Price,
-			Quantity: detail.Quantity,
-			SubTotal: detail.SubTotal,
-			Notes: detail.Notes,
+			Price:         detail.Price,
+			Quantity:      detail.Quantity,
+			SubTotal:      detail.SubTotal,
+			Notes:         detail.Notes,
 			ProductDetail: web.ProductDetailTransactionResponse{
-				ID: detail.ProductDetail.ID,
+				ID:        detail.ProductDetail.ID,
 				ProductID: detail.ProductDetail.ProductID,
 				Product: web.ProductTransactionResponse{
-					ID: detail.ProductDetail.Product.ID,
-					Name: detail.ProductDetail.Product.Name,
+					ID:          detail.ProductDetail.Product.ID,
+					Name:        detail.ProductDetail.Product.Name,
 					Ingredients: detail.ProductDetail.Product.Ingredients,
-					Image: detail.ProductDetail.Product.Image,
+					Image:       detail.ProductDetail.Product.Image,
 				},
-				Price: detail.ProductDetail.Price,
+				Price:      detail.ProductDetail.Price,
 				TotalStock: detail.ProductDetail.TotalStock,
-				Size: detail.ProductDetail.Size,
+				Size:       detail.ProductDetail.Size,
 			},
 		})
 	}
-	return response 
+	return response
 
 }
 func TransactionMonthlyRevenueDomainToTransactionMonthlyRevenueResponse(transactionMonthly *domain.TransactionMonthlyRevenue) *web.TransactionMonthlyRevenueResponse{
@@ -102,10 +104,10 @@ func TransactionDailyDomainToTransactionDailyResponse(transactionDaily *domain.T
 func TransactionDomainToTransactionResponseNoMembership(transaction *domain.Transaction) *web.TransactionResponse {
 	createdAt := transaction.CreatedAt
 	response := &web.TransactionResponse{
-		ID:              transaction.ID,
+		ID:        transaction.ID,
 		CreatedAt: createdAt.Format("2006-01-02 15:04:05"),
 		Cashier: web.CashierTransactionResponse{
-			ID: transaction.Cashier.ID,
+			ID:       transaction.Cashier.ID,
 			Fullname: transaction.Cashier.Fullname,
 			Username: transaction.Cashier.Username,
 		},
@@ -113,75 +115,72 @@ func TransactionDomainToTransactionResponseNoMembership(transaction *domain.Tran
 			Name: "Anonymous",
 		},
 		ConvertPointID: transaction.ConvertPointID,
-		Discount: transaction.Discount,
-		TotalPrice: transaction.TotalPrice,
-		Tax: transaction.Tax,
-		TotalPayment: transaction.TotalPayment,
+		Discount:       transaction.Discount,
+		TotalPrice:     transaction.TotalPrice,
+		Tax:            transaction.Tax,
+		TotalPayment:   transaction.TotalPayment,
 		TransactionPayment: web.TransactionPaymentResponse{
-			ID: transaction.TransactionPayment.ID,
+			ID:            transaction.TransactionPayment.ID,
 			TransactionID: transaction.ID,
 			PaymentMethod: web.PaymentMethodResponse{
-				ID: transaction.TransactionPayment.PaymentMethod.ID,
+				ID:            transaction.TransactionPayment.PaymentMethod.ID,
 				PaymentTypeID: transaction.TransactionPayment.PaymentMethod.PaymentTypeID,
 				PaymentType: web.PaymentTypeResponse{
-					ID: transaction.TransactionPayment.PaymentMethod.PaymentType.ID,
+					ID:       transaction.TransactionPayment.PaymentMethod.PaymentType.ID,
 					TypeName: transaction.TransactionPayment.PaymentMethod.PaymentType.TypeName,
 				},
 				Name: transaction.TransactionPayment.PaymentMethod.Name,
 			},
-			Invoice: transaction.TransactionPayment.Invoice,
-			VANumber: transaction.TransactionPayment.VANumber,
+			Invoice:       transaction.TransactionPayment.Invoice,
+			VANumber:      transaction.TransactionPayment.VANumber,
 			PaymentStatus: transaction.TransactionPayment.PaymentStatus,
 		},
-
-		
 	}
 
-	for _ , detail := range transaction.Details { 
+	for _, detail := range transaction.Details {
 		response.Details = append(response.Details, web.TransactionDetailResponse{
-			ID: detail.ID,
+			ID:            detail.ID,
 			TransactionID: detail.TransactionID,
-			Price: detail.Price,
-			Quantity: detail.Quantity,
-			SubTotal: detail.SubTotal,
-			Notes: detail.Notes,
+			Price:         detail.Price,
+			Quantity:      detail.Quantity,
+			SubTotal:      detail.SubTotal,
+			Notes:         detail.Notes,
 			ProductDetail: web.ProductDetailTransactionResponse{
-				ID: detail.ProductDetail.ID,
+				ID:        detail.ProductDetail.ID,
 				ProductID: detail.ProductDetail.ProductID,
 				Product: web.ProductTransactionResponse{
-					ID: detail.ProductDetail.Product.ID,
-					Name: detail.ProductDetail.Product.Name,
+					ID:          detail.ProductDetail.Product.ID,
+					Name:        detail.ProductDetail.Product.Name,
 					Ingredients: detail.ProductDetail.Product.Ingredients,
-					Image: detail.ProductDetail.Product.Image,
+					Image:       detail.ProductDetail.Product.Image,
 				},
-				Price: detail.ProductDetail.Price,
+				Price:      detail.ProductDetail.Price,
 				TotalStock: detail.ProductDetail.TotalStock,
-				Size: detail.ProductDetail.Size,
+				Size:       detail.ProductDetail.Size,
 			},
 		})
 	}
-	return response 
+	return response
 
 }
 
 func TransactionSchemaToTransactionDomain(transaction *schema.Transaction) *domain.Transaction {
 	return &domain.Transaction{
-		ID:              transaction.ID,
-		CashierID:        transaction.CashierID,
-		MembershipID: transaction.MembershipID,
+		ID:             transaction.ID,
+		CashierID:      transaction.CashierID,
+		MembershipID:   transaction.MembershipID,
 		ConvertPointID: transaction.ConvertPointID,
-		Discount: transaction.Discount,
-		TotalPrice: transaction.TotalPrice,
-		Tax: transaction.Tax,
-		TotalPayment: transaction.TotalPayment,
-		Details: []domain.TransactionDetail{},
+		Discount:       transaction.Discount,
+		TotalPrice:     transaction.TotalPrice,
+		Tax:            transaction.Tax,
+		TotalPayment:   transaction.TotalPayment,
+		Details:        []domain.TransactionDetail{},
 	}
 }
 
-
 func ConvertTransactionResponse(transactions []domain.Transaction) []web.TransactionResponse {
 	var results []web.TransactionResponse
-	for _, transaction  := range transactions {
+	for _, transaction := range transactions {
 		results = append(results, *TransactionDomainToTransactionResponse(&transaction))
 	}
 	return results
@@ -194,3 +193,4 @@ func ConvertTransactionMonthlyRevenueResponse(transactions []domain.TransactionM
 	}
 	return results
 }
+

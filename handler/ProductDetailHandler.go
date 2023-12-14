@@ -143,6 +143,9 @@ func (c *ProductDetailHandlerImpl) GetProductDetailsHandler(ctx echo.Context) er
 func (c *ProductDetailHandlerImpl) GetProductDetailsByProductIdHandler(ctx echo.Context) error {
 	ProductId := ctx.Param("productId")
 	ProductIdInt, err := strconv.Atoi(ProductId)
+	if err != nil{
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+	}
 	ProductIdUint := uint(ProductIdInt)
 
 	result, err := c.ProductDetailService.FindByProductId(ctx, ProductIdUint)

@@ -22,6 +22,7 @@ type ProductDataAIRecommended struct {
 	Ingredients string `json:"ingredients"`
 }
 
+
 func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInput string) (string, error) {
 	ctx := context.Background()
 	client := openai.NewClient(openAIKey)
@@ -33,7 +34,6 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInpu
 		{
 			Role:    openai.ChatMessageRoleSystem,
 			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman" + productMapStr,
-
 		},
 
 		{

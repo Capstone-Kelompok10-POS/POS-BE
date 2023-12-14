@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -9,6 +11,7 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
@@ -18,6 +21,8 @@ type TransactionHandler interface {
 	CreateTransactionHandler(ctx echo.Context) error
 	NotificationPayment(ctx echo.Context) error
 	UpdateStatusTransactionPaymentHandler(ctx echo.Context) error
+	GetTransactionStatusRealtime(ctx echo.Context) error
+	GetRecentTransactionsRealtimeHandler(ctx echo.Context) error
 	GetTransactionHandler(ctx echo.Context) error
 	GetTransactionsHandler(ctx echo.Context) error
 	GetRecentTransactionsHandler(ctx echo.Context) error
@@ -50,6 +55,8 @@ func (c *TransactionHandlerImpl) CreateTransactionHandler(ctx echo.Context) erro
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+		case strings.Contains(err.Error(), "failed to find membership"):
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("failed to find membership"))
 		case strings.Contains(err.Error(), "failed to decrease product stock"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("insufficient stock"))
 		case strings.Contains(err.Error(), "failed to convert point"):
@@ -240,7 +247,7 @@ func (c *TransactionHandlerImpl) UpdateStatusTransactionPaymentHandler(ctx echo.
 	}
 	response := res.TransactionDomainToTransactionResponse(result)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Update Status Data Transaction", response))
 }
 
 func (c *TransactionHandlerImpl) FindPaginationTransaction(ctx echo.Context) error {
@@ -262,4 +269,103 @@ func (c *TransactionHandlerImpl) FindPaginationTransaction(ctx echo.Context) err
 
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", tranactionResponse, meta))
 
+}
+
+func (c *TransactionHandlerImpl) GetRecentTransactionsRealtimeHandler(ctx echo.Context) error {
+	ctx.Response().Header().Set("Content-Type", "text/event-stream")
+	ctx.Response().Header().Set("Cache-Control", "no-cache")
+	ctx.Response().Header().Set("Connection", "keep-alive")
+
+	var lastUpdated time.Time
+	massageChan := make(chan string)
+
+	for {
+		select{
+		case <- ctx.Request().Context().Done():
+			close(massageChan)
+			return nil
+		default:
+			result, err := c.TransactionService.FindRecentTransaction()
+			if err != nil {
+				fmt.Printf("Error: %s\n", err.Error())
+				logrus.Error(err.Error())
+				return nil
+			}
+			if len(result) == 0 && lastUpdated.IsZero() {
+				massage := fmt.Sprintf("data %s", "null")
+				fmt.Fprint(ctx.Response(), massage)
+				ctx.Response().Flush()
+			}
+			if len(result) > 0 && result[0].TransactionPayment.CreatedAt != result[0].TransactionPayment.UpdatedAt{
+				response := res.ConvertTransactionResponse(result) 
+				data, _ := json.Marshal(response)
+				message := fmt.Sprintf("data: %s\n\n", data)
+				fmt.Fprint(ctx.Response(), message)
+				ctx.Response().Flush()
+			}
+			if len(result) > 0 && result[0].TransactionPayment.CreatedAt == result[0].TransactionPayment.UpdatedAt{
+				response := res.ConvertTransactionResponse(result)
+				data, _ := json.Marshal(response)
+				message := fmt.Sprintf("data: %s\n\n", data)
+				fmt.Fprint(ctx.Response(), message)
+				ctx.Response().Flush()
+			}
+
+		}
+		time.Sleep(3 * time.Second)
+	}
+
+}
+
+func (c *TransactionHandlerImpl) GetTransactionStatusRealtime(ctx echo.Context) error {
+	ctx.Response().Header().Set("Content-Type", "text/event-stream")
+	ctx.Response().Header().Set("Cache-Control", "no-cache")
+	ctx.Response().Header().Set("Connection", "keep-alive")
+
+	invoiceQuery := ctx.QueryParam("invoice")
+	massageChan := make(chan string)
+
+	for {
+		select{
+		case <- ctx.Request().Context().Done():
+			close(massageChan)
+			return nil
+		default:
+			result, err := c.TransactionService.FindByInvoice(invoiceQuery)
+			if err != nil {
+				fmt.Printf("Error: %s\n", err.Error())
+				logrus.Error(err.Error())
+				return nil
+			}
+			if result == nil && result.TransactionPayment.CreatedAt == result.TransactionPayment.UpdatedAt {
+				massage := fmt.Sprintf("data %s", "null")
+				fmt.Fprint(ctx.Response(), massage)
+				ctx.Response().Flush()
+			}
+			if result.TransactionPayment.CreatedAt != result.TransactionPayment.UpdatedAt {
+				if result.TransactionPayment.PaymentStatus == "success" {
+					response := res.TransactionDomainToTransactionResponse(result)
+					data, _ := json.Marshal(response)
+					message := fmt.Sprintf("data: %s\n\n", data)
+					fmt.Fprint(ctx.Response(), message)
+					ctx.Response().Flush()
+					return nil
+				}
+				response := res.TransactionDomainToTransactionResponse(result)
+				data, _ := json.Marshal(response)
+				message := fmt.Sprintf("data: %s\n\n", data)
+				fmt.Fprint(ctx.Response(), message)
+				ctx.Response().Flush()
+			}
+			if result.TransactionPayment.CreatedAt == result.TransactionPayment.UpdatedAt {
+				response := res.TransactionDomainToTransactionResponse(result)
+				data, _ := json.Marshal(response)
+				message := fmt.Sprintf("data: %s\n\n", data)
+				fmt.Fprint(ctx.Response(), message)
+				ctx.Response().Flush()
+			}
+
+		}
+		time.Sleep(2 * time.Second)
+	}
 }

@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 func NewMySQLConnection(config *configs.MySQLConfig) (*gorm.DB, error) {
 
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
@@ -45,6 +44,7 @@ func Migrate(db *gorm.DB) {
 		&schema.ProductDetail{},
 		&schema.Transaction{},
 		&schema.TransactionDetail{},
-    &schema.TransactionPayment{},
+		&schema.MembershipPoint{},
+		&schema.TransactionPayment{},
 	)
 }
