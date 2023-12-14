@@ -383,7 +383,6 @@ func (service *TransactionImpl) CreateInvoice(paymentMethod, paymentType uint) (
 	currentTimeString := strconv.FormatInt(currentTime, 10)
 	invoiceNumber := rand.Intn(999) + 1000
 	invoiceNumberString := strconv.Itoa(invoiceNumber)
-	fmt.Println(paymentType)
 	switch paymentType {
 	case 1:
 		method = "CASH"

@@ -168,7 +168,6 @@ func (repository *TransactionRepositoryImpl) FindByInvoice(invoice string) (*dom
 }
 func (repository *TransactionRepositoryImpl) FindByStatus(invoice, status string) (*domain.Transaction, error) {
 	transaction := domain.Transaction{}
-	fmt.Println(invoice, status)
 	result := repository.DB.
 		Preload("Cashier").
 		Preload("Membership").
@@ -183,7 +182,6 @@ func (repository *TransactionRepositoryImpl) FindByStatus(invoice, status string
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	fmt.Println("adada", transaction)
 	return &transaction, nil
 }
 
