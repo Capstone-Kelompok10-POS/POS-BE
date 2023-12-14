@@ -44,7 +44,7 @@ func (c *ProductDetailHandlerImpl) CreateProductDetailHandler(ctx echo.Context) 
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		case strings.Contains(err.Error(), "Cannot add or update a child row: a foreign key constraint fails"):
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
-		case strings.Contains(err.Error(), "numeric"): 
+		case strings.Contains(err.Error(), "numeric"):
 			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("price is not valid must contain only numeric value"))
 		default:
 			logrus.Error(err.Error())
@@ -80,7 +80,7 @@ func (c *ProductDetailHandlerImpl) UpdateProductDetailHandler(ctx echo.Context) 
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-		if strings.Contains(err.Error(), "product type not found") {
+		if strings.Contains(err.Error(), "product detail not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
 		}
 		logrus.Error(err.Error())
@@ -110,7 +110,7 @@ func (c *ProductDetailHandlerImpl) GetProductDetailHandler(ctx echo.Context) err
 		statusCode := http.StatusInternalServerError
 		errorMessage := "Get product detail data error"
 
-		if strings.Contains(err.Error(), "record not found") {
+		if strings.Contains(err.Error(), "product detail not found") {
 			statusCode = http.StatusNotFound
 			errorMessage = "Product detail not found"
 		}

@@ -21,6 +21,8 @@ require (
 	gorm.io/gorm v1.25.5
 )
 
+require github.com/golang/mock v1.6.0 // indirect
+
 require (
 	cloud.google.com/go v0.110.8 // indirect
 	cloud.google.com/go/compute v1.23.1 // indirect
