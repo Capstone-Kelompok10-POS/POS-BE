@@ -29,11 +29,13 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInpu
 	model := openai.GPT3Dot5Turbo
 
 	productMapStr := convertMapToString(productMap)
-
+	if productMapStr == "" {
+		return "Product is Empty", nil
+	}
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman" + productMapStr,
+			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman berikut ini adalah product dari cafenya" +productMapStr+ "Jika sebelum prompt ini tidak terdapat product yang diberikan maka berikan response product tidak ditemukan",
 		},
 
 		{

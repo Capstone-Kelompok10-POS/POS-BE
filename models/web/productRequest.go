@@ -21,5 +21,5 @@ type ProductUpdateRequest struct {
 }
 
 type ProductRecommendRequest struct {
-	Input string `json:"input"`
+	Input string `json:"input" validate:"required"`
 }
