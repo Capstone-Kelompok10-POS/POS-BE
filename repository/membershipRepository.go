@@ -119,7 +119,7 @@ func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int,
 func (repository *MembershipRepositoryImpl) FindTopMember() ([]domain.Membership, error) {
 	memberships := []domain.Membership{}
 
-	query := "SELECT * FROM memberships WHERE deleted_at IS NULL ORDER BY point DESC LIMIT 3"
+	query := "SELECT * FROM memberships WHERE deleted_at IS NULL ORDER BY total_point DESC LIMIT 3"
 	result := repository.DB.Raw(query).Scan(&memberships)
 	if result.Error != nil {
 		return nil, result.Error
