@@ -319,10 +319,13 @@ func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
 	}
+	if input.Input == "" {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("input is empty"))
+	}
 	result, err := helpers.ProductAI(productMap, openAIKey, input.Input)
 	if err != nil {
-		if strings.Contains(err.Error(), "Input is Empty") {
-			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("input is empty"))
+		if strings.Contains(err.Error(), "input is empty") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("input is empty"))
 		}
 		log.Error("Error calling ProductAI:", err)
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
