@@ -325,8 +325,9 @@ func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
 	}
 
+	response := res.ConvertProductRecommendationResponse(result)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", response))
 }
 
 
