@@ -77,6 +77,11 @@ func (c *TransactionHandlerImpl) NotificationPayment(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("failed to bind request"))
 	}
 
+	invoice, ok := notificationPayload["order_id"].(string)
+	if !ok || invoice == "" {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid order_id in notification"))
+	}
+
 	err = c.TransactionService.NotificationPayment(notificationPayload)
 	if err != nil {
 		if strings.Contains(err.Error(), "error when get order id") {
@@ -86,8 +91,13 @@ func (c *TransactionHandlerImpl) NotificationPayment(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get notification payment"))
 	}
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Notification Update", nil))
+	err = c.TransactionService.UpdateStockProductAndMembershipPoint(invoice)
+	if err != nil {
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to update stock and points"))
+	}
 
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Notification Update", nil))
 }
 
 func (c *TransactionHandlerImpl) GetTransactionHandler(ctx echo.Context) error {
@@ -242,8 +252,14 @@ func (c *TransactionHandlerImpl) UpdateStatusTransactionPaymentHandler(ctx echo.
 		if strings.Contains(err.Error(), "transaction not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
+		if strings.Contains(err.Error(), "failed to decrease product stock") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("failed to decrease product stock"))
+		}
+		if strings.Contains(err.Error(), "error when") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("error when decreasing or increasing point membership"))
+		}
 		logrus.Error(err.Error())
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get transaction data error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Update transaction data error"))
 	}
 	response := res.TransactionDomainToTransactionResponse(result)
 
