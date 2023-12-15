@@ -32,6 +32,9 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInpu
 	if productMapStr == "" {
 		return "Product is Empty", nil
 	}
+	if userInput == "" {
+		return "Input is Empty", nil
+	}
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
