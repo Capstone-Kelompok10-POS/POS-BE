@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -30,10 +31,7 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInpu
 
 	productMapStr := convertMapToString(productMap)
 	if productMapStr == "" {
-		return "Product is Empty", nil
-	}
-	if userInput == "" {
-		return "Input is Empty", nil
+		return "", errors.New("product is empty")
 	}
 	messages := []openai.ChatCompletionMessage{
 		{
