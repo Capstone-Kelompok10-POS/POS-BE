@@ -177,21 +177,6 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 	}
 
 	if result != nil {
-		// _, err = service.SubtractionPoint(tx, result.ConvertPointID, result.MembershipID)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error when decreasing point membership %w", err)
-		// }
-
-		// err = service.UpdateMemberPoint(tx, result.TotalPayment, result.MembershipID, result.ConvertPointID)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error when increasing point membership %w", err)
-		// }
-
-		// // decrease product total stock
-		// err = service.ProductStockDecrese(tx, request.Details)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("failed to decrease product stock: %w", err)
-		// }
 
 		err = tx.Commit().Error
 		if err != nil {
