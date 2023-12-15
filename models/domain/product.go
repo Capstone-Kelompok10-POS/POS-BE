@@ -48,3 +48,7 @@ type BestSellingProduct struct {
 	TotalQuantity 	int
 	Amount 			float64
 }
+
+type ProductRecommendation struct {
+	Reply string
+}

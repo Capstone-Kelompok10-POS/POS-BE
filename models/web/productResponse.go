@@ -67,3 +67,7 @@ type BestProductsResponse struct {
 	TotalQuantity 	int				`json:"totalQuantity"`
 	Amount 			float64 		`json:"amount"`
 }
+
+type ProductRecommendation struct {
+	Reply string `json:"reply"`
+}
