@@ -140,7 +140,6 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 	status := "pending"
 	//Add status transaction Payment
 	request.TransactionPayment.PaymentStatus = status
-	request.TransactionPayment.VANumber = paymentMethod.Name
 	transaction := req.TransactionCreateRequestToTransactionDomain(request,
 		web.TransactionCreate{
 			Discount:     discount,
