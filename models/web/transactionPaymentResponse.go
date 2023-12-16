@@ -9,6 +9,6 @@ type TransactionPaymentResponse struct {
 	UpdateAt      time.Time             `json:"updateAt"`
 	PaymentMethod PaymentMethodResponse `json:"paymentmethod"`
 	Invoice       string                `json:"invoice"`
-	VANumber      string                `json:"vaNumber"`
+	VANumber      string                `json:"vaNumber,omitempty"`
 	PaymentStatus string                `json:"paymentStatus"`
 }
