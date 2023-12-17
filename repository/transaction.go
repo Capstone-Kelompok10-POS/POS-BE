@@ -227,7 +227,7 @@ func (repository *TransactionRepositoryImpl) GetTotalPayment() (float64, error) 
 func (repository *TransactionRepositoryImpl) FindRecentTransaction() ([]domain.Transaction, error) {
 	transactions := []domain.Transaction{}
 
-	result := repository.DB.Preload("Cashier").Preload("Membership").Preload("ConvertPoint").Preload("Details.ProductDetail.Product").Preload("Details.ProductDetail").Preload("TransactionPayment.PaymentMethod").Preload("TransactionPayment.PaymentMethod.PaymentType").Where("transactions.deleted_at IS NULL ORDER BY created_at DESC LIMIT 6").Find(&transactions)
+	result := repository.DB.Preload("Cashier").Preload("Membership").Preload("ConvertPoint").Preload("Details.ProductDetail.Product").Preload("Details.ProductDetail").Preload("TransactionPayment.PaymentMethod").Preload("TransactionPayment.PaymentMethod.PaymentType").Where("transactions.deleted_at IS NULL ORDER BY created_at DESC LIMIT 10").Find(&transactions)
 	if result.Error != nil {
 		return nil, result.Error
 	}
