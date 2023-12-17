@@ -426,6 +426,7 @@ func (service *TransactionImpl) NotificationPayment(notificationPayload map[stri
 	if err != nil {
 		return fmt.Errorf("error when update transaction status : %s", err.Error())
 	}
+	
 	return nil
 }
 

@@ -35,7 +35,7 @@ func main() {
 
 	midtransCoreApi := midtrans.NewMidtransCoreApi(&config.Midtrans)
 
-	myApp.GET("/home", func(c echo.Context) error {
+	myApp.GET("", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Welcome to Q Bills API Services")
 	})
 
