@@ -310,13 +310,19 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 }
 
 func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
+	input := web.ProductRecommendRequest{}
+	err := ctx.Bind(&input)
+	if err != nil{
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+	}
+
 	openAIKey := os.Getenv("openAIKey")
 	productMap, err := c.GetProductNames(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
 	}
 
-	result, err := middleware.ProductAI(productMap, openAIKey)
+	result, err := middleware.ProductAI(ctx, productMap, openAIKey)
 	if err != nil {
 		log.Error("Error calling ProductAI:", err)
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
