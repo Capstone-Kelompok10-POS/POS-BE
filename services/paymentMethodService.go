@@ -2,13 +2,14 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
 	req "qbills/utils/request"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
 
 type PaymentMethodService interface {
@@ -39,7 +40,10 @@ func (service *PaymentMethodServiceImpl) CreatePaymentMethod(ctx echo.Context, r
 	}
 
 	paymentMethod := req.PaymentMethodRequestToPaymentMethodDomain(request)
-
+	existingPaymentMethodName, _ := service.repository.FindByName(request.Name)
+	if existingPaymentMethodName != nil {
+		return nil, fmt.Errorf("payment method name already exists")
+	}
 	result, err := service.repository.Create(paymentMethod)
 
 	if err != nil {
@@ -61,7 +65,12 @@ func (service *PaymentMethodServiceImpl) UpdatePaymentMethod(ctx echo.Context, r
 	}
 
 	paymentMethod := req.PaymentMethodRequestToPaymentMethodDomain(request)
-
+	if existingPaymentMethod.Name != paymentMethod.Name {
+		existingPaymentMethodName, _ := service.repository.FindByName(paymentMethod.Name)
+		if existingPaymentMethodName != nil {
+			return nil, fmt.Errorf("payment method already exists")
+		}
+	}
 	result, err := service.repository.Update(paymentMethod, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data payment method: %s", err.Error())

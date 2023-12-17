@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -9,6 +8,8 @@ import (
 	res "qbills/utils/response"
 	"strconv"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 
 	"github.com/sirupsen/logrus"
 )
@@ -43,7 +44,10 @@ func (c *PaymentTypeHandlerImpl) CreatePaymentTypeHandler(ctx echo.Context) erro
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
 		if strings.Contains(err.Error(), "alpha") {
-			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment method typename is not valid must contain only alphabetical characters"))
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment typename is not valid must contain only alphabetical characters"))
+		}
+		if strings.Contains(err.Error(), "payment type is already exists") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment typename is already exists"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("create payment type error"))
@@ -72,8 +76,11 @@ func (c *PaymentTypeHandlerImpl) UpdatePaymentTypeHandler(ctx echo.Context) erro
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
 		}
-		if strings.Contains(err.Error(), "membership not found") {
+		if strings.Contains(err.Error(), "payment type not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("payment type not found"))
+		}
+		if strings.Contains(err.Error(), "payment type name is already exists") {
+			return ctx.JSON(http.StatusConflict, helpers.ErrorResponse("payment type name is already exists"))
 		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update payment type error"))

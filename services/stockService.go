@@ -2,13 +2,14 @@ package services
 
 import (
 	"fmt"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"qbills/models/domain"
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
-	req2 "qbills/utils/request"
+	req "qbills/utils/request"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
 )
 
 type StockService interface {
@@ -20,16 +21,16 @@ type StockService interface {
 }
 
 type StockServiceImpl struct {
-	StockRepository   repository.StockRepository
-	ProductRepository repository.ProductRepository
-	validate          *validator.Validate
+	StockRepository         repository.StockRepository
+	ProductDetailRepository repository.ProductDetailRepository
+	validate                *validator.Validate
 }
 
-func NewStockService(repository repository.StockRepository, productRepo repository.ProductRepository, validate *validator.Validate) *StockServiceImpl {
+func NewStockService(repository repository.StockRepository, productDetailRepo repository.ProductDetailRepository, validate *validator.Validate) *StockServiceImpl {
 	return &StockServiceImpl{
-		StockRepository:   repository,
-		ProductRepository: productRepo,
-		validate:          validate,
+		StockRepository:         repository,
+		ProductDetailRepository: productDetailRepo,
+		validate:                validate,
 	}
 }
 
@@ -39,22 +40,26 @@ func (service *StockServiceImpl) UpdateStockService(ctx echo.Context, request we
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-	req := req2.StockCreateRequestToStockDomain(request)
+	req := req.StockCreateRequestToStockDomain(request)
 
+	product, err := service.ProductDetailRepository.FindById(req.ProductDetailID)
+
+	product.TotalStock += req.Stock
+
+	if product.TotalStock < 0 {
+		return nil, fmt.Errorf("stock decrease more than stock")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = service.ProductDetailRepository.Save(product, req.ProductDetailID)
+
+	if err != nil {
+		return nil, err
+	}
 	result, err := service.StockRepository.Create(req)
-	if err != nil {
-		return nil, err
-	}
-
-	product, err := service.ProductRepository.FindById(req.ProductID)
-
-	//product.TotalStock += req.Stock
-
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = service.ProductRepository.Update(product, req.ProductID)
 	if err != nil {
 		return nil, err
 	}

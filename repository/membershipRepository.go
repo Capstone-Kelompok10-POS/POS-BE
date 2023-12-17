@@ -14,9 +14,11 @@ type MembershipRepository interface {
 	Create(membership *domain.Membership) (*domain.Membership, error)
 	Update(membership *domain.Membership, id int) (*domain.Membership, error)
 	UpdatePoint(tx *gorm.DB, membership *domain.Membership) error
+	UpdatePointNoTx(membership *domain.Membership, id int) (*domain.Membership, error)
 	FindById(id int) (*domain.Membership, error)
 	FindByName(name string) (*domain.Membership, error)
-	FindAll() ([]domain.Membership, error)
+	FindAll() ([]domain.Membership, int, error)
+	FindTopMember() ([]domain.Membership, error)
 	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
 	Delete(id int) error
 }
@@ -43,7 +45,18 @@ func (repository *MembershipRepositoryImpl) Create(membership *domain.Membership
 func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership, id int) (*domain.Membership, error) {
 	result := repository.DB.Table("memberships").Where("id = ?", id).Updates(domain.Membership{
 		Name:        membership.Name,
-		PhoneNumber: membership.PhoneNumber})
+		PhoneNumber: membership.PhoneNumber,
+		TotalPoint:  membership.TotalPoint,
+	})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return membership, nil
+}
+
+func (repository *MembershipRepositoryImpl) UpdatePointNoTx(membership *domain.Membership, id int) (*domain.Membership, error) {
+	result := repository.DB.Table("memberships").Where("id = ?", id).Update("total_point", membership.TotalPoint)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -52,8 +65,8 @@ func (repository *MembershipRepositoryImpl) Update(membership *domain.Membership
 }
 
 func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership *domain.Membership) error {
-
-	if err := tx.Model(&schema.Membership{}).Where("id = ?", membership.ID).Where("deleted_at IS NULL").Update("point", membership.Point).Error; err != nil {
+  
+	if err := tx.Model(&schema.Membership{}).Where("id = ?", membership.ID).Where("deleted_at IS NULL").Update("total_point", membership.TotalPoint).Error; err != nil {
 		return err
 	}
 
@@ -63,7 +76,7 @@ func (repository *MembershipRepositoryImpl) UpdatePoint(tx *gorm.DB, membership 
 func (repository *MembershipRepositoryImpl) FindById(id int) (*domain.Membership, error) {
 	membership := domain.Membership{}
 
-	result := repository.DB.First(&membership, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&membership, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -91,21 +104,34 @@ func (repository *MembershipRepositoryImpl) FindByName(name string) (*domain.Mem
 	return &membership, nil
 }
 
-func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, error) {
-	membership := []domain.Membership{}
+func (repository *MembershipRepositoryImpl) FindAll() ([]domain.Membership, int, error) {
+	memberships := []domain.Membership{}
+
 	query := "SELECT * FROM memberships WHERE deleted_at IS NULL"
-	result := repository.DB.Raw(query).Scan(&membership)
+	result := repository.DB.Raw(query).Scan(&memberships)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	totalMembership := len(memberships)
+	return memberships, totalMembership, nil
+}
+
+func (repository *MembershipRepositoryImpl) FindTopMember() ([]domain.Membership, error) {
+	memberships := []domain.Membership{}
+
+	query := "SELECT * FROM memberships WHERE deleted_at IS NULL ORDER BY total_point DESC LIMIT 3"
+	result := repository.DB.Raw(query).Scan(&memberships)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return membership, nil
+
+	return memberships, nil
 }
 
 func (repository *MembershipRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.Membership{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.Membership{}, id)
 	if result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
-

@@ -5,7 +5,6 @@ go 1.21.0
 require (
 	cloud.google.com/go/storage v1.35.1
 	firebase.google.com/go v3.13.0+incompatible
-	github.com/aws/aws-sdk-go v1.48.0
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/golang-jwt/jwt/v5 v5.0.0
@@ -13,6 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
 	github.com/labstack/echo/v4 v4.11.2
+	github.com/midtrans/midtrans-go v1.3.7
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/crypto v0.14.0
@@ -40,7 +40,6 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/labstack/gommon v0.4.0
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

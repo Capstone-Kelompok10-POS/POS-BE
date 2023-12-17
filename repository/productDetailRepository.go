@@ -12,8 +12,10 @@ import (
 type ProductDetailRepository interface {
 	Create(productDetail *domain.ProductDetail) (*domain.ProductDetail, error)
 	Update(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error)
+	Save(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error)
 	StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error
 	FindById(id uint) (*domain.ProductDetail, error)
+	FindByProductId(ProductID uint) ([]domain.ProductDetail, error)
 	FindAll() ([]domain.ProductDetail, error)
 	Delete(id uint) error
 	FindAllByIds(ids []uint) ([]domain.ProductDetail, error)
@@ -42,7 +44,17 @@ func (repository *ProductDetailRepositoryImpl) Create(request *domain.ProductDet
 }
 
 func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error) {
-	result := repository.DB.Table("products_detail").Where("id = ?", id).Updates(productDetail)
+	result := repository.DB.Table("product_details").Where("id = ?", id).Updates(productDetail)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return productDetail, nil
+}
+
+func (repository *ProductDetailRepositoryImpl) Save(productDetail *domain.ProductDetail, id uint) (*domain.ProductDetail, error) {
+	result := repository.DB.Table("product_details").Where("id = ?", id).Save(productDetail)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -52,23 +64,33 @@ func (repository *ProductDetailRepositoryImpl) Update(productDetail *domain.Prod
 }
 
 func (repository *ProductDetailRepositoryImpl) StockDecrease(tx *gorm.DB, productDetail *domain.ProductDetail) error {
-    result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
-    if result.Error != nil {
-        return result.Error
-    }
+	result := tx.Table("product_details").Where("id = ?", productDetail.ID).Where("deleted_at IS NULL").Update("total_stock", productDetail.TotalStock)
+	if result.Error != nil {
+		return result.Error
+	}
 
-    return nil
+	return nil
 }
 
 func (repository *ProductDetailRepositoryImpl) FindById(id uint) (*domain.ProductDetail, error) {
 	productDetail := domain.ProductDetail{}
-
 	result := repository.DB.Where("deleted_at IS NULL").First(&productDetail, id)
-
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &productDetail, nil
+}
+
+func (repository *ProductDetailRepositoryImpl) FindByProductId(ProductID uint) ([]domain.ProductDetail, error) {
+	productsDetail := []domain.ProductDetail{}
+
+	result := repository.DB.Where("product_id = ?", ProductID).Find(&productsDetail)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return productsDetail, nil
 }
 
 func (repository *ProductDetailRepositoryImpl) FindAll() ([]domain.ProductDetail, error) {
@@ -84,7 +106,7 @@ func (repository *ProductDetailRepositoryImpl) FindAll() ([]domain.ProductDetail
 }
 
 func (repository *ProductDetailRepositoryImpl) Delete(id uint) error {
-	result := repository.DB.Delete(&schema.ProductDetail{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.ProductDetail{}, id)
 
 	if result.Error != nil {
 		return result.Error

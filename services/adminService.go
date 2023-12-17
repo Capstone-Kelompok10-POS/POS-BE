@@ -40,12 +40,11 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 		return nil, helpers.ValidationError(ctx, err)
 	}
 
-	existingAdmin, _ := service.AdminRepository.FindByUsername(request.Username)
-	if existingAdmin != nil {
+	admin := req.AdminCreateRequestToAdminDomain(request)
+	existingAdminUsername, _ := service.AdminRepository.FindByUsername(admin.Username)
+	if existingAdminUsername != nil {
 		return nil, fmt.Errorf("username already exists")
 	}
-
-	admin := req.AdminCreateRequestToAdminDomain(request)
 
 	admin.Password = helpers.HashPassword(admin.Password)
 	result, err := service.AdminRepository.Create(admin)

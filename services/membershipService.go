@@ -17,11 +17,12 @@ import (
 type MembershipService interface {
 	CreateMembership(ctx echo.Context, request web.MembershipCreateRequest) (*domain.Membership, error)
 	UpdateMembership(ctx echo.Context, request web.MembershipUpdateRequest, id int) (*domain.Membership, error)
-	FindById(ctx echo.Context, id int) (*domain.Membership, error)
-	FindByName(ctx echo.Context, name string) (*domain.Membership, error)
-	FindByPhoneNumber(ctx echo.Context, phoneNumber string) (*domain.Membership, error)
-	FindAll(ctx echo.Context) ([]domain.Membership, error)
-	DeleteMembership(ctx echo.Context, id int) error
+	FindById(id int) (*domain.Membership, error)
+	FindByName(name string) (*domain.Membership, error)
+	FindByPhoneNumber(phoneNumber string) (*domain.Membership, error)
+	FindAll() ([]domain.Membership,int, error)
+	FindTopMember() ([]domain.Membership, error)
+	DeleteMembership(id int) error
 }
 
 type MembershipServiceImpl struct {
@@ -58,7 +59,7 @@ func (service *MembershipServiceImpl) CreateMembership(ctx echo.Context, request
 }
 
 
-func (service *MembershipServiceImpl) FindById(ctx echo.Context, id int) (*domain.Membership, error) {
+func (service *MembershipServiceImpl) FindById(id int) (*domain.Membership, error) {
 	existingMembership, _ := service.MembershipRepository.FindById(id)
 	if existingMembership == nil {
 		return nil, fmt.Errorf("membership not found")
@@ -67,16 +68,25 @@ func (service *MembershipServiceImpl) FindById(ctx echo.Context, id int) (*domai
 	return existingMembership, nil
 }
 
-func (service *MembershipServiceImpl) FindAll(ctx echo.Context) ([]domain.Membership, error) {
-	memberships, err := service.MembershipRepository.FindAll()
+func (service *MembershipServiceImpl) FindAll() ([]domain.Membership, int, error) {
+	memberships, totalMembership, err := service.MembershipRepository.FindAll()
 	if err != nil {
-		return nil, fmt.Errorf("membership not found")
+		return nil, 0, fmt.Errorf("error when get membership")
+	}
+
+	return memberships, totalMembership, nil
+}
+
+func (service *MembershipServiceImpl) FindTopMember() ([]domain.Membership, error) {
+	memberships, err := service.MembershipRepository.FindTopMember()
+	if err != nil {
+		return nil, fmt.Errorf("error when get membership")
 	}
 
 	return memberships, nil
 }
 
-func (service *MembershipServiceImpl) FindByName(ctx echo.Context, name string) (*domain.Membership, error) {
+func (service *MembershipServiceImpl) FindByName(name string) (*domain.Membership, error) {
 	name = strings.ToLower(name)
 	membership, err := service.MembershipRepository.FindByName(name)
 	if err != nil {
@@ -89,7 +99,7 @@ func (service *MembershipServiceImpl) FindByName(ctx echo.Context, name string) 
 	return membership, nil
 }
 
-func (service *MembershipServiceImpl) FindByPhoneNumber(ctx echo.Context, phoneNumber string) (*domain.Membership, error) {
+func (service *MembershipServiceImpl) FindByPhoneNumber(phoneNumber string) (*domain.Membership, error) {
 	membership, _ := service.MembershipRepository.FindByPhoneNumber(phoneNumber)
 	if membership == nil {
 		return nil, fmt.Errorf("membership not found")
@@ -125,7 +135,7 @@ func (service *MembershipServiceImpl) UpdateMembership(ctx echo.Context, request
 	return result, nil
 }
 
-func (service *MembershipServiceImpl) DeleteMembership(ctx echo.Context, id int) error {
+func (service *MembershipServiceImpl) DeleteMembership(id int) error {
 	existingMembership, _ := service.MembershipRepository.FindById(id)
 	if existingMembership == nil {
 		return fmt.Errorf("membership not found")

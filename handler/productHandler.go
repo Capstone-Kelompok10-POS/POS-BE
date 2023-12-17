@@ -27,12 +27,12 @@ type ProductHandler interface {
 	DeleteProductHandler(ctx echo.Context) error
 	FindPaginationProduct(ctx echo.Context) error
 	ProductAIHandler(ctx echo.Context) error
-	GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error)
+	GetProductNames(ctx echo.Context) (map[uint]helpers.ProductDataAIRecommended, error)
+	GetBestProductsHandler(ctx echo.Context) error
 }
 
 type ProductHandlerImpl struct {
 	ProductService services.ProductService
-	Middleware     middleware.ProductsAI
 }
 
 func NewProductHandler(ProductService services.ProductService) ProductHandler {
@@ -60,7 +60,7 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input"))
 	}
 
-	productTypeIDStr := ctx.FormValue("productTypeID")
+	productTypeIDStr := ctx.FormValue("productTypeId")
 	productTypeInt, err := strconv.Atoi(productTypeIDStr)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input product type"))
@@ -69,12 +69,18 @@ func (c *ProductHandlerImpl) CreateProductHandler(ctx echo.Context) error {
 
 	name := ctx.FormValue("name")
 	ingredients := ctx.FormValue("ingredients")
+	price := ctx.FormValue("productDetail[price]")
+	priceFloat, err := strconv.ParseFloat(price, 64)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid client input price"))
+	}
 
 	productRequest.ProductTypeID = productTypeID
 	productRequest.AdminID = uint(adminId)
 	productRequest.Name = name
 	productRequest.Ingredients = ingredients
 	productRequest.Image = url
+	productRequest.ProductDetail.Price = priceFloat
 
 	result, err := c.ProductService.CreateProductService(ctx, *productRequest)
 
@@ -98,38 +104,37 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	productIDStr := ctx.Param("id")
 	productID, err := strconv.Atoi(productIDStr)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid product ID"))
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid product ID"))
 	}
 
 	// Dapatkan data produk yang sudah ada
 	existingProduct, err := c.ProductService.FindByIdProductService(ctx, uint(productID))
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to get existing product"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to get existing product"))
 	}
 
+	// Cek apakah ada file yang diunggah oleh klien
+	_, err = ctx.FormFile("image")
 	var imageURL string
-
 	if err != nil {
-		// Jika tidak ada file gambar yang diunggah, gunakan gambar yang sudah ada (lama)
+		// Jika tidak ada file yang diunggah, gunakan gambar yang sudah ada (lama)
 		imageURL = existingProduct.Image
 	} else {
-		// Jika ada file gambar yang diunggah, proses unggah gambar baru
-		url, err := firebase.UploadImageProduct(ctx)
+		// Jika ada file yang diunggah, proses unggah gambar baru
+		// Lakukan proses upload gambar baru ke dalam sistem (misalnya menggunakan firebase)
+		uploadedURL, err := firebase.UploadImageProduct(ctx)
 		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed Upload file"))
+			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to upload file"))
 		}
-
-		imageURL = url
-
+		imageURL = uploadedURL
 	}
 
 	// Mengonversi nilai-nilai dari request
-	productTypeIDStr := ctx.FormValue("productTypeID")
+	productTypeIDStr := ctx.FormValue("productTypeId")
 	productTypeInt, _ := strconv.Atoi(productTypeIDStr)
 	productTypeID := uint(productTypeInt)
 
 	name := ctx.FormValue("name")
-
 	ingredients := ctx.FormValue("ingredients")
 
 	// Mengupdate nilai-nilai produk yang sudah ada
@@ -140,17 +145,15 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 
 	// Lakukan pembaruan data produk ke dalam database
 	req := request.ProductDomainToProductUpdateRequest(existingProduct)
-
 	result, err := c.ProductService.UpdateProductService(ctx, req, uint(productID))
-
 	result.ID = existingProduct.ID
 
 	if err != nil {
 		switch {
 		case strings.Contains(err.Error(), "validation error"):
-			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid validation"))
 		default:
-			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to update product"))
+			return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Failed to update product"))
 		}
 	}
 
@@ -158,7 +161,7 @@ func (c *ProductHandlerImpl) UpdateProductHandler(ctx echo.Context) error {
 	response := res.ProductDomainToProductUpdateResponse(result)
 
 	// Mengirimkan respons JSON sebagai tanggapan dari fungsi
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success update product", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success update product", response))
 }
 
 func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
@@ -183,18 +186,14 @@ func (c *ProductHandlerImpl) GetProductHandler(ctx echo.Context) error {
 		return ctx.JSON(statusCode, helpers.ErrorResponse(errorMessage))
 	}
 
-	response := res.ProductDomainToProductResponse(product)
+	response := res.ProductsDomainToProductsResponse(product)
 
-	responseCustom := res.ProductResponseToProductCostumResponse(response)
-
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", responseCustom))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Success get product", response))
 }
 
 func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
-	result, err := c.ProductService.FindAllProductService(ctx)
-	if result == nil {
-		return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
-	}
+	products, totalProducts, err := c.ProductService.FindAllProductService(ctx)
+
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
@@ -203,9 +202,9 @@ func (c *ProductHandlerImpl) GetProductsHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product data error"))
 	}
 
-	response := res.ConvertProductResponse(result)
+	response := res.ConvertProductResponse(products)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all data product", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithTotal("success get all data product", response, totalProducts))
 }
 
 func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
@@ -226,7 +225,7 @@ func (c *ProductHandlerImpl) GetProductByNameHandler(ctx echo.Context) error {
 }
 
 func (c *ProductHandlerImpl) GetProductByCategoryHandler(ctx echo.Context) error {
-	productTypeID := ctx.Param("productTypeID")
+	productTypeID := ctx.Param("productTypeId")
 	productTypeIDUint64, err := strconv.ParseUint(productTypeID, 10, 64)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("failed to parse product type"))
@@ -255,7 +254,6 @@ func (c *ProductHandlerImpl) DeleteProductHandler(ctx echo.Context) error {
 	}
 
 	err = c.ProductService.DeleteProductService(ctx, productIdUint)
-
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product not found"))
@@ -285,10 +283,10 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
 }
 
-func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error) {
-	productMap := make(map[uint]middleware.ProductDataAIRecommended)
+func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]helpers.ProductDataAIRecommended, error) {
+	productMap := make(map[uint]helpers.ProductDataAIRecommended)
 
-	products, err := c.ProductService.FindAllProductService(ctx)
+	products, _, err := c.ProductService.FindAllProductService(ctx)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "product not found") {
@@ -299,8 +297,8 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 	}
 
 	for _, product := range products {
-		productData := middleware.ProductDataAIRecommended{
-			Name: product.Name,
+		productData := helpers.ProductDataAIRecommended{
+			Name:        product.Name,
 			Ingredients: product.Ingredients,
 		}
 		productMap[uint(product.ID)] = productData
@@ -316,19 +314,39 @@ func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
 	}
 
-	openAIKey := os.Getenv("openAIKey")
+	openAIKey := os.Getenv("OPEN_AI_KEY")
 	productMap, err := c.GetProductNames(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
 	}
 
-	result, err := middleware.ProductAI(ctx, productMap, openAIKey)
+	result, err := helpers.ProductAI(productMap, openAIKey, input.Input)
 	if err != nil {
+		if strings.Contains(err.Error(), "input is empty") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("input is empty"))
+		}
 		log.Error("Error calling ProductAI:", err)
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
 	}
 
-	log.Info("ProductAI Result:", result)
+	response := res.ConvertProductRecommendationResponse(result)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", response))
+}
+
+
+func (c *ProductHandlerImpl) GetBestProductsHandler(ctx echo.Context) error {
+	bestProducts, err := c.ProductService.FindBestSellingProduct()
+
+	if err != nil {
+		if strings.Contains(err.Error(), "product not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("best product not found"))
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get best product data error"))
+	}
+
+	response := res.ConvertBestProductResponse(bestProducts)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all data best product", response))
 }

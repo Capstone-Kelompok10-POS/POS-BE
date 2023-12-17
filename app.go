@@ -1,53 +1,61 @@
 package main
 
 import (
-	"github.com/go-playground/validator"
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"log"
 	"net/http"
-	"os"
+
+	"qbills/configs"
 	"qbills/drivers"
 	"qbills/routes"
-	"qbills/utils/helpers"
+	"qbills/utils/helpers/midtrans"
+
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	myApp := echo.New()
+	myApp.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+        AllowOrigins: []string{"*"},
+        AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+    }))
+	
 	validate := validator.New()
-	helpers.ConnectAWS()
 
-	_, err := os.Stat(".env")
-	if err == nil {
-		err := godotenv.Load()
-		if err != nil {
-			log.Fatal("Failed to fetch .env file")
-		}
+	config, err := configs.LoadConfig()
+	if err != nil {
+		logrus.Fatal("Error loading config:", err.Error())
 	}
 
-	drivers.ConnectDB()
-	drivers.Migrate()
+	db, err := drivers.NewMySQLConnection(&config.MySQL)
+	if err != nil {
+		logrus.Fatal("Error connecting to MySQL:", err.Error())
+	}
+
+	midtransCoreApi := midtrans.NewMidtransCoreApi(&config.Midtrans)
 
 	myApp.GET("/home", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Welcome to Q Bills API Services")
 	})
 
-	routes.AdminRoutes(myApp, drivers.DB, validate)
-	routes.CashierRoutes(myApp, drivers.DB, validate)
-	routes.SuperAdminRoutes(myApp, drivers.DB, validate)
-	routes.ConvertPointRoutes(myApp, drivers.DB, validate)
-	routes.ProductTypeRoutes(myApp, drivers.DB, validate)
-	routes.ProductRoutes(myApp, drivers.DB, validate)
-	routes.StockRoutes(myApp, drivers.DB, validate)
-	routes.MembershipRoutes(myApp, drivers.DB, validate)
-	routes.MembershipCardRoutes(myApp, drivers.DB)
-	routes.PaymentTypeRoutes(myApp, drivers.DB, validate)
-	routes.PaymentMethodRoutes(myApp, drivers.DB, validate)
-	routes.ProductDetailRoutes(myApp, drivers.DB, validate)
+	routes.AdminRoutes(myApp, db, validate)
+	routes.CashierRoutes(myApp, db, validate)
+	routes.SuperAdminRoutes(myApp, db, validate)
+	routes.ProductRoutes(myApp, db, validate)
+	routes.StockRoutes(myApp, db, validate)
+	routes.ConvertPointRoutes(myApp, db, validate)
+	routes.ProductTypeRoutes(myApp, db, validate)
+	routes.MembershipRoutes(myApp, db, validate)
+	routes.MembershipCardRoutes(myApp, db)
+	routes.PaymentTypeRoutes(myApp, db, validate)
+	routes.PaymentMethodRoutes(myApp, db, validate)
+	routes.ProductDetailRoutes(myApp, db, validate)
+	routes.MemberShipPointRoutes(myApp, db, validate)
+	routes.TransactionRoutes(myApp, db, midtransCoreApi, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
-	myApp.Use(middleware.CORS())
+
 	myApp.Use(middleware.LoggerWithConfig(
 		middleware.LoggerConfig{
 			Format: "method=${method}, uri=${uri}, status=${status}, time=${time_rfc3339}\n",

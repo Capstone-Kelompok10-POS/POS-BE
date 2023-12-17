@@ -52,7 +52,7 @@ func (repository *AdminRepositoryImpl) Update(admin *domain.Admin, id int) (*dom
 func (repository *AdminRepositoryImpl) FindById(id int) (*domain.Admin, error) {
 	admin := domain.Admin{}
 
-	result := repository.DB.First(&admin, id)
+	result := repository.DB.Where("deleted_at IS NULL").First(&admin, id)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -84,7 +84,7 @@ func (repository *AdminRepositoryImpl) FindAll() ([]domain.Admin, error) {
 
 
 func (repository *AdminRepositoryImpl) Delete(id int) error {
-	result := repository.DB.Delete(&schema.Admin{}, id)
+	result := repository.DB.Where("deleted_at IS NULL").Delete(&schema.Admin{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

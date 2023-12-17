@@ -1,4 +1,4 @@
-package middleware
+package helpers
 
 import (
 	"context"
@@ -7,12 +7,11 @@ import (
 	"strings"
 
 	"github.com/jinzhu/gorm"
-	"github.com/labstack/echo/v4"
 	"github.com/sashabaranov/go-openai"
 )
 
 type ProductsAI interface {
-	ProductAI(c echo.Context, productMap, openAIKey string) (string, error)
+	ProductAI(productMap, openAIKey, userInput string) (string, error)
 }
 
 type ProductAIImpl struct {
@@ -33,11 +32,10 @@ func ProductAI(productMap map[uint]ProductDataAIRecommended, openAIKey, userInpu
 	if productMapStr == "" {
 		return "", errors.New("product is empty")
 	}
-
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
-			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman berikut ini adalah product dari cafenya" +productMapStr+ "Jika sebelum prompt ini tidak terdapat product yang diberikan maka berikan response product tidak ditemukan",
+			Content: "Anda adalah asisten virtual dalam sistem rekomendasi kafe. Anda adalah orang yang sangat berpengalaman di bidang Anda. Anda akan diminta untuk memberikan rekomendasi terbaik Anda dari semua menu di cafe. Berikan lima rekomendasi terbaik anda jika input meminta makanan maka berikan rekomendasi makanan jika input meminta minuman maka berikan rekomendasi minuman berikut ini adalah product dari cafenya" + productMapStr + "Jika sebelum prompt ini tidak terdapat product yang diberikan maka berikan response product tidak ditemukan",
 		},
 
 		{

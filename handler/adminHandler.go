@@ -168,6 +168,9 @@ func (c AdminHandlerImpl) UpdateAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+		if strings.Contains(err.Error(), "username already exists") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("username already exists"))
+		}
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("update admin error"))
 	}
@@ -192,6 +195,7 @@ func (c AdminHandlerImpl) DeleteAdminHandler(ctx echo.Context) error {
 		if strings.Contains(err.Error(), "admin not found") {
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("admin not found"))
 		}
+
 		logrus.Error(err.Error())
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("delete data admin error"))
 	}

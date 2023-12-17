@@ -1,8 +1,9 @@
 package schema
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Product struct {
@@ -10,7 +11,7 @@ type Product struct {
 	CreatedAt     time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt     time.Time      `gorm:"autoUpdateTime"`
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
-	ProductDetail []ProductDetail
+	ProductDetail []ProductDetail `gorm:"foreignKey:ProductID"`
 	ProductTypeID uint        `gorm:"index;not null"`
 	ProductType   ProductType `gorm:"foreignKey:ProductTypeID"`
 	AdminID       uint        `gorm:"index;not null"`

@@ -18,10 +18,11 @@ type ProductService interface {
 	UpdateProductService(ctx echo.Context, request web.ProductUpdateRequest, id uint) (*domain.Product, error)
 	FindByIdProductService(ctx echo.Context, id uint) (*domain.Product, error)
 	FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error)
-	FindAllProductService(ctx echo.Context) ([]domain.Product, error)
+	FindAllProductService(ctx echo.Context) ([]domain.Product, int, error)
 	FindByCategoryProductService(ctx echo.Context, productTypeID uint) ([]domain.Product, error)
 	DeleteProductService(ctx echo.Context, id uint) error
 	FindPaginationProduct(ctx echo.Context) ([]domain.Product, *helpers.Pagination, error)
+	FindBestSellingProduct() ([]domain.BestSellingProduct, error)
 }
 
 type ProductServiceImpl struct {
@@ -41,7 +42,7 @@ func (service *ProductServiceImpl) CreateProductService(ctx echo.Context, reques
 	if err != nil {
 		return nil, helpers.ValidationError(ctx, err)
 	}
-
+	request.ProductDetail.Size = "NORMAL"
 	product := req.ProductCreateRequestToProductDomain(request)
 
 	result, err := service.ProductRepository.Create(product)
@@ -86,14 +87,13 @@ func (service *ProductServiceImpl) FindByIdProductService(ctx echo.Context, id u
 	return result, nil
 }
 
-func (service *ProductServiceImpl) FindAllProductService(ctx echo.Context) ([]domain.Product, error) {
-	product, err := service.ProductRepository.FindAll()
-
+func (service *ProductServiceImpl) FindAllProductService(ctx echo.Context) ([]domain.Product, int, error) {
+	products, totalProducts, err := service.ProductRepository.FindAll()
 	if err != nil {
-		return nil, err
+		return nil, 0, fmt.Errorf("product not found")
 	}
 
-	return product, nil
+	return products, totalProducts, nil
 }
 
 func (service *ProductServiceImpl) FindByNameProductService(ctx echo.Context, name string) ([]domain.Product, error) {
@@ -121,7 +121,7 @@ func (service *ProductServiceImpl) DeleteProductService(ctx echo.Context, id uin
 	if exitingProduct == nil {
 		return fmt.Errorf("product not found")
 	}
-
+	
 	err := service.ProductRepository.Delete(id)
 
 	if err != nil {
@@ -151,4 +151,13 @@ func (service *ProductServiceImpl) FindPaginationProduct(ctx echo.Context) ([]do
 	}
 
 	return result, paginate, nil
+}
+
+func (service *ProductServiceImpl) FindBestSellingProduct() ([]domain.BestSellingProduct, error) {
+	bestProducts, err := service.ProductRepository.FindBestSellingProduct()
+	if err != nil {
+		return nil, fmt.Errorf("product not found")
+	}
+	
+	return bestProducts, nil
 }

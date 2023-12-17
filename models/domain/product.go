@@ -1,7 +1,11 @@
 package domain
 
+import "time"
+
 type Product struct {
 	ID            uint
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 	ProductTypeID uint
 	ProductType   ProductType
 	AdminID       uint
@@ -32,4 +36,19 @@ type ProductPreloadResponse struct {
 	Ingredients   string
 	Image         string
 	ProductDetail []ProductDetail
+}
+
+type BestSellingProduct struct {
+	ProductID 		uint
+	ProductName 	string
+	ProductImage 	string
+	ProductSize 	string
+	ProductPrice 	float64
+	ProductTypeName string
+	TotalQuantity 	int
+	Amount 			float64
+}
+
+type ProductRecommendation struct {
+	Reply string
 }
