@@ -98,5 +98,4 @@ Here is the list of environment variables required in the file`.env`:
 [View Full ERD](https://drive.google.com/file/d/1egsk7TcPV5pxvX0Yx-vPoiYNioB2mYDH/view?usp=sharing)
 
 ## API Documentation
-
 Explore Qbills API using our [Postman Documentation](https://www.postman.com/qbills/workspace/qbills-api-v1/collection/24198072-2a018155-b2a7-4814-a6ac-5c9cdcd71cf4?action=share&creator=24198072&active-environment=24198072-76650fdc-2796-4ed9-a489-0ea45cfbe5ca).
