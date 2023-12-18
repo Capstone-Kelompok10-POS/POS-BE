@@ -11,7 +11,7 @@ func TransactionDomainToTransactionResponse(transaction *domain.Transaction) *we
 	updatedAt := transaction.UpdatedAt
 	response := &web.TransactionResponse{
 		ID:        transaction.ID,
-		CreatedAt: createdAt.Format("2006-01-02 15:04:05"),
+		CreatedAt: createdAt.Format("2006-January-02 15:04:05"),
 		UpdatedAt: updatedAt.Format("2006-01-02 15:04:05"),
 		Cashier: web.CashierTransactionResponse{
 			ID:       transaction.Cashier.ID,
@@ -105,7 +105,7 @@ func TransactionDomainToTransactionResponseNoMembership(transaction *domain.Tran
 	createdAt := transaction.CreatedAt
 	response := &web.TransactionResponse{
 		ID:        transaction.ID,
-		CreatedAt: createdAt.Format("2006-01-02 15:04:05"),
+		CreatedAt: createdAt.Format("2006-January-02 15:04:05"),
 		Cashier: web.CashierTransactionResponse{
 			ID:       transaction.Cashier.ID,
 			Fullname: transaction.Cashier.Fullname,

@@ -128,7 +128,7 @@ func ChargeResponseToTransactionPayment(response *coreapi.ChargeResponse, transa
 	} else {
 		vaNumber = response.VaNumbers[0].VANumber
 	}
-
+	fmt.Println(response, "ini midtrans")
 	return &domain.Transaction{
 		UpdatedAt: parseTransactionTime,
 		CashierID: transaction.CashierID,
