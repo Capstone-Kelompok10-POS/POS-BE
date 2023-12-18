@@ -19,3 +19,7 @@ type ProductUpdateRequest struct {
 	Image         string `json:"image"`
 	ProductDetail domain.ProductDetail `json:"productDetail"`
 }
+
+type ProductRecommendRequest struct {
+	Input string `json:"input" validate:"required"`
+}
