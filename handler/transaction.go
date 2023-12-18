@@ -25,6 +25,7 @@ type TransactionHandler interface {
 	GetRecentTransactionsRealtimeHandler(ctx echo.Context) error
 	GetTransactionHandler(ctx echo.Context) error
 	GetTransactionsHandler(ctx echo.Context) error
+	PrintReceiptTransactionHandler(ctx echo.Context) error
 	GetRecentTransactionsHandler(ctx echo.Context) error
 	GetTransactionMonthlyHandler(ctx echo.Context) error
 	GetTransactionYearlyHandler(ctx echo.Context) error
@@ -119,6 +120,21 @@ func (c *TransactionHandlerImpl) GetTransactionHandler(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction", response))
 }
 
+func (c *TransactionHandlerImpl) PrintReceiptTransactionHandler(ctx echo.Context) error {
+	transactionInvoice := ctx.Param("invoice")
+	result, err := c.TransactionService.FindByInvoice(transactionInvoice)
+	if err != nil {
+		if strings.Contains(err.Error(), "transaction not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get transaction data error"))
+	}
+	response := res.TransactionDomainToTransactionResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction", response))
+}
+
 func (c *TransactionHandlerImpl) GetTransactionsHandler(ctx echo.Context) error {
 	transactions, totalTransactions, err := c.TransactionService.FindAllTransaction()
 	if err != nil {
@@ -190,11 +206,11 @@ func (c *TransactionHandlerImpl) GetRecentTransactionsHandler(ctx echo.Context) 
 			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("transaction not found"))
 		}
 		logrus.Error(err.Error())
-		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get all transaction error"))
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get Recent transaction error"))
 	}
 	response := res.ConvertTransactionResponse(transactions) 
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Transaction", response))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("Successfully Get Data Recent Transaction", response))
 
 }
 

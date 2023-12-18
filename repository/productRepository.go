@@ -187,7 +187,8 @@ func (repository *ProductRepositoryImpl) FindBestSellingProduct() ([]domain.Best
 	GROUP BY
 		p.id, p.name, p.image, pd.price, pt.type_name, pd.size
 	ORDER BY
-		total_quantity DESC;
+		total_quantity DESC
+	LIMIT 3;
 	`
 	result := repository.DB.Raw(query).Preload("ProductDetail", "deleted_at IS NULL").Scan(&bestProduct)
 	if result.Error != nil {
