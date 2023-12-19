@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"qbills/mocks"
 	"qbills/models/domain"
 	"qbills/models/web"
@@ -294,3 +295,323 @@ func TestUpdateAdmin_ValidationError(t *testing.T) {
 	mockPasswordHandler.AssertExpectations(t)
 }
 
+func TestUpdateAdmin_AdminNotFound(t *testing.T) {
+	// Create a new instance of the mock repository, validator, and password handler
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+
+	// Create an instance of the admin service with the mocks
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+
+	adminID := 1
+	adminUpdateRequest := web.AdminUpdateRequest{
+		FullName: "Acek",
+		Username: "acekasik",
+		Password: "chawni123",
+	}
+
+	// Set up the mock repository to return AdminNotFound error
+	mockRepository.On("FindById", adminID).Return(nil, errors.New("Admin not found"))
+
+	// Call the UpdateAdmin method
+	updatedAdmin, err := adminService.UpdateAdmin(nil, adminUpdateRequest, adminID)
+
+	// Assert the result
+	assert.Error(t, err)
+	assert.Nil(t, updatedAdmin)
+
+	// Assert that the expected calls were made to the mock repository
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
+func TestUpdateAdmin_Failure(t *testing.T) {
+	// Create a new instance of the mock repository, validator, and password handler
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+
+	// Create an instance of the admin service with the mocks
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+
+	adminID := 1
+	adminId := uint(adminID)
+	adminUpdateRequest := web.AdminUpdateRequest{
+		FullName: "Acek",
+		Username: "acekasik",
+		Password: "chawni123",
+	}
+
+	// Set up the expected return values from the mock repository
+	mockRepository.On("FindById", adminID).Return(&domain.Admin{}, nil)
+	mockRepository.On("FindByUsername", mock.Anything).Return(nil, nil)
+	mockPasswordHandler.On("HashPassword", mock.Anything).Return("hashedPassword", nil)
+
+	// Set up the expected call for the Update method
+	mockRepository.On("Update", mock.Anything, adminID).Return(&domain.Admin{ID: adminId, FullName: adminUpdateRequest.FullName}, errors.New("failed to update admin"))
+
+	updatedAdmin, err := adminService.UpdateAdmin(nil, adminUpdateRequest, adminID)
+
+	// Assert the result
+	assert.Error(t, err)
+	assert.Nil(t, updatedAdmin)
+
+	// Assert that the expected calls were made to the mock repository
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
+
+
+func TestFindById_Success(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindById method
+	expectedAdmin := &domain.Admin{
+		ID:             1,
+		SuperAdminID:   1,
+		FullName:       "John Doe",
+		Username:       "john.doe",
+		Password:       "hashedPassword",
+	}
+
+	adminRepoMock.On("FindById", 1).Return(expectedAdmin, nil)
+
+	// Call the method you want to test
+	resultAdmin, err := adminService.FindById(nil, 1)
+
+	// Assert that the FindById method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.NoError(t, err)
+	assert.NotNil(t, resultAdmin)
+	assert.Equal(t, expectedAdmin, resultAdmin)
+}
+
+
+func TestFindById_AdminNotFound(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindById method
+	adminRepoMock.On("FindById", 1).Return(nil, nil) // Simulating admin not found
+
+	// Call the method you want to test
+	resultAdmin, err := adminService.FindById(nil, 1)
+
+	// Assert that the FindById method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.Error(t, err)
+	assert.Nil(t, resultAdmin)
+	assert.EqualError(t, err, "admin not found")
+}
+
+
+func TestFindAll_Success(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindAll method
+	expectedAdmins := []domain.Admin{
+		{
+			ID:           1,
+			SuperAdminID: 1,
+			FullName:     "John Doe",
+			Username:     "john.doe",
+			Password:     "hashedPassword",
+		},
+		{
+			ID:           2,
+			SuperAdminID: 1,
+			FullName:     "Jane Doe",
+			Username:     "jane.doe",
+			Password:     "hashedPassword",
+		},
+	}
+
+	adminRepoMock.On("FindAll").Return(expectedAdmins, nil)
+
+	// Call the method you want to test
+	resultAdmins, err := adminService.FindAll(nil)
+
+	// Assert that the FindAll method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.NoError(t, err)
+	assert.NotNil(t, resultAdmins)
+	assert.Equal(t, expectedAdmins, resultAdmins)
+}
+
+func TestFindAll_NoAdminsFound(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindAll method when no admins are found
+	adminRepoMock.On("FindAll").Return(nil, errors.New("admins not found"))
+
+	// Call the method you want to test
+	resultAdmins, err := adminService.FindAll(nil)
+
+	// Assert that the FindAll method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.Error(t, err)
+	assert.Nil(t, resultAdmins)
+	assert.EqualError(t, err, "admins not found")
+}
+
+
+func TestFindByUsername_Success(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindByUsername method
+	expectedAdmin := &domain.Admin{
+		ID:           1,
+		SuperAdminID: 1,
+		FullName:     "John Doe",
+		Username:     "johndoe",
+		Password:     "hashedPassword",
+	}
+
+	adminRepoMock.On("FindByUsername", "johndoe").Return(expectedAdmin, nil)
+
+	// Call the method you want to test
+	resultAdmin, err := adminService.FindByUsername(nil, "johndoe")
+
+	// Assert that the FindByUsername method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.NoError(t, err)
+	assert.NotNil(t, resultAdmin)
+	assert.Equal(t, expectedAdmin, resultAdmin)
+}
+
+func TestFindByUsername_AdminNotFound(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindByUsername method when admin is not found
+	adminRepoMock.On("FindByUsername", "nonexistentUser").Return(nil, fmt.Errorf("admin not found"))
+
+	// Call the method you want to test
+	resultAdmin, err := adminService.FindByUsername(nil, "nonexistentUser")
+
+	// Assert that the FindByUsername method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.Error(t, err)
+	assert.Nil(t, resultAdmin)
+	assert.EqualError(t, err, "admin not found")
+}
+
+func TestDeleteAdmin_Success(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	adminRepoMock.On("FindById", mock.Anything).Return(&domain.Admin{}, nil)
+	// Set up expectations for the DeleteAdmin method when admin is successfully deleted
+	adminRepoMock.On("Delete", 1).Return(nil)
+
+	// Call the method you want to test
+	err := adminService.DeleteAdmin(nil, 1)
+
+	// Assert that the DeleteAdmin method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.NoError(t, err)
+}
+
+func TestDeleteAdmin_AdminNotFound(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindById method when admin is not found
+	adminRepoMock.On("FindById", mock.Anything).Return((*domain.Admin)(nil), fmt.Errorf("admin not found"))
+
+	// Call the method you want to test
+	err := adminService.DeleteAdmin(nil, 1)
+
+	// Assert that the FindById method was called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.Error(t, err)
+	assert.EqualError(t, err, "admin not found")
+}
+
+func TestDeleteAdmin_ErrorDeletingAdmin(t *testing.T) {
+	// Create your mock
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+	adminRepoMock := new(mocks.AdminRepository)
+
+	// Create an instance of the service with the mock
+	adminService := NewAdminService(adminRepoMock, mockValidator, mockPasswordHandler)
+
+	// Set up expectations for the FindById method when admin is found
+	adminRepoMock.On("FindById", mock.Anything).Return(&domain.Admin{}, nil)
+
+	// Set up expectations for the DeleteAdmin method when there is an error
+	adminRepoMock.On("Delete", 1).Return(fmt.Errorf("error deleting admin"))
+
+	// Call the method you want to test
+	err := adminService.DeleteAdmin(nil, 1)
+
+	// Assert that the FindById and DeleteAdmin methods were called with the expected parameters
+	adminRepoMock.AssertExpectations(t)
+
+	// Perform your assertions based on the test scenario
+	assert.Error(t, err)
+	assert.EqualError(t, err, "error deleting Admin: error deleting admin")
+}

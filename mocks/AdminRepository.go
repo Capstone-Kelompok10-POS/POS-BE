@@ -137,9 +137,7 @@ func (_m *AdminRepository) Update(admin *domain.Admin, id int) (*domain.Admin, e
 
 	var r0 *domain.Admin
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*domain.Admin, int) (*domain.Admin, error)); ok {
-		return rf(admin, id)
-	}
+
 	if rf, ok := ret.Get(0).(func(*domain.Admin, int) *domain.Admin); ok {
 		r0 = rf(admin, id)
 	} else {
@@ -156,6 +154,7 @@ func (_m *AdminRepository) Update(admin *domain.Admin, id int) (*domain.Admin, e
 
 	return r0, r1
 }
+
 
 // NewAdminRepository creates a new instance of AdminRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
