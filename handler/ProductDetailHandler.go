@@ -19,6 +19,7 @@ type ProductDetailHandler interface {
 	GetProductDetailHandler(ctx echo.Context) error
 	GetProductDetailsHandler(ctx echo.Context) error
 	DeleteProductDetailHandler(ctx echo.Context) error
+	GetProductDetailsByProductIdHandler(ctx echo.Context) error
 }
 
 type ProductDetailHandlerImpl struct {
@@ -123,6 +124,31 @@ func (c *ProductDetailHandlerImpl) GetProductDetailHandler(ctx echo.Context) err
 
 func (c *ProductDetailHandlerImpl) GetProductDetailsHandler(ctx echo.Context) error {
 	result, err := c.ProductDetailService.FindAll(ctx)
+
+	if err != nil {
+
+		if strings.Contains(err.Error(), "record not found") {
+			return ctx.JSON(http.StatusNotFound, helpers.ErrorResponse("product detail not found"))
+		}
+		logrus.Error(err.Error())
+		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Get product detail data error"))
+	}
+
+	response := res.ConvertProductDetailResponse(result)
+
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get all data product detail", response))
+
+}
+
+func (c *ProductDetailHandlerImpl) GetProductDetailsByProductIdHandler(ctx echo.Context) error {
+	ProductId := ctx.Param("productId")
+	ProductIdInt, err := strconv.Atoi(ProductId)
+	if err != nil{
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+	}
+	ProductIdUint := uint(ProductIdInt)
+
+	result, err := c.ProductDetailService.FindByProductId(ctx, ProductIdUint)
 
 	if err != nil {
 

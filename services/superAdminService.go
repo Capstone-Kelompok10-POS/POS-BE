@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/password"
 	req "qbills/utils/request"
 
 	"github.com/go-playground/validator"
@@ -21,12 +22,14 @@ type SuperAdminService interface {
 type SuperAdminServiceImpl struct {
 	SuperAdminRepository repository.SuperAdminRepository
 	Validate        *validator.Validate
+	Password password.PasswordHandler
 }
 
-func NewSuperAdminService(SuperAdminRepository repository.SuperAdminRepository, validate *validator.Validate) *SuperAdminServiceImpl {
+func NewSuperAdminService(SuperAdminRepository repository.SuperAdminRepository, validate *validator.Validate, password password.PasswordHandler) *SuperAdminServiceImpl {
 	return &SuperAdminServiceImpl{
 		SuperAdminRepository: SuperAdminRepository,
 		Validate:        validate,
+		Password: password,
 	}
 }
 
@@ -44,7 +47,7 @@ func (service *SuperAdminServiceImpl) LoginSuperAdmin(ctx echo.Context, request 
 
 	SuperAdmin := req.SuperAdminLoginRequestToSuperAdminDomain(request)
 
-	err = helpers.ComparePassword(existingSuperAdmin.Password, SuperAdmin.Password)
+	err = service.Password.ComparePassword(existingSuperAdmin.Password, SuperAdmin.Password)
 	if err != nil {
 		return nil, fmt.Errorf("invalid email or password")
 	}

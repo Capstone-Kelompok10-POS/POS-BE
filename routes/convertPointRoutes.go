@@ -23,8 +23,8 @@ func ConvertPointRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate)
 	convertPointGroup.Use(echoJwt.JWT([]byte(os.Getenv("SECRET_KEY"))))
 
 	convertPointGroup.POST("", ConvertPointHandler.CreateConvertPointHandler, middleware.AuthMiddleware("Admin"))
-	convertPointGroup.GET("/:id", ConvertPointHandler.GetConvertPointHandler, middleware.AuthMiddleware("Admin"))
-	convertPointGroup.GET("s", ConvertPointHandler.GetAllConvertPointHandler, middleware.AuthMiddleware("Admin"))
+	convertPointGroup.GET("/:id", ConvertPointHandler.GetConvertPointHandler)
+	convertPointGroup.GET("s", ConvertPointHandler.GetAllConvertPointHandler)
 	convertPointGroup.PUT("/:id", ConvertPointHandler.UpdateConvertPointHandler, middleware.AuthMiddleware("Admin"))
 	convertPointGroup.DELETE("/:id", ConvertPointHandler.DeleteConvertPointHandler, middleware.AuthMiddleware("Admin"))
 }

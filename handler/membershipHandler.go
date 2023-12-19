@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"qbills/models/web"
 	"qbills/services"
@@ -156,7 +155,6 @@ func (c MembershipHandlerImpl) UpdateMembershipHandler(ctx echo.Context) error {
 	}
 
 	_, err = c.MembershipService.UpdateMembership(ctx, membershipUpdateRequest, membershipIdInt)
-	fmt.Print(err)
 	if err != nil {
 		if strings.Contains(err.Error(), "validation failed") {
 			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid validation"))

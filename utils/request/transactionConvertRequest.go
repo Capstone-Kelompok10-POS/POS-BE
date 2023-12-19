@@ -74,7 +74,7 @@ func CreateTransactionPaymentRequestToMidtransChargeRequest(transaction *domain.
 	for _, detailRequest:= range transaction.Details {
 		item := midtrans.ItemDetails{
 			ID: fmt.Sprintf("PRODUCT-%d", detailRequest.ProductDetailID),
-			Name: "PRODUCT",
+			Name: "Product Qbills",
 			Price: int64(detailRequest.Price),
 			Qty: int32(detailRequest.Quantity),
 			Brand: "QBILLS",
@@ -123,13 +123,14 @@ func CreateTransactionPaymentRequestToMidtransChargeRequest(transaction *domain.
 func ChargeResponseToTransactionPayment(response *coreapi.ChargeResponse, transaction *domain.Transaction) *domain.Transaction {
 	parseTransactionTime, _ := time.Parse("2006-01-02 15:04:05", response.TransactionTime)
 	var vaNumber string
-	if transaction.TransactionPayment.PaymentMethodID == 1 {
+	if transaction.TransactionPayment.PaymentMethodID == 3 {
 		vaNumber = response.PermataVaNumber
 	} else {
 		vaNumber = response.VaNumbers[0].VANumber
 	}
-
+	fmt.Println(response, "ini midtrans")
 	return &domain.Transaction{
+		UpdatedAt: parseTransactionTime,
 		CashierID: transaction.CashierID,
 		MembershipID:       transaction.MembershipID,
 		ConvertPointID :    transaction.ConvertPointID,

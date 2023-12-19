@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/password"
 	req "qbills/utils/request"
 
 	"github.com/go-playground/validator"
@@ -25,12 +26,14 @@ type AdminService interface {
 type AdminServiceImpl struct {
 	AdminRepository repository.AdminRepository
 	Validate        *validator.Validate
+	Password password.PasswordHandler
 }
 
-func NewAdminService(adminRepository repository.AdminRepository, validate *validator.Validate) *AdminServiceImpl {
+func NewAdminService(adminRepository repository.AdminRepository, validate *validator.Validate, password password.PasswordHandler) *AdminServiceImpl {
 	return &AdminServiceImpl{
 		AdminRepository: adminRepository,
 		Validate:        validate,
+		Password: password,
 	}
 }
 
@@ -46,7 +49,7 @@ func (service *AdminServiceImpl) CreateAdmin(ctx echo.Context, request web.Admin
 		return nil, fmt.Errorf("username already exists")
 	}
 
-	admin.Password = helpers.HashPassword(admin.Password)
+	admin.Password = service.Password.HashPassword(admin.Password)
 	result, err := service.AdminRepository.Create(admin)
 
 	if err != nil {
@@ -69,7 +72,7 @@ func (service *AdminServiceImpl) LoginAdmin(ctx echo.Context, request web.AdminL
 
 	admin := req.AdminLoginRequestToAdminDomain(request)
 
-	err = helpers.ComparePassword(existingAdmin.Password, admin.Password)
+	err = service.Password.ComparePassword(existingAdmin.Password, admin.Password)
 	if err != nil {
 		return nil, fmt.Errorf("invalid username or password")
 	}
@@ -97,7 +100,7 @@ func (service *AdminServiceImpl) UpdateAdmin(ctx echo.Context, request web.Admin
 		}
 	}
 	
-	admin.Password = helpers.HashPassword(admin.Password)
+	admin.Password = service.Password.HashPassword(admin.Password)
 	result, err := service.AdminRepository.Update(admin, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data admin: %s", err.Error())
@@ -135,7 +138,6 @@ func (service *AdminServiceImpl) FindByUsername(ctx echo.Context, name string) (
 
 func (service *AdminServiceImpl) DeleteAdmin(ctx echo.Context, id int) error {
 	existingAdmin, _ := service.AdminRepository.FindById(id)
-	fmt.Println(existingAdmin)
 	if existingAdmin == nil {
 		return fmt.Errorf("admin not found")
 	}

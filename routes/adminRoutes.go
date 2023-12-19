@@ -6,6 +6,7 @@ import (
 	"qbills/repository"
 	"qbills/services"
 	"qbills/utils/helpers/middleware"
+	"qbills/utils/helpers/password"
 
 	"github.com/go-playground/validator"
 	echoJwt "github.com/labstack/echo-jwt/v4"
@@ -13,9 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
+func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate, password password.PasswordHandler) {
 	adminRepository := repository.NewAdminRepository(db)
-	adminService := services.NewAdminService(adminRepository, validate)
+	adminService := services.NewAdminService(adminRepository, validate, password)
 	AdminHandler := handler.NewAdminHandler(adminService)
 
 	adminGroup := e.Group("api/v1/admin")
@@ -28,6 +29,6 @@ func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
 	adminGroup.GET("/:id", AdminHandler.GetAdminHandler, middleware.AuthMiddleware("SuperAdmin"))
 	adminGroup.GET("s", AdminHandler.GetAdminsHandler, middleware.AuthMiddleware("SuperAdmin"))
 	adminGroup.GET("/username/:username", AdminHandler.GetAdminByUsernameHandler, middleware.AuthMiddleware("SuperAdmin"))
-	adminGroup.PUT("/:id", AdminHandler.UpdateAdminHandler, middleware.AuthMiddleware("Admin"))
-	adminGroup.DELETE("/:id", AdminHandler.DeleteAdminHandler, middleware.AuthMiddleware("Admin"))
+	adminGroup.PUT("/:id", AdminHandler.UpdateAdminHandler, middleware.AuthMiddleware("SuperAdmin"))
+	adminGroup.DELETE("/:id", AdminHandler.DeleteAdminHandler, middleware.AuthMiddleware("SuperAdmin"))
 }

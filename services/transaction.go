@@ -21,6 +21,12 @@ type TransactionService interface {
 	CreateTransaction(request web.TransactionCreateRequest) (*web.TransactionResponse, error)
 	FindById(id int) (*domain.Transaction, error)
 	FindByInvoice(invoice string) (*domain.Transaction, error)
+	FindByStatus(invoice, status string) (*domain.Transaction, error)
+	FindByYearly() (*domain.TransactionYearlyRevenue, error)
+	FindByMonthly() ([]domain.TransactionMonthlyRevenue, error)
+	FindByDaily() (*domain.TransactionDailyRevenue, error)
+	FindByMembershipIdTransaction(membershipId int) ([]domain.Transaction, error)
+	FindByCashierIdTransaction(cashierId int) ([]domain.Transaction, error)
 	FindAllTransaction() ([]domain.Transaction, int, error)
 	FindRecentTransaction() ([]domain.Transaction, error)
 	FindPaginationTransaction(orderBy, QueryLimit, QueryPage string) ([]domain.Transaction, *helpers.Pagination, error)
@@ -29,10 +35,11 @@ type TransactionService interface {
 	CalculateTotalPrice(details []domain.TransactionDetail) (float64, error)
 	CalculateDiscount(id int, totalPrice float64) (float64, error)
 	SubtractionPoint(tx *gorm.DB, pointId, membershipId uint) (*domain.Membership, error)
-	UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID uint) error
+	UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID, pointId uint) error
 	CreateInvoice(paymentMethod, paymentType uint) (string, error)
 	NotificationPayment(notificationPayload map[string]interface{}) error
 	ManualPayment(invoice string) (*domain.Transaction, error)
+	UpdateStockProductAndMembershipPoint(invoice string) error
 }
 
 type TransactionImpl struct {
@@ -40,17 +47,19 @@ type TransactionImpl struct {
 	ProductDetailRepository repository.ProductDetailRepository
 	ConvertPointRepository  repository.ConvertPointRepository
 	MembershipRepository    repository.MembershipRepository
+	MembershipPointRepository repository.MembershipPointRepository
 	PaymentMethodRepository repository.PaymentMethodRepository
 	MidtransCoreApi         midtrans.MidtransCoreApi
 	validate                *validator.Validate
 }
 
-func NewTransactionService(transactionRepository repository.TransactionRepository, productRepository repository.ProductDetailRepository, convertPointRepository repository.ConvertPointRepository, membershipRepository repository.MembershipRepository, paymentMethodRepository repository.PaymentMethodRepository, midtransCoreApi midtrans.MidtransCoreApi, validate *validator.Validate) *TransactionImpl {
+func NewTransactionService(transactionRepository repository.TransactionRepository, productRepository repository.ProductDetailRepository, convertPointRepository repository.ConvertPointRepository, membershipRepository repository.MembershipRepository, membershipPointRepository repository.MembershipPointRepository, paymentMethodRepository repository.PaymentMethodRepository, midtransCoreApi midtrans.MidtransCoreApi, validate *validator.Validate) *TransactionImpl {
 	return &TransactionImpl{
 		TransactionRepository:   transactionRepository,
 		ProductDetailRepository: productRepository,
 		ConvertPointRepository:  convertPointRepository,
 		MembershipRepository:    membershipRepository,
+		MembershipPointRepository: membershipPointRepository,
 		PaymentMethodRepository: paymentMethodRepository,
 		MidtransCoreApi:         midtransCoreApi,
 		validate:                validate,
@@ -121,7 +130,7 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 	}
 
 	//Create Invoice transaction Payment
-	invoice, err := service.CreateInvoice(request.TransactionPayment.PaymentMethodID, request.TransactionPayment.PaymentMethod.PaymentTypeID)
+	invoice, err := service.CreateInvoice(request.TransactionPayment.PaymentMethodID, paymentMethod.PaymentTypeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create invoice: %w", err)
 	}
@@ -131,7 +140,6 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 	status := "pending"
 	//Add status transaction Payment
 	request.TransactionPayment.PaymentStatus = status
-	request.TransactionPayment.VANumber = paymentMethod.Name
 	transaction := req.TransactionCreateRequestToTransactionDomain(request,
 		web.TransactionCreate{
 			Discount:     discount,
@@ -159,7 +167,7 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 		if err != nil {
 			return nil, fmt.Errorf("error when creating transaction %w", err)
 		}
-
+		
 	} else {
 		result, err = service.TransactionRepository.Save(transaction)
 		if err != nil {
@@ -168,21 +176,6 @@ func (service *TransactionImpl) CreateTransaction(request web.TransactionCreateR
 	}
 
 	if result != nil {
-		_, err = service.SubtractionPoint(tx, result.ConvertPointID, result.MembershipID)
-		if err != nil {
-			return nil, fmt.Errorf("error when decreasing point membership %w", err)
-		}
-
-		err = service.UpdateMemberPoint(tx, result.TotalPayment, result.MembershipID)
-		if err != nil {
-			return nil, fmt.Errorf("error when increasing point membership %w", err)
-		}
-
-		// decrease product total stock
-		err = service.ProductStockDecrese(tx, request.Details)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decrease product stock: %w", err)
-		}
 
 		err = tx.Commit().Error
 		if err != nil {
@@ -313,7 +306,15 @@ func (service *TransactionImpl) SubtractionPoint(tx *gorm.DB, pointId, membershi
 	membership.TotalPoint = membership.TotalPoint - point.Point
 
 	err = service.MembershipRepository.UpdatePoint(tx, membership)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update point membership: %w", err)
+	}
 
+	updatePoint := domain.MembershipPoint{
+		MembershipID: membership.ID,
+		Point: -	int(point.Point),
+	}
+	_, err = service.MembershipPointRepository.Create(tx, &updatePoint)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update point membership: %w", err)
 	}
@@ -322,31 +323,43 @@ func (service *TransactionImpl) SubtractionPoint(tx *gorm.DB, pointId, membershi
 
 }
 
-func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID uint) error {
+func (service *TransactionImpl) UpdateMemberPoint(tx *gorm.DB, totalPayment float64, membershipID, pointId uint) error {
 	// Hitung jumlah poin berdasarkan total pembayaran
 	pointsEarned := uint(totalPayment/50000) * 5
 
 	if pointsEarned > 0 {
+		point, err := service.ConvertPointRepository.FindById(int(pointId))
+		if err != nil {
+			return fmt.Errorf("failed to find convert point: %w", err)
+		}
 		membership, err := service.MembershipRepository.FindById(int(membershipID))
 		if err != nil {
 			return fmt.Errorf("failed to find membership: %w", err)
 		}
-		membership.TotalPoint += pointsEarned
+		membership.TotalPoint = (membership.TotalPoint - point.Point) + pointsEarned
 
 		// Simpan perubahan keanggotaan ke database
 		err = service.MembershipRepository.UpdatePoint(tx, membership)
 		if err != nil {
 			return fmt.Errorf("failed to update point membership: %w", err)
 		}
+		updatePoint := domain.MembershipPoint{
+			MembershipID: membership.ID,
+			Point: int(pointsEarned),
+		}
+		_ , err = service.MembershipPointRepository.Create(tx, &updatePoint)
+		if err != nil {
+			return fmt.Errorf("failed to update point membership: %w", err)
+		}
 	}
 
-	// Ambil data keanggotaan setelah perubahan
-	_, err := service.MembershipRepository.FindById(int(membershipID))
-	if err != nil {
-		return fmt.Errorf("failed to find updated membership: %w", err)
-	}
+    // Ambil data keanggotaan setelah perubahan
+    _ , err := service.MembershipRepository.FindById(int(membershipID))
+    if err != nil {
+        return fmt.Errorf("failed to find updated membership: %w", err)
+    }
 
-	return nil
+    return nil
 }
 
 func (service *TransactionImpl) CreateInvoice(paymentMethod, paymentType uint) (string, error) {
@@ -355,7 +368,7 @@ func (service *TransactionImpl) CreateInvoice(paymentMethod, paymentType uint) (
 	currentTimeString := strconv.FormatInt(currentTime, 10)
 	invoiceNumber := rand.Intn(999) + 1000
 	invoiceNumberString := strconv.Itoa(invoiceNumber)
-	switch paymentMethod {
+	switch paymentType {
 	case 1:
 		method = "CASH"
 	case 2:
@@ -377,7 +390,7 @@ func (service *TransactionImpl) MatchingTotalPrice(priceMobile, price float64) e
 }
 
 func (service *TransactionImpl) MatchingDiscount(discountMobile, discount float64) error {
-	fmt.Println(discountMobile, discount)
+
 	if discountMobile != discount {
 		return fmt.Errorf("discount does not match")
 	}
@@ -413,10 +426,61 @@ func (service *TransactionImpl) NotificationPayment(notificationPayload map[stri
 	if err != nil {
 		return fmt.Errorf("error when update transaction status : %s", err.Error())
 	}
+	
+	return nil
+}
+
+func(service *TransactionImpl) UpdateStockProductAndMembershipPoint(invoice string) error {
+	result, _ := service.TransactionRepository.FindByInvoice(invoice)
+	if result == nil {
+		return fmt.Errorf("transaction not found")
+	}
+
+	if result.TransactionPayment.PaymentStatus == "success" {
+		tx := service.TransactionRepository.BeginTransaction()
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+				panic(r)
+			}
+		}()
+
+		_, err := service.SubtractionPoint(tx, result.ConvertPointID, result.MembershipID)
+		if err != nil {
+			return fmt.Errorf("error when decreasing point membership %w", err)
+		}
+
+		err = service.UpdateMemberPoint(tx, result.TotalPayment, result.MembershipID, result.ConvertPointID)
+		if err != nil {
+			return fmt.Errorf("error when increasing point membership %w", err)
+		}
+
+		// decrease product total stock
+		err = service.ProductStockDecrese(tx, result.Details)
+		if err != nil {
+			return fmt.Errorf("failed to decrease product stock: %w", err)
+		}
+
+		err = tx.Commit().Error
+		if err != nil {
+			return  fmt.Errorf("error committing update transaction: %w", err)
+		}
+	} else {
+		return fmt.Errorf("error transaction payment not success")
+	}
+
 	return nil
 }
 
 func (service *TransactionImpl) ManualPayment(invoice string) (*domain.Transaction, error) {
+	tx := service.TransactionRepository.BeginTransaction()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+	
 	transactionPaymentResult := &domain.PaymentTransactionStatus{
 		OrderID:           invoice,
 		SettlementTime:    time.Now(),
@@ -426,8 +490,38 @@ func (service *TransactionImpl) ManualPayment(invoice string) (*domain.Transacti
 	if err != nil {
 		return nil, fmt.Errorf("error when update transaction status : %s", err.Error())
 	}
-
 	result, _ := service.TransactionRepository.FindByInvoice(invoice)
+	if result == nil {
+		return nil, fmt.Errorf("transaction not found")
+	}
+	
+	_, err = service.SubtractionPoint(tx, result.ConvertPointID, result.MembershipID)
+	if err != nil {
+		return nil, fmt.Errorf("error when decreasing point membership %w", err)
+	}
+
+	err = service.UpdateMemberPoint(tx, result.TotalPayment, result.MembershipID, result.ConvertPointID)
+	if err != nil {
+		return nil, fmt.Errorf("error when increasing point membership %w", err)
+	}
+
+	// decrease product total stock
+	err = service.ProductStockDecrese(tx, result.Details)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decrease product stock: %w", err)
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		return nil, fmt.Errorf("error committing update transaction: %w", err)
+	}
+
+
+	return result, nil
+}
+
+func (service *TransactionImpl) FindByStatus(invoice, status string) (*domain.Transaction, error) {
+	result, _ := service.TransactionRepository.FindByStatus(invoice, status)
 	if result == nil {
 		return nil, fmt.Errorf("transaction not found")
 	}
@@ -452,6 +546,40 @@ func (service *TransactionImpl) FindByInvoice(invoice string) (*domain.Transacti
 	return existingTransaction, nil
 }
 
+func (service *TransactionImpl) FindByYearly() (*domain.TransactionYearlyRevenue, error) {
+	currentYear := time.Now().Year()
+	existingTransaction, _ := service.TransactionRepository.FindYearlyRevenue(currentYear)
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction not found")
+	}
+
+	return existingTransaction, nil
+}
+
+func (service *TransactionImpl) FindByDaily() (*domain.TransactionDailyRevenue, error) {
+	currentDate := time.Now().Format("2006-01-02")
+	existingTransaction, err := service.TransactionRepository.FindDailyTransaction(currentDate)
+	if err != nil {
+		return nil, fmt.Errorf("error when get transaction daily")
+	}
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction daily not found")
+	}
+
+	return existingTransaction, nil
+}
+
+
+func (service *TransactionImpl) FindByMonthly() ([]domain.TransactionMonthlyRevenue, error) {
+	currentYear := time.Now().Year()
+	existingTransaction, _ := service.TransactionRepository.FindMonthlyRevenue(currentYear)
+	if existingTransaction == nil {
+		return nil, fmt.Errorf("transaction not found")
+	}
+
+	return existingTransaction, nil
+}
+
 func (service *TransactionImpl) FindAllTransaction() ([]domain.Transaction, int, error) {
 	transactions, totalTransaction, err := service.TransactionRepository.FindAllTransaction()
 	if err != nil {
@@ -459,6 +587,27 @@ func (service *TransactionImpl) FindAllTransaction() ([]domain.Transaction, int,
 	}
 
 	return transactions, totalTransaction, nil
+}
+
+func (service *TransactionImpl) FindByCashierIdTransaction(cashierId int) ([]domain.Transaction, error) {
+	transactions, err := service.TransactionRepository.FindByCashierId(cashierId)
+	if err != nil{
+		return nil, fmt.Errorf("error when get transaction by cashier")
+	}
+	if transactions == nil{
+		return nil, fmt.Errorf("transaction by cashier not found")
+	}
+
+	return transactions, nil
+}
+
+func (service *TransactionImpl) FindByMembershipIdTransaction(membershipId int) ([]domain.Transaction, error) {
+	transactions, err := service.TransactionRepository.FindByMembershipId(membershipId)
+	if err != nil{
+		return nil, fmt.Errorf("transaction by membership not found")
+	}
+
+	return transactions, nil
 }
 
 func (service *TransactionImpl) FindRecentTransaction() ([]domain.Transaction, error) {

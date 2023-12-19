@@ -73,7 +73,7 @@ func (service *PaymentTypeServiceImpl) UpdatePaymentType(ctx echo.Context, reque
 			return nil, fmt.Errorf("payment type name is already exists")
 		}
 	}
-	fmt.Println(paymentType)
+	
 	result, err := service.PaymentTypeRepository.Update(paymentType, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data payment type: %s", err.Error())
