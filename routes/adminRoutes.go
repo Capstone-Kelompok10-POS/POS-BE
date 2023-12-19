@@ -6,6 +6,7 @@ import (
 	"qbills/repository"
 	"qbills/services"
 	"qbills/utils/helpers/middleware"
+	"qbills/utils/helpers/password"
 
 	"github.com/go-playground/validator"
 	echoJwt "github.com/labstack/echo-jwt/v4"
@@ -13,9 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
+func AdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate, password password.PasswordHandler) {
 	adminRepository := repository.NewAdminRepository(db)
-	adminService := services.NewAdminService(adminRepository, validate)
+	adminService := services.NewAdminService(adminRepository, validate, password)
 	AdminHandler := handler.NewAdminHandler(adminService)
 
 	adminGroup := e.Group("api/v1/admin")

@@ -27,13 +27,12 @@ type ProductHandler interface {
 	DeleteProductHandler(ctx echo.Context) error
 	FindPaginationProduct(ctx echo.Context) error
 	ProductAIHandler(ctx echo.Context) error
-	GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error)
+	GetProductNames(ctx echo.Context) (map[uint]helpers.ProductDataAIRecommended, error)
 	GetBestProductsHandler(ctx echo.Context) error
 }
 
 type ProductHandlerImpl struct {
 	ProductService services.ProductService
-	Middleware     middleware.ProductsAI
 }
 
 func NewProductHandler(ProductService services.ProductService) ProductHandler {
@@ -284,8 +283,8 @@ func (c *ProductHandlerImpl) FindPaginationProduct(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, helpers.SuccessResponseWithMeta("succesfully get data product", productResponse, meta))
 }
 
-func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middleware.ProductDataAIRecommended, error) {
-	productMap := make(map[uint]middleware.ProductDataAIRecommended)
+func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]helpers.ProductDataAIRecommended, error) {
+	productMap := make(map[uint]helpers.ProductDataAIRecommended)
 
 	products, _, err := c.ProductService.FindAllProductService(ctx)
 
@@ -298,7 +297,7 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 	}
 
 	for _, product := range products {
-		productData := middleware.ProductDataAIRecommended{
+		productData := helpers.ProductDataAIRecommended{
 			Name:        product.Name,
 			Ingredients: product.Ingredients,
 		}
@@ -309,21 +308,32 @@ func (c *ProductHandlerImpl) GetProductNames(ctx echo.Context) (map[uint]middlew
 }
 
 func (c *ProductHandlerImpl) ProductAIHandler(ctx echo.Context) error {
+	input := web.ProductRecommendRequest{}
+	err := ctx.Bind(&input)
+	if err != nil{
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("invalid client input"))
+	}
+
 	openAIKey := os.Getenv("OPEN_AI_KEY")
 	productMap, err := c.GetProductNames(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product names"))
 	}
-
-	result, err := middleware.ProductAI(productMap, openAIKey)
+	if input.Input == "" {
+		return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("input is empty"))
+	}
+	result, err := helpers.ProductAI(productMap, openAIKey, input.Input)
 	if err != nil {
+		if strings.Contains(err.Error(), "input is empty") {
+			return ctx.JSON(http.StatusBadRequest, helpers.ErrorResponse("input is empty"))
+		}
 		log.Error("Error calling ProductAI:", err)
 		return ctx.JSON(http.StatusInternalServerError, helpers.ErrorResponse("Error getting product recommendation"))
 	}
 
-	log.Info("ProductAI Result:", result)
+	response := res.ConvertProductRecommendationResponse(result)
 
-	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", result))
+	return ctx.JSON(http.StatusOK, helpers.SuccessResponse("success get product recommendation", response))
 }
 
 

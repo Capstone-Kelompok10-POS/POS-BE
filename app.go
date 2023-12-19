@@ -7,6 +7,7 @@ import (
 	"qbills/drivers"
 	"qbills/routes"
 	"qbills/utils/helpers/midtrans"
+	"qbills/utils/helpers/password"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -16,7 +17,13 @@ import (
 
 func main() {
 	myApp := echo.New()
+	myApp.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+        AllowOrigins: []string{"*"},
+        AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+    }))
+	
 	validate := validator.New()
+	password := password.NewPasswordHandler()
 
 	config, err := configs.LoadConfig()
 	if err != nil {
@@ -30,13 +37,13 @@ func main() {
 
 	midtransCoreApi := midtrans.NewMidtransCoreApi(&config.Midtrans)
 
-	myApp.GET("/home", func(c echo.Context) error {
+	myApp.GET("", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Welcome to Q Bills API Services")
 	})
 
-	routes.AdminRoutes(myApp, db, validate)
-	routes.CashierRoutes(myApp, db, validate)
-	routes.SuperAdminRoutes(myApp, db, validate)
+	routes.AdminRoutes(myApp, db, validate, password)
+	routes.CashierRoutes(myApp, db, validate, password)
+	routes.SuperAdminRoutes(myApp, db, validate, password)
 	routes.ProductRoutes(myApp, db, validate)
 	routes.StockRoutes(myApp, db, validate)
 	routes.ConvertPointRoutes(myApp, db, validate)
@@ -50,7 +57,7 @@ func main() {
 	routes.TransactionRoutes(myApp, db, midtransCoreApi, validate)
 
 	myApp.Pre(middleware.RemoveTrailingSlash())
-	myApp.Use(middleware.CORS())
+
 	myApp.Use(middleware.LoggerWithConfig(
 		middleware.LoggerConfig{
 			Format: "method=${method}, uri=${uri}, status=${status}, time=${time_rfc3339}\n",

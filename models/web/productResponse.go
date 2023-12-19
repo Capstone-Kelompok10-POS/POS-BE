@@ -3,7 +3,7 @@ package web
 import "qbills/models/domain"
 
 type ProductResponse struct {
-	ID            uint                 `json:"Id"`
+	ID            uint                 `json:"id"`
 	ProductType   domain.ProductType   `json:"productType"`
 	Admin         domain.AdminResponse `json:"admin"`
 	ProductDetail []domain.ProductDetailPreload
@@ -13,7 +13,7 @@ type ProductResponse struct {
 }
 
 type ProductResponseCustom struct {
-	ID            uint               `json:"Id"`
+	ID            uint               `json:"id"`
 	ProductTypeID uint               `json:"productTypeId"`
 	ProductType   domain.ProductType `json:"productType"`
 	ProductDetail []domain.ProductDetail
@@ -25,7 +25,7 @@ type ProductResponseCustom struct {
 }
 
 type ProductCreateResponse struct {
-	ID            uint   `json:"Id"`
+	ID            uint   `json:"id"`
 	ProductTypeID uint   `json:"productTypeId"`
 	AdminID       uint   `json:"adminId"`
 	Name          string `json:"name"`
@@ -34,7 +34,7 @@ type ProductCreateResponse struct {
 }
 
 type ProductUpdateResponse struct {
-	ID            uint   `json:"Id"`
+	ID            uint   `json:"id"`
 	ProductTypeID uint   `json:"productTypeId"`
 	Name          string `json:"name"`
 	Ingredients   string `json:"ingredients"`
@@ -49,7 +49,7 @@ type ProductTransactionResponse struct {
 }
 
 type ProductsResponse struct {
-	ID            uint                    `json:"Id"`
+	ID            uint                    `json:"id"`
 	ProductType   ProductTypeResponse     `json:"productType"`
 	Name          string                  `json:"name"`
 	Ingredients   string                  `json:"ingredients"`
@@ -66,4 +66,8 @@ type BestProductsResponse struct {
 	ProductTypeName string      	`json:"ProductTypeName"`
 	TotalQuantity 	int				`json:"totalQuantity"`
 	Amount 			float64 		`json:"amount"`
+}
+
+type ProductRecommendation struct {
+	Reply string `json:"reply"`
 }

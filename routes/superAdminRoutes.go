@@ -6,6 +6,7 @@ import (
 	"qbills/repository"
 	"qbills/services"
 	"qbills/utils/helpers/middleware"
+	"qbills/utils/helpers/password"
 
 	"github.com/go-playground/validator"
 	echoJwt "github.com/labstack/echo-jwt/v4"
@@ -13,9 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func SuperAdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
+func SuperAdminRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate, password password.PasswordHandler) {
 	superAdminRepository := repository.NewSuperAdminRepository(db)
-	superAdminService := services.NewSuperAdminService(superAdminRepository, validate)
+	superAdminService := services.NewSuperAdminService(superAdminRepository, validate, password)
 	SuperAdminHandler := handler.NewSuperAdminHandler(superAdminService)
 
 	superAdminGroup := e.Group("api/v1/super-admin")

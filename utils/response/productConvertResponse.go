@@ -101,6 +101,12 @@ func ConvertBestProductResponse(bestProducts []domain.BestSellingProduct) []web.
 	return results
 }
 
+func ConvertProductRecommendationResponse(recommendation string) web.ProductRecommendation {
+	return web.ProductRecommendation{
+		Reply: recommendation,
+	}
+}
+
 func ConvertProductResponse(products []domain.Product) []web.ProductsResponse {
 	var results []web.ProductsResponse
 
