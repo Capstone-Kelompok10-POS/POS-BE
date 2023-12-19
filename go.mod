@@ -8,7 +8,6 @@ require (
 	github.com/boombuler/barcode v1.0.1
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/golang-jwt/jwt/v5 v5.0.0
-	github.com/golang/mock v1.1.1
 	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-jwt/v4 v4.2.0
