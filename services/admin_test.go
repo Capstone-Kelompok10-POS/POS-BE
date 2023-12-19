@@ -77,10 +77,6 @@ func TestCreateAdmin_ValidationError(t *testing.T) {
 
 	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
 
-	// Set up validation error
-	mockValidator.RegisterValidation("customValidation", func(fl validator.FieldLevel) bool {
-		return false
-	})
 
 	ctx := echo.New().NewContext(nil, nil)
 
@@ -131,35 +127,170 @@ func TestCreateAdmin_Failure(t *testing.T) {
 	mockPasswordHandler.AssertExpectations(t)
 }
 
-// func TestLoginAdmin_Success(t *testing.T) {
-// 	mockRepository := new(mocks.AdminRepository)
-// 	mockValidator := validator.New()
-// 	mockPasswordHandler := new(mocks.PasswordHandler)
+func TestLoginAdmin_Success(t *testing.T) {
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
 
-// 	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
-// 	adminRequest := web.AdminLoginRequest{
-// 		Username: "vilanatasya",
-// 		Password: "vila12345",
-// 	}
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+	adminRequest := web.AdminLoginRequest{
+		Username: "vilanatasya",
+		Password: "vila12345",
+	}
 
-// 	mockRepository.On("FindByUsername", adminRequest.Username).Return(, nil)
+	mockRepository.On("FindByUsername", adminRequest.Username).Return(&domain.Admin{ID:1, Password: "hashedPassword"}, nil)
 	
-// 	mockPasswordHandler.On("ComparePassword", "hashedPassword", adminRequest.Password).Return(nil)
+	mockPasswordHandler.On("ComparePassword", "hashedPassword", adminRequest.Password).Return(nil)
+
+	ctx := echo.New().NewContext(nil, nil)
+	result, err := adminService.LoginAdmin(ctx, adminRequest)
+	// Assert the result
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+
+	// Assert that the expected calls were made
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
 
 
-// 	ctx := echo.New().NewContext(nil, nil)
-// 	// Mock data
-// 	_, err := adminService.CreateAdmin(ctx, web.AdminCreateRequest{
-// 			SuperAdminID: 1,
-// 			FullName:     "Acek",
-// 			Username:     "acekasik",
-// 			Password:     "chawni123",
-// 	})
 
-// 	// Assert the result
-// 	assert.NoError(t, err)
+func TestLoginAdmin_Failure(t *testing.T) {
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
 
-// 	// Assert that the expected calls were made
-// 	mockRepository.AssertExpectations(t)
-// 	mockPasswordHandler.AssertExpectations(t)
-// }
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+	adminRequest := web.AdminLoginRequest{
+		Username: "vilanatasya",
+		Password: "vila12345",
+	}
+
+	mockRepository.On("FindByUsername", adminRequest.Username).Return(&domain.Admin{ID:1, Password: "hashedPassword"}, nil)
+	
+	mockPasswordHandler.On("ComparePassword", "hashedPassword", adminRequest.Password).Return(errors.New("invalid username or password"))
+
+	ctx := echo.New().NewContext(nil, nil)
+	result, err := adminService.LoginAdmin(ctx, adminRequest)
+	// Assert the result
+	assert.Error(t, err)
+	assert.Nil(t, result)
+
+	// Assert that the expected calls were made
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
+
+func TestLoginAdmin_UsernameOrPasswordError(t *testing.T) {
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+	adminRequest := web.AdminLoginRequest{
+		Username: "vilanatasya",
+		Password: "vila12345",
+	}
+
+	mockRepository.On("FindByUsername", adminRequest.Username).Return(nil, errors.New("invalid username or password"))
+	ctx := echo.New().NewContext(nil, nil)
+	_ , err := adminService.LoginAdmin(ctx, adminRequest)
+
+	// Assert the result
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid username or password")
+
+	// Assert that the expected calls were made
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
+func TestLoginAdmin_ValidationError(t *testing.T) {
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+	adminRequest := web.AdminLoginRequest{
+		Username: "vilanatasya",
+		Password: "",
+	}
+
+	ctx := echo.New().NewContext(nil, nil)
+	_ , err := adminService.LoginAdmin(ctx, adminRequest)
+	// Assert the result
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "validation failed")
+
+	// Assert that the expected calls were made
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
+func TestUpdateAdmin_Success(t *testing.T) {
+	// Create a new instance of the mock repository, validator, and password handler
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+
+	// Create an instance of the admin service with the mocks
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+
+	adminID := 1
+	adminId := uint(adminID)
+	adminUpdateRequest := web.AdminUpdateRequest{
+		FullName: "Acek",
+		Username: "acekasik",
+		Password: "chawni123",
+	}
+
+	// Set up the expected return values from the mock repository
+	mockRepository.On("FindById", adminID).Return(&domain.Admin{}, nil)
+	mockRepository.On("FindByUsername", mock.Anything).Return(nil, nil)
+	mockPasswordHandler.On("HashPassword", mock.Anything).Return("hashedPassword", nil)
+
+	// Set up the expected call for the Update method
+	mockRepository.On("Update", mock.Anything, adminID).Return(&domain.Admin{ID: adminId, FullName: adminUpdateRequest.FullName}, nil)
+
+	updatedAdmin, err := adminService.UpdateAdmin(nil, adminUpdateRequest, adminID)
+
+	// Assert the result
+	assert.NoError(t, err)
+	assert.NotNil(t, updatedAdmin)
+	assert.Equal(t, adminUpdateRequest.FullName, updatedAdmin.FullName)
+
+	// Assert that the expected calls were made to the mock repository
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
+
+func TestUpdateAdmin_ValidationError(t *testing.T) {
+	// Create a new instance of the mock repository, validator, and password handler
+	mockRepository := new(mocks.AdminRepository)
+	mockValidator := validator.New()
+	mockPasswordHandler := new(mocks.PasswordHandler)
+
+	// Create an instance of the admin service with the mocks
+	adminService := NewAdminService(mockRepository, mockValidator, mockPasswordHandler)
+
+	adminID := 1
+	adminUpdateRequest := web.AdminUpdateRequest{
+		FullName: "Acek",
+		Username: "acekasik",
+		Password: "123",
+	}
+
+	_ , err := adminService.UpdateAdmin(nil, adminUpdateRequest, adminID)
+
+
+	// Assert the result
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "validation failed")
+
+	// Assert that the expected calls were made to the mock repository
+	mockRepository.AssertExpectations(t)
+	mockPasswordHandler.AssertExpectations(t)
+}
+
