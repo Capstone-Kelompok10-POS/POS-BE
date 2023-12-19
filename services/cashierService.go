@@ -6,6 +6,7 @@ import (
 	"qbills/models/web"
 	"qbills/repository"
 	"qbills/utils/helpers"
+	"qbills/utils/helpers/password"
 	req "qbills/utils/request"
 
 	"github.com/go-playground/validator"
@@ -25,12 +26,14 @@ type CashierService interface {
 type CashierServiceImpl struct {
 	CashierRepository repository.CashierRepository
 	Validate          *validator.Validate
+	Password password.PasswordHandler
 }
 
-func NewCashierService(cashierRepository repository.CashierRepository, validate *validator.Validate) *CashierServiceImpl {
+func NewCashierService(cashierRepository repository.CashierRepository, validate *validator.Validate, password password.PasswordHandler) *CashierServiceImpl {
 	return &CashierServiceImpl{
 		CashierRepository: cashierRepository,
 		Validate:          validate,
+		Password: password,
 	}
 }
 
@@ -46,7 +49,7 @@ func (service *CashierServiceImpl) CreateCashier(ctx echo.Context, request web.C
 	}
 	cashier := req.CashierCreateRequestToCashierDomain(request)
 
-	cashier.Password = helpers.HashPassword(cashier.Password)
+	cashier.Password = service.Password.HashPassword(cashier.Password)
 	result, err := service.CashierRepository.Create(cashier)
 
 	if err != nil {
@@ -69,7 +72,7 @@ func (service *CashierServiceImpl) LoginCashier(ctx echo.Context, request web.Ca
 
 	cashier := req.CashierLoginRequestToCashierDomain(request)
 
-	err = helpers.ComparePassword(existingCashier.Password, cashier.Password)
+	err = service.Password.ComparePassword(existingCashier.Password, cashier.Password)
 	if err != nil {
 		return nil, fmt.Errorf("invalid username or password")
 	}
@@ -96,7 +99,7 @@ func (service *CashierServiceImpl) UpdateCashier(ctx echo.Context, request web.C
 		}
 	}
 
-	cashier.Password = helpers.HashPassword(cashier.Password)
+	cashier.Password = service.Password.HashPassword(cashier.Password)
 	result, err := service.CashierRepository.Update(cashier, id)
 	if err != nil {
 		return nil, fmt.Errorf("error when updating data cashier: %s", err.Error())

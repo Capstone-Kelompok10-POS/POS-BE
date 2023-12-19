@@ -7,6 +7,7 @@ import (
 	"qbills/drivers"
 	"qbills/routes"
 	"qbills/utils/helpers/midtrans"
+	"qbills/utils/helpers/password"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
@@ -22,6 +23,7 @@ func main() {
     }))
 	
 	validate := validator.New()
+	password := password.NewPasswordHandler()
 
 	config, err := configs.LoadConfig()
 	if err != nil {
@@ -39,9 +41,9 @@ func main() {
 		return c.String(http.StatusOK, "Welcome to Q Bills API Services")
 	})
 
-	routes.AdminRoutes(myApp, db, validate)
-	routes.CashierRoutes(myApp, db, validate)
-	routes.SuperAdminRoutes(myApp, db, validate)
+	routes.AdminRoutes(myApp, db, validate, password)
+	routes.CashierRoutes(myApp, db, validate, password)
+	routes.SuperAdminRoutes(myApp, db, validate, password)
 	routes.ProductRoutes(myApp, db, validate)
 	routes.StockRoutes(myApp, db, validate)
 	routes.ConvertPointRoutes(myApp, db, validate)

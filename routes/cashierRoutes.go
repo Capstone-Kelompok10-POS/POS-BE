@@ -6,6 +6,7 @@ import (
 	"qbills/repository"
 	"qbills/services"
 	"qbills/utils/helpers/middleware"
+	"qbills/utils/helpers/password"
 
 	"github.com/go-playground/validator"
 	echoJwt "github.com/labstack/echo-jwt/v4"
@@ -13,9 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func CashierRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate) {
+func CashierRoutes(e *echo.Echo, db *gorm.DB, validate *validator.Validate, password password.PasswordHandler) {
 	cashierRepository := repository.NewCashierRepository(db)
-	cashierService := services.NewCashierService(cashierRepository, validate)
+	cashierService := services.NewCashierService(cashierRepository, validate, password)
 	CashierHandler := handler.NewCashierHandler(cashierService)
 
 	cashierGroup := e.Group("api/v1/cashier")
