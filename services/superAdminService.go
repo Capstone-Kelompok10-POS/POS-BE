@@ -42,14 +42,14 @@ func (service *SuperAdminServiceImpl) LoginSuperAdmin(ctx echo.Context, request 
 
 	existingSuperAdmin, err := service.SuperAdminRepository.FindByUsername(request.Username)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	SuperAdmin := req.SuperAdminLoginRequestToSuperAdminDomain(request)
 
 	err = service.Password.ComparePassword(existingSuperAdmin.Password, SuperAdmin.Password)
 	if err != nil {
-		return nil, fmt.Errorf("invalid email or password")
+		return nil, fmt.Errorf("invalid username or password")
 	}
 
 	return existingSuperAdmin, nil

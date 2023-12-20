@@ -364,7 +364,7 @@ func TestUpdateAdmin_Failure(t *testing.T) {
 
 
 
-func TestFindById_Success(t *testing.T) {
+func TestAdminFindById_Success(t *testing.T) {
 	// Create your mock
 	mockValidator := validator.New()
 	mockPasswordHandler := new(mocks.PasswordHandler)
@@ -397,7 +397,7 @@ func TestFindById_Success(t *testing.T) {
 }
 
 
-func TestFindById_AdminNotFound(t *testing.T) {
+func TestAdminFindById_AdminNotFound(t *testing.T) {
 	// Create your mock
 	mockValidator := validator.New()
 	mockPasswordHandler := new(mocks.PasswordHandler)
@@ -422,7 +422,7 @@ func TestFindById_AdminNotFound(t *testing.T) {
 }
 
 
-func TestFindAll_Success(t *testing.T) {
+func TestAdminFindAll_Success(t *testing.T) {
 	// Create your mock
 	mockValidator := validator.New()
 	mockPasswordHandler := new(mocks.PasswordHandler)
@@ -463,7 +463,7 @@ func TestFindAll_Success(t *testing.T) {
 	assert.Equal(t, expectedAdmins, resultAdmins)
 }
 
-func TestFindAll_NoAdminsFound(t *testing.T) {
+func TestAdminFindAll_NoAdminsFound(t *testing.T) {
 	// Create your mock
 	mockValidator := validator.New()
 	mockPasswordHandler := new(mocks.PasswordHandler)
@@ -488,7 +488,7 @@ func TestFindAll_NoAdminsFound(t *testing.T) {
 }
 
 
-func TestFindByUsername_Success(t *testing.T) {
+func TestAdminFindByUsername_Success(t *testing.T) {
 	// Create your mock
 	mockValidator := validator.New()
 	mockPasswordHandler := new(mocks.PasswordHandler)
@@ -520,7 +520,7 @@ func TestFindByUsername_Success(t *testing.T) {
 	assert.Equal(t, expectedAdmin, resultAdmin)
 }
 
-func TestFindByUsername_AdminNotFound(t *testing.T) {
+func TestAdminFindByUsername_AdminNotFound(t *testing.T) {
 	// Create your mock
 	mockValidator := validator.New()
 	mockPasswordHandler := new(mocks.PasswordHandler)
