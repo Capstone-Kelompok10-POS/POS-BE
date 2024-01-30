@@ -62,5 +62,5 @@ func main() {
 		},
 	))
 
-	myApp.Logger.Fatal(myApp.Start(":8000"))
+	myApp.Logger.Fatal(myApp.Start(":80"))
 }
